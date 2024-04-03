@@ -10,8 +10,10 @@ module.exports = {
   ],
   ignorePatterns: ["dist", ".eslintrc.cjs"],
   parserOptions: {
-    parser: "@typescript-eslint/parser",
-    project: "./tsconfig.json",
+    ecmaVersion: "latest",
+    sourceType: "module",
+    project: ["./tsconfig.json", "./tsconfig.node.json"],
+    tsconfigRootDir: __dirname,
   },
   plugins: ["react-refresh"],
   rules: {
@@ -25,13 +27,4 @@ module.exports = {
       version: "detect",
     },
   },
-  overrides: [
-    {
-      files: ["vite.config.ts", ".eslintrc.cjs"],
-      parserOptions: {
-        parser: "@typescript-eslint/parser",
-        project: "./tsconfig.node.json",
-      },
-    },
-  ],
 };
