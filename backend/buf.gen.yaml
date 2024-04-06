@@ -2,7 +2,7 @@ version: v1
 managed:
   enabled: true
   go_package_prefix:
-    default: github.com/reyn-time/rc-categories/gen
+    default: github.com/reyn-time/rc-categories/backend/gen
     except:
       - buf.build/googleapis/googleapis
 plugins:
@@ -15,6 +15,6 @@ plugins:
   - plugin: buf.build/connectrpc/es
     out: ../frontend/src/gen
     opt: target=ts
-  - plugin: buf.build/bufbuild/es
+  - plugin: es
     out: ../frontend/src/gen
     opt: target=ts

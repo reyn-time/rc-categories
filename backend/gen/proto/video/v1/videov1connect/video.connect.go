@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/reyn-time/rc-categories/gen/proto/video/v1"
+	v1 "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1"
 	http "net/http"
 	strings "strings"
 )

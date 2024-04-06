@@ -4,8 +4,7 @@
 // @ts-nocheck
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, proto3, protoInt64 } from "@bufbuild/protobuf";
-import { DateTime } from "../../../google/type/datetime_pb.js";
+import { Message, Timestamp, proto3, protoInt64 } from "@bufbuild/protobuf";
 
 /**
  * @generated from message video.v1.ListVideoRequest
@@ -95,9 +94,9 @@ export class Video extends Message<Video> {
   description = "";
 
   /**
-   * @generated from field: google.type.DateTime created_at = 4;
+   * @generated from field: google.protobuf.Timestamp created_at = 4;
    */
-  createdAt?: DateTime;
+  createdAt?: Timestamp;
 
   constructor(data?: PartialMessage<Video>) {
     super();
@@ -110,7 +109,7 @@ export class Video extends Message<Video> {
     { no: 1, name: "id", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "created_at", kind: "message", T: DateTime },
+    { no: 4, name: "created_at", kind: "message", T: Timestamp },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Video {

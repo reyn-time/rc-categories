@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"connectrpc.com/connect"
-	video "github.com/reyn-time/rc-categories/gen/proto/video/v1"
-	pb "github.com/reyn-time/rc-categories/gen/proto/video/v1/videov1connect"
+	video "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1"
+	pb "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1/videov1connect"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 )

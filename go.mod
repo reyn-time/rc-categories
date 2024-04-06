@@ -5,8 +5,8 @@ go 1.21.4
 require (
 	connectrpc.com/connect v1.16.0
 	github.com/jackc/pgx/v5 v5.5.5
+	github.com/magefile/mage v1.15.0
 	golang.org/x/net v0.24.0
-	google.golang.org/genproto v0.0.0-20240401170217-c3f982113cda
 	google.golang.org/protobuf v1.33.0
 )
 
