@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package video.v1;
+
+import "google/type/datetime.proto";
+
+service VideoService {
+  rpc ListVideo(ListVideoRequest) returns (ListVideoResponse) {}
+}
+
+message ListVideoRequest {
+}
+
+message ListVideoResponse {
+  repeated Video videos = 1;
+}
+
+message Video {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    google.type.DateTime created_at = 4;
+}
