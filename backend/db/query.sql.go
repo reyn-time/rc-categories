@@ -10,25 +10,26 @@ import (
 )
 
 const listVideos = `-- name: ListVideos :many
-SELECT id, name, youtube_id, created_at
-FROM videos
+SELECT id, name, youtube_id, created_at, status
+FROM reorder.videos
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListVideos(ctx context.Context) ([]Video, error) {
+func (q *Queries) ListVideos(ctx context.Context) ([]ReorderVideo, error) {
 	rows, err := q.db.Query(ctx, listVideos)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Video
+	var items []ReorderVideo
 	for rows.Next() {
-		var i Video
+		var i ReorderVideo
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
 			&i.YoutubeID,
 			&i.CreatedAt,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}

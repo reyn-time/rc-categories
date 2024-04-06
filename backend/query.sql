@@ -1,4 +1,4 @@
 -- name: ListVideos :many
 SELECT *
-FROM videos
+FROM reorder.videos
 ORDER BY created_at DESC;
