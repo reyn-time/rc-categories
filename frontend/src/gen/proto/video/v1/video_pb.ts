@@ -89,6 +89,11 @@ export class Video extends Message<Video> {
   name = "";
 
   /**
+   * @generated from field: string youtube_id = 5;
+   */
+  youtubeId = "";
+
+  /**
    * @generated from field: string description = 3;
    */
   description = "";
@@ -108,6 +113,7 @@ export class Video extends Message<Video> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "youtube_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "created_at", kind: "message", T: Timestamp },
   ]);

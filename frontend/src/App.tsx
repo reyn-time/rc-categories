@@ -1,35 +1,34 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
+import { useEffect, useState } from "react";
+import { createConnectTransport } from "@connectrpc/connect-web";
+import { createPromiseClient } from "@connectrpc/connect";
+import { VideoService } from "./gen/proto/video/v1/video_connect";
+import { ListVideoRequest } from "./gen/proto/video/v1/video_pb";
 
-function App() {
+const client = createPromiseClient(
+  VideoService,
+  createConnectTransport({
+    baseUrl: "http://localhost:8080",
+  })
+);
+
+export function App() {
   const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    void (async () => {
+      const video = await client.listVideo(new ListVideoRequest());
+      console.log(video.videos.map((v) => v.toJson()));
+    })();
+  }, []);
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noreferrer">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
   );
 }
-
-export default App;
