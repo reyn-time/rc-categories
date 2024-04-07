@@ -1,34 +1,28 @@
-import { useEffect, useState } from "react";
-import { createConnectTransport } from "@connectrpc/connect-web";
-import { createPromiseClient } from "@connectrpc/connect";
-import { VideoService } from "./gen/proto/video/v1/video_connect";
-import { ListVideoRequest } from "./gen/proto/video/v1/video_pb";
-
-const client = createPromiseClient(
-  VideoService,
-  createConnectTransport({
-    baseUrl: "http://localhost:8080",
-  })
-);
+import { useEffect } from "react";
+import { listVideo } from "./features/video/videoSlice";
+import { useAppDispatch, useAppSelector } from "./app/hooks";
 
 export function App() {
-  const [count, setCount] = useState(0);
+  const dispatch = useAppDispatch();
+  const postStatus = useAppSelector((state) => state.videos.status);
+  const videos = useAppSelector((state) => state.videos.videos);
 
   useEffect(() => {
-    void (async () => {
-      const video = await client.listVideo(new ListVideoRequest());
-      console.log(video.videos.map((v) => v.toJson()));
-    })();
-  }, []);
+    if (postStatus === "idle") {
+      void dispatch(listVideo());
+    }
+  }, [postStatus, dispatch]);
 
   return (
     <>
       <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
+      <ul>
+        {videos.map((video) => (
+          <li key={video.id}>
+            {video.name} {video.youtubeId}
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
