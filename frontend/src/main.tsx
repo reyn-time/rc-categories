@@ -3,11 +3,25 @@ import ReactDOM from "react-dom/client";
 import { App } from "./App.tsx";
 import { store } from "./app/store.ts";
 import { Provider } from "react-redux";
+import { zhHK } from "@mui/material/locale";
+import { createTheme, ThemeProvider } from "@mui/material/styles";
+import "./main.css";
+
+const theme = createTheme(
+  {
+    typography: {
+      fontFamily: '"Noto Sans TC", Roboto, sans-serif',
+    },
+  },
+  zhHK
+);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <Provider store={store}>
-      <App />
-    </Provider>
+    <ThemeProvider theme={theme}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </ThemeProvider>
   </React.StrictMode>
 );

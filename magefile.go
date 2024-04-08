@@ -23,12 +23,12 @@ func Migrate(schema_name string) error {
 	if err := runCommand(cmd); err != nil {
 		return err
 	}
-	cmd = exec.Command("atlas", "migrate", "diff", schema_name, "--dir", "file://migrations", "--to", "file://schema.sql", "--dev-url", dbURL)
+	cmd = exec.Command("atlas", "migrate", "diff", schema_name, "--dir", "file://migrations", "--to", "file://schema.sql", "--dev-url", "docker://postgres/16/dev")
 	cmd.Dir = "backend"
 	if err := runCommand(cmd); err != nil {
 		return err
 	}
-	cmd = exec.Command("atlas", "migrate", "apply", "--url", dbURL)
+	cmd = exec.Command("atlas", "migrate", "apply", "--dir", "file://migrations", "--url", dbURL)
 	cmd.Dir = "backend"
 	return runCommand(cmd)
 }

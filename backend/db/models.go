@@ -55,14 +55,14 @@ func (ns NullReorderVideoStatus) Value() (driver.Value, error) {
 }
 
 type ReorderCategory struct {
-	ID          int64
+	ID          int32
 	Name        string
 	Description pgtype.Text
 	ParentID    pgtype.Int8
 }
 
 type ReorderVideo struct {
-	ID        int64
+	ID        int32
 	Name      string
 	YoutubeID string
 	CreatedAt pgtype.Timestamp
@@ -70,14 +70,14 @@ type ReorderVideo struct {
 }
 
 type ReorderVideoInterval struct {
-	ID        int64
+	ID        int32
 	VideoID   int64
 	StartTime pgtype.Time
 	EndTime   pgtype.Time
 }
 
 type ReorderVideoIntervalCategory struct {
-	ID              int64
+	ID              int32
 	VideoIntervalID int64
 	CategoryID      int64
 	Description     pgtype.Text

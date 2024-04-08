@@ -4,7 +4,7 @@
 // @ts-nocheck
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, Timestamp, proto3, protoInt64 } from "@bufbuild/protobuf";
+import { Message, Timestamp, proto3 } from "@bufbuild/protobuf";
 
 /**
  * @generated from message video.v1.ListVideoRequest
@@ -79,9 +79,9 @@ export class ListVideoResponse extends Message<ListVideoResponse> {
  */
 export class Video extends Message<Video> {
   /**
-   * @generated from field: int64 id = 1;
+   * @generated from field: int32 id = 1;
    */
-  id = protoInt64.zero;
+  id = 0;
 
   /**
    * @generated from field: string name = 2;
@@ -111,7 +111,7 @@ export class Video extends Message<Video> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "video.v1.Video";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 3 /* ScalarType.INT64 */ },
+    { no: 1, name: "id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "youtube_id", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },

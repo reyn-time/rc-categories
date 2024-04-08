@@ -14,7 +14,7 @@ const client = createPromiseClient(
 
 interface VideoState {
   videos: PlainMessage<Video>[];
-  status: "idle" | "loading" | "failed";
+  status: "idle" | "loading" | "success" | "failed";
   error: string | undefined;
 }
 
@@ -39,7 +39,7 @@ export const videoSlice = createSlice({
         state.status = "loading";
       })
       .addCase(listVideo.fulfilled, (state, action) => {
-        state.status = "idle";
+        state.status = "success";
         state.videos = action.payload;
       })
       .addCase(listVideo.rejected, (state, action) => {
