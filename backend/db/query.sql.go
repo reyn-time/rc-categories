@@ -40,3 +40,19 @@ func (q *Queries) ListVideos(ctx context.Context) ([]ReorderVideo, error) {
 	}
 	return items, nil
 }
+
+const updateVideoStatus = `-- name: UpdateVideoStatus :exec
+UPDATE reorder.videos
+SET status = $2
+WHERE id = $1
+`
+
+type UpdateVideoStatusParams struct {
+	ID     int32
+	Status ReorderVideoStatus
+}
+
+func (q *Queries) UpdateVideoStatus(ctx context.Context, arg UpdateVideoStatusParams) error {
+	_, err := q.db.Exec(ctx, updateVideoStatus, arg.ID, arg.Status)
+	return err
+}

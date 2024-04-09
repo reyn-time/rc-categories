@@ -35,17 +35,22 @@ const (
 const (
 	// VideoServiceListVideoProcedure is the fully-qualified name of the VideoService's ListVideo RPC.
 	VideoServiceListVideoProcedure = "/video.v1.VideoService/ListVideo"
+	// VideoServiceChangeVideoStatusProcedure is the fully-qualified name of the VideoService's
+	// ChangeVideoStatus RPC.
+	VideoServiceChangeVideoStatusProcedure = "/video.v1.VideoService/ChangeVideoStatus"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	videoServiceServiceDescriptor         = v1.File_proto_video_v1_video_proto.Services().ByName("VideoService")
-	videoServiceListVideoMethodDescriptor = videoServiceServiceDescriptor.Methods().ByName("ListVideo")
+	videoServiceServiceDescriptor                 = v1.File_proto_video_v1_video_proto.Services().ByName("VideoService")
+	videoServiceListVideoMethodDescriptor         = videoServiceServiceDescriptor.Methods().ByName("ListVideo")
+	videoServiceChangeVideoStatusMethodDescriptor = videoServiceServiceDescriptor.Methods().ByName("ChangeVideoStatus")
 )
 
 // VideoServiceClient is a client for the video.v1.VideoService service.
 type VideoServiceClient interface {
 	ListVideo(context.Context, *connect.Request[v1.ListVideoRequest]) (*connect.Response[v1.ListVideoResponse], error)
+	ChangeVideoStatus(context.Context, *connect.Request[v1.ChangeVideoStatusRequest]) (*connect.Response[v1.ChangeVideoStatusResponse], error)
 }
 
 // NewVideoServiceClient constructs a client for the video.v1.VideoService service. By default, it
@@ -64,12 +69,19 @@ func NewVideoServiceClient(httpClient connect.HTTPClient, baseURL string, opts .
 			connect.WithSchema(videoServiceListVideoMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		changeVideoStatus: connect.NewClient[v1.ChangeVideoStatusRequest, v1.ChangeVideoStatusResponse](
+			httpClient,
+			baseURL+VideoServiceChangeVideoStatusProcedure,
+			connect.WithSchema(videoServiceChangeVideoStatusMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // videoServiceClient implements VideoServiceClient.
 type videoServiceClient struct {
-	listVideo *connect.Client[v1.ListVideoRequest, v1.ListVideoResponse]
+	listVideo         *connect.Client[v1.ListVideoRequest, v1.ListVideoResponse]
+	changeVideoStatus *connect.Client[v1.ChangeVideoStatusRequest, v1.ChangeVideoStatusResponse]
 }
 
 // ListVideo calls video.v1.VideoService.ListVideo.
@@ -77,9 +89,15 @@ func (c *videoServiceClient) ListVideo(ctx context.Context, req *connect.Request
 	return c.listVideo.CallUnary(ctx, req)
 }
 
+// ChangeVideoStatus calls video.v1.VideoService.ChangeVideoStatus.
+func (c *videoServiceClient) ChangeVideoStatus(ctx context.Context, req *connect.Request[v1.ChangeVideoStatusRequest]) (*connect.Response[v1.ChangeVideoStatusResponse], error) {
+	return c.changeVideoStatus.CallUnary(ctx, req)
+}
+
 // VideoServiceHandler is an implementation of the video.v1.VideoService service.
 type VideoServiceHandler interface {
 	ListVideo(context.Context, *connect.Request[v1.ListVideoRequest]) (*connect.Response[v1.ListVideoResponse], error)
+	ChangeVideoStatus(context.Context, *connect.Request[v1.ChangeVideoStatusRequest]) (*connect.Response[v1.ChangeVideoStatusResponse], error)
 }
 
 // NewVideoServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -94,10 +112,18 @@ func NewVideoServiceHandler(svc VideoServiceHandler, opts ...connect.HandlerOpti
 		connect.WithSchema(videoServiceListVideoMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	videoServiceChangeVideoStatusHandler := connect.NewUnaryHandler(
+		VideoServiceChangeVideoStatusProcedure,
+		svc.ChangeVideoStatus,
+		connect.WithSchema(videoServiceChangeVideoStatusMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/video.v1.VideoService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case VideoServiceListVideoProcedure:
 			videoServiceListVideoHandler.ServeHTTP(w, r)
+		case VideoServiceChangeVideoStatusProcedure:
+			videoServiceChangeVideoStatusHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -109,4 +135,8 @@ type UnimplementedVideoServiceHandler struct{}
 
 func (UnimplementedVideoServiceHandler) ListVideo(context.Context, *connect.Request[v1.ListVideoRequest]) (*connect.Response[v1.ListVideoResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("video.v1.VideoService.ListVideo is not implemented"))
+}
+
+func (UnimplementedVideoServiceHandler) ChangeVideoStatus(context.Context, *connect.Request[v1.ChangeVideoStatusRequest]) (*connect.Response[v1.ChangeVideoStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("video.v1.VideoService.ChangeVideoStatus is not implemented"))
 }

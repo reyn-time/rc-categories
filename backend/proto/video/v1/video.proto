@@ -6,6 +6,7 @@ import "google/protobuf/timestamp.proto";
 
 service VideoService {
   rpc ListVideo(ListVideoRequest) returns (ListVideoResponse) {}
+  rpc ChangeVideoStatus(ChangeVideoStatusRequest) returns (ChangeVideoStatusResponse) {}
 }
 
 message ListVideoRequest {
@@ -15,10 +16,25 @@ message ListVideoResponse {
   repeated Video videos = 1;
 }
 
+message ChangeVideoStatusRequest {
+    int32 id = 1;
+    VideoStatus status = 2;
+}
+
+message ChangeVideoStatusResponse {
+}
+
 message Video {
     int32 id = 1;
     string name = 2;
     string youtube_id = 5;
     string description = 3;
     google.protobuf.Timestamp created_at = 4;
+    VideoStatus status = 6;
+}
+
+enum VideoStatus {
+  Pending = 0;
+  Archived = 1;
+  Approved = 2;
 }

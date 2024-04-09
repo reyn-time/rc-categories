@@ -1,17 +1,23 @@
 import { useEffect } from "react";
 import { listVideo } from "./features/video/videoSlice";
 import { useAppDispatch, useAppSelector } from "./app/hooks";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
-import CardMedia from "@mui/material/CardMedia";
-import Typography from "@mui/material/Typography";
-import { CardActionArea, Box } from "@mui/material";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Icon from "@mui/material/Icon";
+import {
+  Typography,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableBody,
+  TableCell,
+  TableRow,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Icon,
+} from "@mui/material";
+import { convertHTMLToText } from "./util/encoding";
 
-export function App() {
+export const App = () => {
   const dispatch = useAppDispatch();
   const postStatus = useAppSelector((state) => state.videos.status);
   const videos = useAppSelector((state) => state.videos.videos);
@@ -40,30 +46,28 @@ export function App() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "baseline",
-          justifyContent: "space-evenly",
-        }}
-      >
-        {videos.map((video) => (
-          <Card sx={{ maxWidth: 345, m: 2 }} key={video.id}>
-            <CardActionArea>
-              <CardMedia
-                sx={{ height: 190 }}
-                image={`https://img.youtube.com/vi/${video.youtubeId}/default.jpg`}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
-                  {video.name}
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        ))}
-      </Box>
+      <TableContainer component={Paper}>
+        <Table aria-label="video table">
+          <TableHead>
+            <TableRow>
+              <TableCell>影片標題</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {videos.map((row) => (
+              <TableRow
+                hover
+                key={row.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell component="th" scope="row">
+                  {convertHTMLToText(row.name)}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </>
   );
-}
+};

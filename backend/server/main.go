@@ -28,6 +28,12 @@ func (s *VideoService) ListVideo(ctx context.Context, req *connect.Request[video
 		return nil, err
 	}
 
+	statusMapping := map[db.ReorderVideoStatus]video.VideoStatus{
+		db.ReorderVideoStatusPending:  video.VideoStatus_Pending,
+		db.ReorderVideoStatusApproved: video.VideoStatus_Approved,
+		db.ReorderVideoStatusArchived: video.VideoStatus_Archived,
+	}
+
 	videos := make([]*video.Video, len(videosDB))
 	for i, v := range videosDB {
 		videos[i] = &video.Video{
@@ -35,12 +41,26 @@ func (s *VideoService) ListVideo(ctx context.Context, req *connect.Request[video
 			Name:      v.Name,
 			YoutubeId: v.YoutubeID,
 			CreatedAt: timestamppb.New(v.CreatedAt.Time),
+			Status:    statusMapping[v.Status],
 		}
 	}
 
 	res := connect.NewResponse(&video.ListVideoResponse{
 		Videos: videos,
 	})
+	return res, nil
+}
+
+func (s *VideoService) ChangeVideoStatus(ctx context.Context, req *connect.Request[video.ChangeVideoStatusRequest]) (*connect.Response[video.ChangeVideoStatusResponse], error) {
+	err := s.queries.UpdateVideoStatus(ctx, db.UpdateVideoStatusParams{
+		ID:     req.Msg.Id,
+		Status: db.ReorderVideoStatus(req.Msg.Status),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	res := connect.NewResponse(&video.ChangeVideoStatusResponse{})
 	return res, nil
 }
 

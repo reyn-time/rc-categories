@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ListVideoRequest, ListVideoResponse } from "./video_pb.js";
+import { ChangeVideoStatusRequest, ChangeVideoStatusResponse, ListVideoRequest, ListVideoResponse } from "./video_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -19,6 +19,15 @@ export const VideoService = {
       name: "ListVideo",
       I: ListVideoRequest,
       O: ListVideoResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc video.v1.VideoService.ChangeVideoStatus
+     */
+    changeVideoStatus: {
+      name: "ChangeVideoStatus",
+      I: ChangeVideoStatusRequest,
+      O: ChangeVideoStatusResponse,
       kind: MethodKind.Unary,
     },
   }
