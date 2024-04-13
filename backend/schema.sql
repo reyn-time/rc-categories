@@ -12,18 +12,19 @@ CREATE TABLE reorder.categories (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     description TEXT,
-    parent_id BIGINT REFERENCES reorder.categories(id),
+    parent_id INTEGER REFERENCES reorder.categories(id),
+    rank INTEGER NOT NULL DEFAULT 0,
     UNIQUE (name)
 );
 CREATE TABLE reorder.video_intervals (
     id SERIAL PRIMARY KEY,
-    video_id BIGINT NOT NULL REFERENCES reorder.videos(id),
+    video_id INTEGER NOT NULL REFERENCES reorder.videos(id),
     start_time TIME NOT NULL,
     end_time TIME
 );
 CREATE TABLE reorder.video_interval_categories (
     id SERIAL PRIMARY KEY,
-    video_interval_id BIGINT NOT NULL REFERENCES reorder.video_intervals(id),
-    category_id BIGINT NOT NULL REFERENCES reorder.categories(id),
+    video_interval_id INTEGER NOT NULL REFERENCES reorder.video_intervals(id),
+    category_id INTEGER NOT NULL REFERENCES reorder.categories(id),
     description TEXT
 );

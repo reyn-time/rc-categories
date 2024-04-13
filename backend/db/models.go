@@ -58,7 +58,8 @@ type ReorderCategory struct {
 	ID          int32
 	Name        string
 	Description pgtype.Text
-	ParentID    pgtype.Int8
+	ParentID    pgtype.Int4
+	Rank        int32
 }
 
 type ReorderVideo struct {
@@ -71,14 +72,14 @@ type ReorderVideo struct {
 
 type ReorderVideoInterval struct {
 	ID        int32
-	VideoID   int64
+	VideoID   int32
 	StartTime pgtype.Time
 	EndTime   pgtype.Time
 }
 
 type ReorderVideoIntervalCategory struct {
 	ID              int32
-	VideoIntervalID int64
-	CategoryID      int64
+	VideoIntervalID int32
+	CategoryID      int32
 	Description     pgtype.Text
 }
