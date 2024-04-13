@@ -9,6 +9,37 @@ import (
 	"context"
 )
 
+const listCategories = `-- name: ListCategories :many
+SELECT id, name, description, parent_id, rank
+FROM reorder.categories
+`
+
+func (q *Queries) ListCategories(ctx context.Context) ([]ReorderCategory, error) {
+	rows, err := q.db.Query(ctx, listCategories)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ReorderCategory
+	for rows.Next() {
+		var i ReorderCategory
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ParentID,
+			&i.Rank,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listVideos = `-- name: ListVideos :many
 SELECT id, name, youtube_id, created_at, status
 FROM reorder.videos

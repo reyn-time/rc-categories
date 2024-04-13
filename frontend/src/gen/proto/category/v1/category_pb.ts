@@ -94,9 +94,14 @@ export class Category extends Message<Category> {
   description = "";
 
   /**
-   * @generated from field: int32 parent_id = 4;
+   * @generated from field: optional int32 parent_id = 4;
    */
-  parentId = 0;
+  parentId?: number;
+
+  /**
+   * @generated from field: int32 rank = 5;
+   */
+  rank = 0;
 
   constructor(data?: PartialMessage<Category>) {
     super();
@@ -109,7 +114,8 @@ export class Category extends Message<Category> {
     { no: 1, name: "id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 2, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
-    { no: 4, name: "parent_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 4, name: "parent_id", kind: "scalar", T: 5 /* ScalarType.INT32 */, opt: true },
+    { no: 5, name: "rank", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Category {

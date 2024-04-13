@@ -14,6 +14,11 @@ const dbURL = "postgresql://postgres:password@localhost?sslmode=disable"
 func Generate() error {
 	cmd := exec.Command("buf", "generate")
 	cmd.Dir = "backend"
+	if err := runCommand(cmd); err != nil {
+		return err
+	}
+	cmd = exec.Command("sqlc", "generate")
+	cmd.Dir = "backend"
 	return runCommand(cmd)
 }
 
