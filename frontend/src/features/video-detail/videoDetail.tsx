@@ -19,6 +19,10 @@ import {
   FormGroup,
 } from "@mui/material";
 import "./videoDetail.css";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { listCategory } from "../category/categorySlice";
+import { selectExtendedCategories } from "../category/categorySelector";
+import { store } from "../../app/store";
 const secondToText = (second: number) => {
   if (second < 3600) {
     return new Date(second * 1000).toISOString().slice(14, 19);
@@ -33,40 +37,41 @@ export const VideoDetail = () => {
   const [currentTime, setCurrentTime] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const playerRef = useRef<ReactPlayer>(null);
-  const [personName, setPersonName] = useState<string[]>([]);
+  const [selectedCategoryNames, setSelectedCategoryNames] = useState<string[]>(
+    []
+  );
+  const dispatch = useAppDispatch();
+  const categoryStatus = useAppSelector((state) => state.categories.status);
+  const extendedCategories = selectExtendedCategories(store.getState());
 
   useEffect(() => {
     setTimes([0, duration]);
   }, [duration]);
 
+  useEffect(() => {
+    if (categoryStatus === "idle") {
+      void dispatch(listCategory());
+    }
+  }, [categoryStatus, dispatch]);
+
   const handlePersonNameChange = (
-    event: SelectChangeEvent<typeof personName>
+    event: SelectChangeEvent<typeof selectedCategoryNames>
   ) => {
     const {
       target: { value },
     } = event;
-    setPersonName(
+    setSelectedCategoryNames(
       // On autofill we get a stringified value.
       typeof value === "string" ? value.split(",") : value
     );
   };
 
-  const handleChange = (_event: Event, newValue: number | number[]) => {
+  const handleTimeHandleChange = (
+    _event: Event,
+    newValue: number | number[]
+  ) => {
     setTimes(newValue as number[]);
   };
-
-  const names = [
-    "Oliver Hansen",
-    "Van Henry",
-    "April Tucker",
-    "Ralph Hubbard",
-    "Omar Alexander",
-    "Carlos Abbott",
-    "Miriam Wagner",
-    "Bradley Wilkerson",
-    "Virginia Andrews",
-    "Kelly Snyder",
-  ];
 
   return (
     <>
@@ -98,15 +103,15 @@ export const VideoDetail = () => {
                 valueLabelDisplay="auto"
                 valueLabelFormat={secondToText}
                 value={times}
-                onChange={handleChange}
+                onChange={handleTimeHandleChange}
                 marks={[
                   { value: 0, label: secondToText(0) },
                   { value: duration, label: secondToText(duration) },
                 ]}
                 sx={{ width: "80%", margin: "40px auto" }}
               />
-              <Box sx={{ display: "flex", alignItems: "center" }}>
-                <Typography sx={{ marginRight: 3 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 3 }}>
+                <Typography>
                   標記時段：{secondToText(times[0])} - {secondToText(times[1])}
                 </Typography>
                 <Button
@@ -151,7 +156,7 @@ export const VideoDetail = () => {
                 <Select
                   labelId="demo-simple-select-label"
                   multiple
-                  value={personName}
+                  value={selectedCategoryNames}
                   onChange={handlePersonNameChange}
                   input={<OutlinedInput label="神學分類" />}
                   renderValue={(selected) => (
@@ -164,16 +169,24 @@ export const VideoDetail = () => {
                             event.stopPropagation();
                           }}
                           onDelete={() => {
-                            console.log(value);
+                            setSelectedCategoryNames((prev) =>
+                              prev.filter((name) => name !== value)
+                            );
                           }}
                         />
                       ))}
                     </Box>
                   )}
                 >
-                  {names.map((name) => (
-                    <MenuItem key={name} value={name}>
-                      {name}
+                  {extendedCategories.map((category) => (
+                    <MenuItem
+                      key={category.id}
+                      value={category.name}
+                      sx={{
+                        pl: (category.rankList.length - 1) * 3 + 2,
+                      }}
+                    >
+                      {category.name}
                     </MenuItem>
                   ))}
                 </Select>

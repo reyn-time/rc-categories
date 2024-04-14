@@ -26,9 +26,7 @@ func (s *CategoryService) ListCategory(ctx context.Context, req *connect.Request
 			Name:        c.Name,
 			Description: c.Description.String,
 			Rank:        c.Rank,
-		}
-		if c.ParentID.Valid {
-			categories[i].ParentId = &c.ParentID.Int32
+			ParentId:    c.ParentID.Int32,
 		}
 	}
 

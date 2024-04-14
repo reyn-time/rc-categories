@@ -17,6 +17,6 @@ message Category {
     int32 id = 1;
     string name = 2;
     string description = 3;
-    optional int32 parent_id = 4;
+    int32 parent_id = 4;
     int32 rank = 5;
 }

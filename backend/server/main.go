@@ -42,7 +42,9 @@ func main() {
 	mux.Handle(videoconn.NewVideoServiceHandler(&video.VideoService{
 		Queries: queries,
 	}))
-	mux.Handle(categoryconn.NewCategoryServiceHandler(&category.CategoryService{}))
+	mux.Handle(categoryconn.NewCategoryServiceHandler(&category.CategoryService{
+		Queries: queries,
+	}))
 	err = http.ListenAndServe(
 		"localhost:8080",
 		withCORS(h2c.NewHandler(mux, &http2.Server{})),
