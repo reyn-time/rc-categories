@@ -10,8 +10,10 @@ import (
 	"github.com/reyn-time/rc-categories/backend/db"
 
 	categoryconn "github.com/reyn-time/rc-categories/backend/gen/proto/category/v1/categoryv1connect"
+	intervalconn "github.com/reyn-time/rc-categories/backend/gen/proto/interval/v1/intervalv1connect"
 	videoconn "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1/videov1connect"
 	"github.com/reyn-time/rc-categories/backend/service/category"
+	"github.com/reyn-time/rc-categories/backend/service/interval"
 	"github.com/reyn-time/rc-categories/backend/service/video"
 	"github.com/rs/cors"
 	"golang.org/x/net/http2"
@@ -43,6 +45,10 @@ func main() {
 		Queries: queries,
 	}))
 	mux.Handle(categoryconn.NewCategoryServiceHandler(&category.CategoryService{
+		Queries: queries,
+	}))
+	mux.Handle(intervalconn.NewIntervalServiceHandler(&interval.IntervalService{
+		Conn:    conn,
 		Queries: queries,
 	}))
 	err = http.ListenAndServe(

@@ -71,15 +71,15 @@ type ReorderVideo struct {
 }
 
 type ReorderVideoInterval struct {
-	ID        int32
-	VideoID   int32
-	StartTime pgtype.Time
-	EndTime   pgtype.Time
+	ID          int32
+	VideoID     int32
+	StartTime   int32
+	EndTime     int32
+	Description pgtype.Text
 }
 
 type ReorderVideoIntervalCategory struct {
 	ID              int32
 	VideoIntervalID int32
 	CategoryID      int32
-	Description     pgtype.Text
 }
