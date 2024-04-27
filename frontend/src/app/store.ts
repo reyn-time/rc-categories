@@ -1,12 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
-import videoReducer from "../features/video/videoSlice";
-import categoryReducer from "../features/category/categorySlice";
+import { videoApi } from "../features/video/videoSlice";
+import { categoryApi } from "../features/category/categorySlice";
 
 export const store = configureStore({
   reducer: {
-    videos: videoReducer,
-    categories: categoryReducer,
+    [videoApi.reducerPath]: videoApi.reducer,
+    [categoryApi.reducerPath]: categoryApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware()
+      .concat(videoApi.middleware)
+      .concat(categoryApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

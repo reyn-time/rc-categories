@@ -1,6 +1,4 @@
-import { useEffect } from "react";
-import { listVideo } from "./videoSlice";
-import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { useListVideoQuery } from "./videoSlice";
 import {
   TableContainer,
   Paper,
@@ -15,16 +13,9 @@ import { useNavigate } from "react-router-dom";
 import { convertHTMLToText } from "../../util/encoding";
 
 export const VideoList = () => {
-  const dispatch = useAppDispatch();
-  const postStatus = useAppSelector((state) => state.videos.status);
-  const videos = useAppSelector((state) => state.videos.videos);
+  const { data: videos = [] } = useListVideoQuery();
 
   const navigate = useNavigate();
-  useEffect(() => {
-    if (postStatus === "idle") {
-      void dispatch(listVideo());
-    }
-  }, [postStatus, dispatch]);
 
   return (
     <Grid container>
@@ -43,7 +34,7 @@ export const VideoList = () => {
                   hover
                   key={row.id}
                   onClick={() => {
-                    navigate(`/video/${row.youtubeId}`);
+                    navigate(`/video/${row.id}`);
                   }}
                   sx={{
                     "&:last-child td, &:last-child th": { border: 0 },

@@ -1,11 +1,14 @@
 import { createSelector } from "@reduxjs/toolkit";
-import { RootState } from "../../app/store";
 import { Category } from "../../gen/proto/category/v1/category_pb";
 import { PlainMessage } from "@bufbuild/protobuf";
+import { categoryApi } from "./categorySlice";
+
+const selectCategories = categoryApi.endpoints.listCategory.select();
 
 export const selectExtendedCategories = createSelector(
-  [(state: RootState) => state.categories.categories],
-  (categories) => {
+  selectCategories,
+  (c) => {
+    const categories = c.data ?? [];
     const idToCategory = new Map<number, PlainMessage<Category>>();
     const idToRankList = new Map<number, number[]>();
     categories.forEach((category) => {
