@@ -17,15 +17,12 @@ import {
 import { useState } from "react";
 import { selectExtendedCategories } from "../category/categorySelector";
 import { store } from "../../app/store";
-
-const secondToText = (second: number) => {
-  if (second < 3600) {
-    return new Date(second * 1000).toISOString().slice(14, 19);
-  }
-  return new Date(second * 1000).toISOString().slice(11, 19);
-};
+import { useListCategoryQuery } from "../category/categorySlice";
+import { usePostIntervalMutation } from "./intervalSlice";
+import { secondToText } from "../../util/time";
 
 export const IntervalInputForm = (props: {
+  videoId: number;
   duration: number;
   times: [number, number];
   currentTime: number;
@@ -36,8 +33,11 @@ export const IntervalInputForm = (props: {
     []
   );
   const extendedCategories = selectExtendedCategories(store.getState());
+  const { data: categories = [] } = useListCategoryQuery();
+  const [postInterval, { isLoading: isCreatingInterval }] =
+    usePostIntervalMutation();
 
-  const { duration, currentTime, seekTo } = props;
+  const { duration, currentTime, seekTo, videoId } = props;
 
   const handlePersonNameChange = (
     event: SelectChangeEvent<typeof selectedCategoryNames>
@@ -49,6 +49,24 @@ export const IntervalInputForm = (props: {
       // On autofill we get a stringified value.
       typeof value === "string" ? value.split(",") : value
     );
+  };
+
+  const handleFormSubmit = () => {
+    const [startTime, endTime] = times;
+    const selectedCategoryIds = selectedCategoryNames
+      .map((name) => {
+        const category = categories.find((c) => c.name === name);
+        return category?.id;
+      })
+      .filter((id) => id !== undefined) as number[];
+    void postInterval({
+      interval: {
+        videoId,
+        startTime,
+        endTime,
+        categoryIds: selectedCategoryIds,
+      },
+    });
   };
 
   return (
@@ -147,11 +165,8 @@ export const IntervalInputForm = (props: {
         </FormControl>
         <Box sx={{ display: "flex", justifyContent: "flex-end", m: 2 }}>
           <Button
-            onClick={() => {
-              console.log("times", times);
-              console.log("selectedCategoryNames", selectedCategoryNames);
-            }}
-            disabled={selectedCategoryNames.length === 0}
+            onClick={handleFormSubmit}
+            disabled={selectedCategoryNames.length === 0 || isCreatingInterval}
             variant="contained"
             size="large"
           >

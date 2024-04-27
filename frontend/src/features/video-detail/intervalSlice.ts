@@ -1,12 +1,17 @@
 import { createConnectTransport } from "@connectrpc/connect-web";
 import { IntervalService } from "../../gen/proto/interval/v1/interval_connect";
 import { createPromiseClient } from "@connectrpc/connect";
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import { PartialMessage, toPlainMessage } from "@bufbuild/protobuf";
 import {
+  PartialMessage,
+  PlainMessage,
+  toPlainMessage,
+} from "@bufbuild/protobuf";
+import {
+  Interval,
   PostIntervalRequest,
   UpdateIntervalRequest,
 } from "../../gen/proto/interval/v1/interval_pb";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const client = createPromiseClient(
   IntervalService,
@@ -15,26 +20,40 @@ const client = createPromiseClient(
   })
 );
 
-export const listInterval = createAsyncThunk(
-  "interval/listInterval",
-  async () => {
-    const response = await client.listInterval({});
-    return response.intervals.map(toPlainMessage);
-  }
-);
+export const intervalApi = createApi({
+  baseQuery: fetchBaseQuery({ baseUrl: "/" }),
+  reducerPath: "intervalApi",
+  tagTypes: ["Interval"],
+  endpoints: (builder) => ({
+    listInterval: builder.query<PlainMessage<Interval>[], number>({
+      queryFn: async (videoId: number) => {
+        const response = await client.listInterval({ videoId });
+        return { data: response.intervals.map(toPlainMessage) };
+      },
+      providesTags: ["Interval"],
+    }),
+    postInterval: builder.mutation<void, PartialMessage<PostIntervalRequest>>({
+      queryFn: async (interval) => {
+        await client.postInterval(interval);
+        return { data: undefined };
+      },
+      invalidatesTags: ["Interval"],
+    }),
+    updateInterval: builder.mutation<
+      void,
+      PartialMessage<UpdateIntervalRequest>
+    >({
+      queryFn: async (interval) => {
+        await client.updateInterval(interval);
+        return { data: undefined };
+      },
+      invalidatesTags: ["Interval"],
+    }),
+  }),
+});
 
-export const postInterval = createAsyncThunk(
-  "interval/postInterval",
-  async (interval: PartialMessage<PostIntervalRequest>) => {
-    const response = await client.postInterval(interval);
-    return response;
-  }
-);
-
-export const updateInterval = createAsyncThunk(
-  "interval/updateInterval",
-  async (interval: PartialMessage<UpdateIntervalRequest>) => {
-    const response = await client.updateInterval(interval);
-    return response;
-  }
-);
+export const {
+  useListIntervalQuery,
+  usePostIntervalMutation,
+  useUpdateIntervalMutation,
+} = intervalApi;

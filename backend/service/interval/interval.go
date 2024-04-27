@@ -2,6 +2,7 @@ package interval
 
 import (
 	"context"
+	"fmt"
 
 	"connectrpc.com/connect"
 	"github.com/jackc/pgx/v5"
@@ -59,13 +60,27 @@ func (s *IntervalService) ListInterval(ctx context.Context, req *connect.Request
 
 	intervalPb := make([]*intervalpb.Interval, len(intervals))
 	for i, interval := range intervals {
+		arr, ok := interval.ArrayAgg.([]interface{})
+		if !ok {
+			return nil, fmt.Errorf("unexpected type %T for ArrayAgg", interval.ArrayAgg)
+		}
+		categoryIds := make([]int32, len(arr))
+		for j, v := range arr {
+			switch typedValue := v.(type) {
+			case int32:
+				categoryIds[j] = typedValue
+			default:
+				return nil, fmt.Errorf("unexpected type %T for ArrayAgg[%d]", typedValue, j)
+			}
+		}
+
 		intervalPb[i] = &intervalpb.Interval{
 			Id:          interval.ID,
 			VideoId:     interval.VideoID,
 			Description: interval.Description.String,
 			StartTime:   interval.StartTime,
 			EndTime:     interval.EndTime,
-			CategoryIds: interval.ArrayAgg.([]int32),
+			CategoryIds: categoryIds,
 		}
 	}
 

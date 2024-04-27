@@ -1,17 +1,24 @@
 import { useParams } from "react-router-dom";
 import ReactPlayer from "react-player/youtube";
 import { useState, useRef } from "react";
-import { Grid, Box, Skeleton } from "@mui/material";
+import { Grid, Box, Skeleton, Alert, Stack } from "@mui/material";
 import "./videoDetail.css";
 import { IntervalInputForm } from "./intervalInput";
 import { useListVideoQuery } from "../video/videoSlice";
 import { useListCategoryQuery } from "../category/categorySlice";
+import { IntervalList } from "./intervalList";
 
 export const VideoDetail = () => {
   const { id } = useParams();
-  const { video } = useListVideoQuery(undefined, {
-    selectFromResult: ({ data }) => ({
+  const {
+    video,
+    isLoading: isVideoLoading,
+    error: videoError,
+  } = useListVideoQuery(undefined, {
+    selectFromResult: ({ data, isLoading, error }) => ({
       video: data?.find((video) => video.id.toString() === id),
+      isLoading,
+      error,
     }),
   });
   const { isLoading: isCategoryLoading } = useListCategoryQuery();
@@ -29,30 +36,46 @@ export const VideoDetail = () => {
     <>
       <Grid container sx={{ p: 2 }} spacing={2}>
         <Grid item xs={12} lg={8} xl={5}>
-          <Box sx={{ position: "relative", paddingTop: "56.25%" }}>
-            <ReactPlayer
-              url={"https://www.youtube.com/watch?v=" + video?.youtubeId}
-              controls
-              width="100%"
-              height="100%"
-              onDuration={(duration) => setDuration(duration)}
-              onProgress={(progress) => setCurrentTime(progress.playedSeconds)}
-              playing={isPlaying}
-              onPause={() => setIsPlaying(false)}
-              onPlay={() => setIsPlaying(true)}
-              ref={playerRef}
-              className="react-player"
-            />
-          </Box>
+          {isVideoLoading ? (
+            <Skeleton variant="rectangular" height="100%"></Skeleton>
+          ) : videoError ? (
+            <Alert severity="error">
+              GG 出事了: {JSON.stringify(videoError)}
+            </Alert>
+          ) : !video ? (
+            <Alert severity="error">找不到影片</Alert>
+          ) : (
+            <Box sx={{ position: "relative", paddingTop: "56.25%" }}>
+              <ReactPlayer
+                url={"https://www.youtube.com/watch?v=" + video?.youtubeId}
+                controls
+                width="100%"
+                height="100%"
+                onDuration={(duration) => setDuration(duration)}
+                onProgress={(progress) =>
+                  setCurrentTime(progress.playedSeconds)
+                }
+                playing={isPlaying}
+                onPause={() => setIsPlaying(false)}
+                onPlay={() => setIsPlaying(true)}
+                ref={playerRef}
+                className="react-player"
+              />
+            </Box>
+          )}
         </Grid>
         <Grid item xs={12} lg={8} xl={7}>
-          {duration && playerRef.current && !isCategoryLoading ? (
-            <IntervalInputForm
-              duration={duration}
-              times={[0, duration]}
-              currentTime={currentTime}
-              seekTo={seekTo}
-            ></IntervalInputForm>
+          {duration && playerRef.current && !isCategoryLoading && video ? (
+            <Stack>
+              <IntervalInputForm
+                videoId={video.id}
+                duration={duration}
+                times={[0, duration]}
+                currentTime={currentTime}
+                seekTo={seekTo}
+              ></IntervalInputForm>
+              <IntervalList videoId={video.id}></IntervalList>
+            </Stack>
           ) : (
             <Skeleton
               variant="rectangular"
