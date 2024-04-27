@@ -1,12 +1,11 @@
 import { useParams } from "react-router-dom";
 import ReactPlayer from "react-player/youtube";
 import { useState, useRef } from "react";
-import { Grid, Box, Skeleton, Alert, Stack } from "@mui/material";
+import { Grid, Box, Skeleton, Alert } from "@mui/material";
 import "./videoDetail.css";
-import { IntervalInputForm } from "./intervalInput";
 import { useListVideoQuery } from "../video/videoSlice";
 import { useListCategoryQuery } from "../category/categorySlice";
-import { IntervalList } from "./intervalList";
+import { IntervalTabs } from "./intervalTabs";
 
 export const VideoDetail = () => {
   const { id } = useParams();
@@ -66,16 +65,12 @@ export const VideoDetail = () => {
         </Grid>
         <Grid item xs={12} lg={8} xl={7}>
           {duration && playerRef.current && !isCategoryLoading && video ? (
-            <Stack>
-              <IntervalInputForm
-                videoId={video.id}
-                duration={duration}
-                times={[0, duration]}
-                currentTime={currentTime}
-                seekTo={seekTo}
-              ></IntervalInputForm>
-              <IntervalList videoId={video.id}></IntervalList>
-            </Stack>
+            <IntervalTabs
+              videoId={video.id}
+              seekTo={seekTo}
+              duration={duration}
+              currentTime={currentTime}
+            ></IntervalTabs>
           ) : (
             <Skeleton
               variant="rectangular"
