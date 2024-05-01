@@ -129,3 +129,11 @@ func (s *IntervalService) UpdateInterval(ctx context.Context, req *connect.Reque
 	}
 	return connect.NewResponse(&intervalpb.UpdateIntervalResponse{}), nil
 }
+
+func (s *IntervalService) DeleteInterval(ctx context.Context, req *connect.Request[intervalpb.DeleteIntervalRequest]) (*connect.Response[intervalpb.DeleteIntervalResponse], error) {
+	err := s.Queries.DeleteInterval(ctx, req.Msg.Id)
+	if err != nil {
+		return nil, err
+	}
+	return connect.NewResponse(&intervalpb.DeleteIntervalResponse{}), nil
+}

@@ -35,3 +35,6 @@ WHERE id = $1;
 -- name: DeleteIntervalCategories :exec
 DELETE FROM reorder.video_interval_categories
 WHERE video_interval_id = $1;
+-- name: DeleteInterval :exec
+DELETE FROM reorder.video_intervals
+WHERE id = $1;

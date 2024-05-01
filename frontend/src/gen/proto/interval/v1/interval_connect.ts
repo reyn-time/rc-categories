@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ListIntervalRequest, ListIntervalResponse, PostIntervalRequest, PostIntervalResponse, UpdateIntervalRequest, UpdateIntervalResponse } from "./interval_pb.js";
+import { DeleteIntervalRequest, DeleteIntervalResponse, ListIntervalRequest, ListIntervalResponse, PostIntervalRequest, PostIntervalResponse, UpdateIntervalRequest, UpdateIntervalResponse } from "./interval_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -37,6 +37,15 @@ export const IntervalService = {
       name: "UpdateInterval",
       I: UpdateIntervalRequest,
       O: UpdateIntervalResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc interval.v1.IntervalService.DeleteInterval
+     */
+    deleteInterval: {
+      name: "DeleteInterval",
+      I: DeleteIntervalRequest,
+      O: DeleteIntervalResponse,
       kind: MethodKind.Unary,
     },
   }

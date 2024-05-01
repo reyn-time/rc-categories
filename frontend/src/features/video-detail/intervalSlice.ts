@@ -49,6 +49,13 @@ export const intervalApi = createApi({
       },
       invalidatesTags: ["Interval"],
     }),
+    deleteInterval: builder.mutation<void, number>({
+      queryFn: async (id) => {
+        await client.deleteInterval({ id });
+        return { data: undefined };
+      },
+      invalidatesTags: ["Interval"],
+    }),
   }),
 });
 
@@ -56,4 +63,5 @@ export const {
   useListIntervalQuery,
   usePostIntervalMutation,
   useUpdateIntervalMutation,
+  useDeleteIntervalMutation,
 } = intervalApi;

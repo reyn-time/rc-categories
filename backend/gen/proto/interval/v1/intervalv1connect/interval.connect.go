@@ -42,6 +42,9 @@ const (
 	// IntervalServiceUpdateIntervalProcedure is the fully-qualified name of the IntervalService's
 	// UpdateInterval RPC.
 	IntervalServiceUpdateIntervalProcedure = "/interval.v1.IntervalService/UpdateInterval"
+	// IntervalServiceDeleteIntervalProcedure is the fully-qualified name of the IntervalService's
+	// DeleteInterval RPC.
+	IntervalServiceDeleteIntervalProcedure = "/interval.v1.IntervalService/DeleteInterval"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
@@ -50,6 +53,7 @@ var (
 	intervalServicePostIntervalMethodDescriptor   = intervalServiceServiceDescriptor.Methods().ByName("PostInterval")
 	intervalServiceListIntervalMethodDescriptor   = intervalServiceServiceDescriptor.Methods().ByName("ListInterval")
 	intervalServiceUpdateIntervalMethodDescriptor = intervalServiceServiceDescriptor.Methods().ByName("UpdateInterval")
+	intervalServiceDeleteIntervalMethodDescriptor = intervalServiceServiceDescriptor.Methods().ByName("DeleteInterval")
 )
 
 // IntervalServiceClient is a client for the interval.v1.IntervalService service.
@@ -57,6 +61,7 @@ type IntervalServiceClient interface {
 	PostInterval(context.Context, *connect.Request[v1.PostIntervalRequest]) (*connect.Response[v1.PostIntervalResponse], error)
 	ListInterval(context.Context, *connect.Request[v1.ListIntervalRequest]) (*connect.Response[v1.ListIntervalResponse], error)
 	UpdateInterval(context.Context, *connect.Request[v1.UpdateIntervalRequest]) (*connect.Response[v1.UpdateIntervalResponse], error)
+	DeleteInterval(context.Context, *connect.Request[v1.DeleteIntervalRequest]) (*connect.Response[v1.DeleteIntervalResponse], error)
 }
 
 // NewIntervalServiceClient constructs a client for the interval.v1.IntervalService service. By
@@ -87,6 +92,12 @@ func NewIntervalServiceClient(httpClient connect.HTTPClient, baseURL string, opt
 			connect.WithSchema(intervalServiceUpdateIntervalMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		deleteInterval: connect.NewClient[v1.DeleteIntervalRequest, v1.DeleteIntervalResponse](
+			httpClient,
+			baseURL+IntervalServiceDeleteIntervalProcedure,
+			connect.WithSchema(intervalServiceDeleteIntervalMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
@@ -95,6 +106,7 @@ type intervalServiceClient struct {
 	postInterval   *connect.Client[v1.PostIntervalRequest, v1.PostIntervalResponse]
 	listInterval   *connect.Client[v1.ListIntervalRequest, v1.ListIntervalResponse]
 	updateInterval *connect.Client[v1.UpdateIntervalRequest, v1.UpdateIntervalResponse]
+	deleteInterval *connect.Client[v1.DeleteIntervalRequest, v1.DeleteIntervalResponse]
 }
 
 // PostInterval calls interval.v1.IntervalService.PostInterval.
@@ -112,11 +124,17 @@ func (c *intervalServiceClient) UpdateInterval(ctx context.Context, req *connect
 	return c.updateInterval.CallUnary(ctx, req)
 }
 
+// DeleteInterval calls interval.v1.IntervalService.DeleteInterval.
+func (c *intervalServiceClient) DeleteInterval(ctx context.Context, req *connect.Request[v1.DeleteIntervalRequest]) (*connect.Response[v1.DeleteIntervalResponse], error) {
+	return c.deleteInterval.CallUnary(ctx, req)
+}
+
 // IntervalServiceHandler is an implementation of the interval.v1.IntervalService service.
 type IntervalServiceHandler interface {
 	PostInterval(context.Context, *connect.Request[v1.PostIntervalRequest]) (*connect.Response[v1.PostIntervalResponse], error)
 	ListInterval(context.Context, *connect.Request[v1.ListIntervalRequest]) (*connect.Response[v1.ListIntervalResponse], error)
 	UpdateInterval(context.Context, *connect.Request[v1.UpdateIntervalRequest]) (*connect.Response[v1.UpdateIntervalResponse], error)
+	DeleteInterval(context.Context, *connect.Request[v1.DeleteIntervalRequest]) (*connect.Response[v1.DeleteIntervalResponse], error)
 }
 
 // NewIntervalServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -143,6 +161,12 @@ func NewIntervalServiceHandler(svc IntervalServiceHandler, opts ...connect.Handl
 		connect.WithSchema(intervalServiceUpdateIntervalMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	intervalServiceDeleteIntervalHandler := connect.NewUnaryHandler(
+		IntervalServiceDeleteIntervalProcedure,
+		svc.DeleteInterval,
+		connect.WithSchema(intervalServiceDeleteIntervalMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/interval.v1.IntervalService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case IntervalServicePostIntervalProcedure:
@@ -151,6 +175,8 @@ func NewIntervalServiceHandler(svc IntervalServiceHandler, opts ...connect.Handl
 			intervalServiceListIntervalHandler.ServeHTTP(w, r)
 		case IntervalServiceUpdateIntervalProcedure:
 			intervalServiceUpdateIntervalHandler.ServeHTTP(w, r)
+		case IntervalServiceDeleteIntervalProcedure:
+			intervalServiceDeleteIntervalHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -170,4 +196,8 @@ func (UnimplementedIntervalServiceHandler) ListInterval(context.Context, *connec
 
 func (UnimplementedIntervalServiceHandler) UpdateInterval(context.Context, *connect.Request[v1.UpdateIntervalRequest]) (*connect.Response[v1.UpdateIntervalResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("interval.v1.IntervalService.UpdateInterval is not implemented"))
+}
+
+func (UnimplementedIntervalServiceHandler) DeleteInterval(context.Context, *connect.Request[v1.DeleteIntervalRequest]) (*connect.Response[v1.DeleteIntervalResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("interval.v1.IntervalService.DeleteInterval is not implemented"))
 }

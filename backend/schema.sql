@@ -25,6 +25,6 @@ CREATE TABLE reorder.video_intervals (
 );
 CREATE TABLE reorder.video_interval_categories (
     id SERIAL PRIMARY KEY,
-    video_interval_id INTEGER NOT NULL REFERENCES reorder.video_intervals(id),
+    video_interval_id INTEGER NOT NULL REFERENCES reorder.video_intervals(id) ON DELETE CASCADE,
     category_id INTEGER NOT NULL REFERENCES reorder.categories(id)
 );

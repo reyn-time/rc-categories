@@ -11,6 +11,16 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const deleteInterval = `-- name: DeleteInterval :exec
+DELETE FROM reorder.video_intervals
+WHERE id = $1
+`
+
+func (q *Queries) DeleteInterval(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deleteInterval, id)
+	return err
+}
+
 const deleteIntervalCategories = `-- name: DeleteIntervalCategories :exec
 DELETE FROM reorder.video_interval_categories
 WHERE video_interval_id = $1

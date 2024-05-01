@@ -217,6 +217,74 @@ export class UpdateIntervalResponse extends Message<UpdateIntervalResponse> {
 }
 
 /**
+ * @generated from message interval.v1.DeleteIntervalRequest
+ */
+export class DeleteIntervalRequest extends Message<DeleteIntervalRequest> {
+  /**
+   * @generated from field: int32 id = 1;
+   */
+  id = 0;
+
+  constructor(data?: PartialMessage<DeleteIntervalRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "interval.v1.DeleteIntervalRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteIntervalRequest {
+    return new DeleteIntervalRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteIntervalRequest {
+    return new DeleteIntervalRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteIntervalRequest {
+    return new DeleteIntervalRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DeleteIntervalRequest | PlainMessage<DeleteIntervalRequest> | undefined, b: DeleteIntervalRequest | PlainMessage<DeleteIntervalRequest> | undefined): boolean {
+    return proto3.util.equals(DeleteIntervalRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message interval.v1.DeleteIntervalResponse
+ */
+export class DeleteIntervalResponse extends Message<DeleteIntervalResponse> {
+  constructor(data?: PartialMessage<DeleteIntervalResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "interval.v1.DeleteIntervalResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): DeleteIntervalResponse {
+    return new DeleteIntervalResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): DeleteIntervalResponse {
+    return new DeleteIntervalResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): DeleteIntervalResponse {
+    return new DeleteIntervalResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: DeleteIntervalResponse | PlainMessage<DeleteIntervalResponse> | undefined, b: DeleteIntervalResponse | PlainMessage<DeleteIntervalResponse> | undefined): boolean {
+    return proto3.util.equals(DeleteIntervalResponse, a, b);
+  }
+}
+
+/**
  * @generated from message interval.v1.Interval
  */
 export class Interval extends Message<Interval> {

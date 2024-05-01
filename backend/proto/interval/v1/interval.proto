@@ -6,6 +6,7 @@ service IntervalService {
     rpc PostInterval(PostIntervalRequest) returns (PostIntervalResponse) {}
     rpc ListInterval(ListIntervalRequest) returns (ListIntervalResponse) {}
     rpc UpdateInterval(UpdateIntervalRequest) returns (UpdateIntervalResponse) {}
+    rpc DeleteInterval(DeleteIntervalRequest) returns (DeleteIntervalResponse) {}
 }
 
 message PostIntervalRequest {
@@ -28,6 +29,13 @@ message UpdateIntervalRequest {
 }
 
 message UpdateIntervalResponse {
+}
+
+message DeleteIntervalRequest {
+    int32 id = 1;
+}
+
+message DeleteIntervalResponse {
 }
 
 message Interval {
