@@ -1,7 +1,9 @@
-import { VideoList } from "./features/video/videoList";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
-import { VideoDetail } from "./features/video-detail/videoDetail";
 import { CustomAppBar } from "./features/app-bar/appBar";
+import { lazy, Suspense } from "react";
+
+const VideoList = lazy(() => import("./features/video/videoList"));
+const VideoDetail = lazy(() => import("./features/video-detail/videoDetail"));
 
 const router = createBrowserRouter([
   {
@@ -14,11 +16,19 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <VideoList />,
+        element: (
+          <Suspense>
+            <VideoList />
+          </Suspense>
+        ),
       },
       {
         path: "/video/:id",
-        element: <VideoDetail />,
+        element: (
+          <Suspense>
+            <VideoDetail />
+          </Suspense>
+        ),
       },
     ],
   },

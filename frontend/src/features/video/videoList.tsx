@@ -270,3 +270,5 @@ export const VideoList = () => {
     </Grid>
   );
 };
+
+export default VideoList;
