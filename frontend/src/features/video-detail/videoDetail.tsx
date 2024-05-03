@@ -70,6 +70,7 @@ export const VideoDetail = () => {
               seekTo={seekTo}
               duration={duration}
               currentTime={currentTime}
+              status={video.status}
             ></IntervalTabs>
           ) : (
             <Skeleton

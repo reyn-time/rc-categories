@@ -25,24 +25,7 @@ import { convertHTMLToText } from "../../util/encoding";
 import { useMemo, useState } from "react";
 import { VideoStatus } from "../../gen/proto/video/v1/video_pb";
 import { dateToString } from "../../util/time";
-
-const statusToChip: Record<VideoStatus, React.JSX.Element> = {
-  [VideoStatus.Approved]: (
-    <Chip size="small" label="已驗證" color="success" variant="outlined" />
-  ),
-  [VideoStatus.Archived]: (
-    <Chip size="small" label="刪除" color="error" variant="outlined" />
-  ),
-  [VideoStatus.Pending]: (
-    <Chip size="small" label="待分類" color="default" variant="outlined" />
-  ),
-  [VideoStatus.InProgress]: (
-    <Chip size="small" label="分類中" color="primary" variant="outlined" />
-  ),
-  [VideoStatus.InReview]: (
-    <Chip size="small" label="待驗證" color="warning" variant="outlined" />
-  ),
-};
+import { videoStatusToStatusText } from "../../util/videoStatus";
 
 export const VideoList = () => {
   const {
@@ -106,31 +89,34 @@ export const VideoList = () => {
               <Pagination
                 count={numOfPages}
                 size="large"
-                showFirstButton
-                showLastButton
                 page={pageNumber}
                 onChange={(_, value) => setPageNumber(value)}
               />
-              <TextField
-                sx={{ p: 2 }}
-                variant="outlined"
-                size="small"
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Icon>search</Icon>
-                    </InputAdornment>
-                  ),
-                }}
-                value={searchTerm}
-                onChange={(e) => {
-                  setPageNumber(1);
-                  setSearchTerm(e.target.value);
-                }}
-              />
+              <Stack direction="row" gap={1} alignItems="center">
+                <TextField
+                  sx={{ p: 2 }}
+                  variant="outlined"
+                  size="small"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <Icon>search</Icon>
+                      </InputAdornment>
+                    ),
+                  }}
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setPageNumber(1);
+                    setSearchTerm(e.target.value);
+                  }}
+                />
+                <IconButton>
+                  <Icon>filter_list</Icon>
+                </IconButton>
+              </Stack>
               <Stack direction="row" gap={2} alignItems="center">
                 <IconButton onClick={() => setIsEditMode((edit) => !edit)}>
-                  <Icon>{isEditMode ? "chevron_left" : "chevron_right"}</Icon>
+                  <Icon>{isEditMode ? "toggle_on" : "toggle_off"}</Icon>
                 </IconButton>
 
                 {isEditMode && (
@@ -184,7 +170,14 @@ export const VideoList = () => {
                           primary={
                             <Stack direction="row" alignItems="center" gap={1}>
                               {row.main}
-                              {statusToChip[row.status]}
+                              <Chip
+                                size="small"
+                                label={videoStatusToStatusText[row.status].text}
+                                color={
+                                  videoStatusToStatusText[row.status].color
+                                }
+                                variant="outlined"
+                              />
                             </Stack>
                           }
                           secondary={row.sub}
