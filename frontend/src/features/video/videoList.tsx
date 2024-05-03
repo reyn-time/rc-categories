@@ -19,13 +19,18 @@ import {
   TextField,
   InputAdornment,
   Chip,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { convertHTMLToText } from "../../util/encoding";
 import { useMemo, useState } from "react";
 import { VideoStatus } from "../../gen/proto/video/v1/video_pb";
 import { dateToString } from "../../util/time";
-import { videoStatusToStatusText } from "../../util/videoStatus";
+import {
+  allVideoStatus,
+  videoStatusToStatusText,
+} from "../../util/videoStatus";
 
 export const VideoList = () => {
   const {
@@ -40,6 +45,15 @@ export const VideoList = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [isEditMode, setIsEditMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedVideoStatus, setSelectedVideoStatus] = useState(
+    new Set<VideoStatus>(
+      allVideoStatus.filter((status) => status !== VideoStatus.Archived)
+    )
+  );
+
+  const isFilterPanelOpen = Boolean(anchorEl);
+
   const extendedList = useMemo(
     () =>
       videos.map((video) => ({
@@ -50,7 +64,7 @@ export const VideoList = () => {
     [videos]
   );
   const filteredList = extendedList
-    .filter((video) => video.status !== VideoStatus.Archived)
+    .filter((video) => selectedVideoStatus.has(video.status))
     .filter((video) => searchTerm === "" || video.name.includes(searchTerm));
   const pageSize = 15;
   const numOfPages = Math.ceil(filteredList.length / pageSize);
@@ -73,6 +87,35 @@ export const VideoList = () => {
     setChecked(new Set());
     setPageNumber(1);
     setIsEditMode(false);
+  };
+
+  const handleRevert = () => {
+    void changeVideoStatus({
+      ids: [...checked],
+      status: VideoStatus.Pending,
+    });
+    setChecked(new Set());
+    setPageNumber(1);
+    setIsEditMode(false);
+  };
+
+  const handleFilterButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterPanelClose = () => {
+    setAnchorEl(null);
+  };
+
+  const toggleSelectedVideoStatus = (status: VideoStatus) => {
+    const newSelected = new Set(selectedVideoStatus);
+    if (newSelected.has(status)) {
+      newSelected.delete(status);
+    } else {
+      newSelected.add(status);
+    }
+    setSelectedVideoStatus(newSelected);
+    setPageNumber(1);
   };
 
   return (
@@ -110,7 +153,7 @@ export const VideoList = () => {
                     setSearchTerm(e.target.value);
                   }}
                 />
-                <IconButton>
+                <IconButton onClick={handleFilterButtonClick}>
                   <Icon>filter_list</Icon>
                 </IconButton>
               </Stack>
@@ -132,6 +175,16 @@ export const VideoList = () => {
                     onClick={() => handleDelete()}
                   >
                     刪除
+                  </Button>
+                )}
+                {isEditMode && (
+                  <Button
+                    variant="contained"
+                    color="inherit"
+                    disabled={checked.size === 0}
+                    onClick={() => handleRevert()}
+                  >
+                    復原
                   </Button>
                 )}
               </Stack>
@@ -190,6 +243,30 @@ export const VideoList = () => {
           </Paper>
         )}
       </Grid>
+      <Menu
+        anchorEl={anchorEl}
+        open={isFilterPanelOpen}
+        onClose={handleFilterPanelClose}
+      >
+        {allVideoStatus.map((status) => {
+          const selected = selectedVideoStatus.has(status);
+          return (
+            <MenuItem
+              key={status}
+              onClick={() => toggleSelectedVideoStatus(status)}
+            >
+              <ListItemIcon>{selected && <Icon>check</Icon>}</ListItemIcon>
+              <ListItemText>
+                <Chip
+                  label={videoStatusToStatusText[status].text}
+                  color={videoStatusToStatusText[status].color}
+                  variant="outlined"
+                />
+              </ListItemText>
+            </MenuItem>
+          );
+        })}
+      </Menu>
     </Grid>
   );
 };
