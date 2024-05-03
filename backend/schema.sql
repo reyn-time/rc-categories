@@ -19,8 +19,8 @@ CREATE TABLE reorder.categories (
 CREATE TABLE reorder.video_intervals (
     id SERIAL PRIMARY KEY,
     video_id INTEGER NOT NULL REFERENCES reorder.videos(id),
-    start_time INTEGER NOT NULL,
-    end_time INTEGER NOT NULL,
+    start_time REAL NOT NULL,
+    end_time REAL NOT NULL,
     description TEXT
 );
 CREATE TABLE reorder.video_interval_categories (

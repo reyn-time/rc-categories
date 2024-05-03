@@ -73,8 +73,8 @@ type ReorderVideo struct {
 type ReorderVideoInterval struct {
 	ID          int32
 	VideoID     int32
-	StartTime   int32
-	EndTime     int32
+	StartTime   float32
+	EndTime     float32
 	Description pgtype.Text
 }
 

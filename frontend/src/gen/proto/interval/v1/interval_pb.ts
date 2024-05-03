@@ -299,12 +299,12 @@ export class Interval extends Message<Interval> {
   videoId = 0;
 
   /**
-   * @generated from field: int32 start_time = 3;
+   * @generated from field: float start_time = 3;
    */
   startTime = 0;
 
   /**
-   * @generated from field: int32 end_time = 4;
+   * @generated from field: float end_time = 4;
    */
   endTime = 0;
 
@@ -328,8 +328,8 @@ export class Interval extends Message<Interval> {
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 2, name: "video_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 3, name: "start_time", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-    { no: 4, name: "end_time", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: "start_time", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
+    { no: 4, name: "end_time", kind: "scalar", T: 2 /* ScalarType.FLOAT */ },
     { no: 5, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 6, name: "category_ids", kind: "scalar", T: 5 /* ScalarType.INT32 */, repeated: true },
   ]);

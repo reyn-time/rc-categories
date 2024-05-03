@@ -77,8 +77,8 @@ WHERE video_id = $1
 type ListIntervalsRow struct {
 	ID              int32
 	VideoID         int32
-	StartTime       int32
-	EndTime         int32
+	StartTime       float32
+	EndTime         float32
 	Description     pgtype.Text
 	VideoIntervalID int32
 	ArrayAgg        interface{}
@@ -152,8 +152,8 @@ RETURNING id
 
 type PostIntervalParams struct {
 	VideoID     int32
-	StartTime   int32
-	EndTime     int32
+	StartTime   float32
+	EndTime     float32
 	Description pgtype.Text
 }
 
@@ -194,8 +194,8 @@ WHERE id = $1
 
 type UpdateIntervalParams struct {
 	ID          int32
-	StartTime   int32
-	EndTime     int32
+	StartTime   float32
+	EndTime     float32
 	Description pgtype.Text
 }
 

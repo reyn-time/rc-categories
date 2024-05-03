@@ -67,8 +67,6 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
 
   const handleFormSubmit = () => {
     const [startTime, endTime] = times;
-    const startTimeTrunc = Math.floor(startTime);
-    const endTimeTrunc = Math.floor(endTime);
     const selectedCategoryIds = selectedCategoryNames
       .map((name) => {
         const category = categories.find((c) => c.name === name);
@@ -81,8 +79,8 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
         interval: {
           id: intervalId,
           videoId,
-          startTime: startTimeTrunc,
-          endTime: endTimeTrunc,
+          startTime,
+          endTime,
           categoryIds: selectedCategoryIds,
         },
       });
@@ -90,8 +88,8 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
       void postInterval({
         interval: {
           videoId,
-          startTime: startTimeTrunc,
-          endTime: endTimeTrunc,
+          startTime,
+          endTime,
           categoryIds: selectedCategoryIds,
         },
       });
