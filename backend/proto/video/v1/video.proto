@@ -17,7 +17,7 @@ message ListVideoResponse {
 }
 
 message ChangeVideoStatusRequest {
-    int32 id = 1;
+    repeated int32 ids = 1;
     VideoStatus status = 2;
 }
 

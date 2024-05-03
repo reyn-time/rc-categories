@@ -105,9 +105,9 @@ export class ListVideoResponse extends Message<ListVideoResponse> {
  */
 export class ChangeVideoStatusRequest extends Message<ChangeVideoStatusRequest> {
   /**
-   * @generated from field: int32 id = 1;
+   * @generated from field: repeated int32 ids = 1;
    */
-  id = 0;
+  ids: number[] = [];
 
   /**
    * @generated from field: video.v1.VideoStatus status = 2;
@@ -122,7 +122,7 @@ export class ChangeVideoStatusRequest extends Message<ChangeVideoStatusRequest> 
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "video.v1.ChangeVideoStatusRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 1, name: "ids", kind: "scalar", T: 5 /* ScalarType.INT32 */, repeated: true },
     { no: 2, name: "status", kind: "enum", T: proto3.getEnumType(VideoStatus) },
   ]);
 

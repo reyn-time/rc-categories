@@ -212,15 +212,15 @@ func (q *Queries) UpdateInterval(ctx context.Context, arg UpdateIntervalParams) 
 const updateVideoStatus = `-- name: UpdateVideoStatus :exec
 UPDATE reorder.videos
 SET status = $2
-WHERE id = $1
+WHERE id = ANY($1::integer [])
 `
 
 type UpdateVideoStatusParams struct {
-	ID     int32
-	Status ReorderVideoStatus
+	Column1 []int32
+	Status  ReorderVideoStatus
 }
 
 func (q *Queries) UpdateVideoStatus(ctx context.Context, arg UpdateVideoStatusParams) error {
-	_, err := q.db.Exec(ctx, updateVideoStatus, arg.ID, arg.Status)
+	_, err := q.db.Exec(ctx, updateVideoStatus, arg.Column1, arg.Status)
 	return err
 }

@@ -44,9 +44,17 @@ func (s *VideoService) ListVideo(ctx context.Context, req *connect.Request[video
 }
 
 func (s *VideoService) ChangeVideoStatus(ctx context.Context, req *connect.Request[videopb.ChangeVideoStatusRequest]) (*connect.Response[videopb.ChangeVideoStatusResponse], error) {
+	status := db.ReorderVideoStatusApproved
+	switch req.Msg.Status {
+	case videopb.VideoStatus_Pending:
+		status = db.ReorderVideoStatusPending
+	case videopb.VideoStatus_Archived:
+		status = db.ReorderVideoStatusArchived
+	}
+
 	err := s.Queries.UpdateVideoStatus(ctx, db.UpdateVideoStatusParams{
-		ID:     req.Msg.Id,
-		Status: db.ReorderVideoStatus(req.Msg.Status),
+		Column1: req.Msg.Ids,
+		Status:  status,
 	})
 	if err != nil {
 		return nil, err

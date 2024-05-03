@@ -1,16 +1,9 @@
 export type NoBigIntMessage<T> = {
-  [P in keyof T]: NoBigIntField<T[P]>;
+  [K in keyof T]: T[K] extends bigint
+    ? string
+    : T[K] extends Object
+    ? NoBigIntMessage<T[K]>
+    : T[K] extends Object | undefined
+    ? NoBigIntMessage<T[K]> | undefined
+    : T[K];
 };
-type NoBigIntField<F> = F extends BigInt
-  ? string
-  : F extends Array<infer U>
-  ? Array<NoBigIntField<U>>
-  : F extends ReadonlyArray<infer U>
-  ? ReadonlyArray<NoBigIntField<U>>
-  : F extends {
-      [key: string | number]: infer U;
-    }
-  ? {
-      [key: string | number]: NoBigIntField<U>;
-    }
-  : F;
