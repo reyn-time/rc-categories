@@ -21,9 +21,11 @@ func (s *VideoService) ListVideo(ctx context.Context, req *connect.Request[video
 	}
 
 	statusMapping := map[db.ReorderVideoStatus]videopb.VideoStatus{
-		db.ReorderVideoStatusPending:  videopb.VideoStatus_Pending,
-		db.ReorderVideoStatusApproved: videopb.VideoStatus_Approved,
-		db.ReorderVideoStatusArchived: videopb.VideoStatus_Archived,
+		db.ReorderVideoStatusPending:    videopb.VideoStatus_Pending,
+		db.ReorderVideoStatusApproved:   videopb.VideoStatus_Approved,
+		db.ReorderVideoStatusArchived:   videopb.VideoStatus_Archived,
+		db.ReorderVideoStatusInProgress: videopb.VideoStatus_InProgress,
+		db.ReorderVideoStatusInReview:   videopb.VideoStatus_InReview,
 	}
 
 	videos := make([]*videopb.Video, len(videosDB))
@@ -44,13 +46,14 @@ func (s *VideoService) ListVideo(ctx context.Context, req *connect.Request[video
 }
 
 func (s *VideoService) ChangeVideoStatus(ctx context.Context, req *connect.Request[videopb.ChangeVideoStatusRequest]) (*connect.Response[videopb.ChangeVideoStatusResponse], error) {
-	status := db.ReorderVideoStatusApproved
-	switch req.Msg.Status {
-	case videopb.VideoStatus_Pending:
-		status = db.ReorderVideoStatusPending
-	case videopb.VideoStatus_Archived:
-		status = db.ReorderVideoStatusArchived
+	statusMapping := map[videopb.VideoStatus]db.ReorderVideoStatus{
+		videopb.VideoStatus_Pending:    db.ReorderVideoStatusPending,
+		videopb.VideoStatus_Approved:   db.ReorderVideoStatusApproved,
+		videopb.VideoStatus_Archived:   db.ReorderVideoStatusArchived,
+		videopb.VideoStatus_InProgress: db.ReorderVideoStatusInProgress,
+		videopb.VideoStatus_InReview:   db.ReorderVideoStatusInReview,
 	}
+	status := statusMapping[req.Msg.Status]
 
 	err := s.Queries.UpdateVideoStatus(ctx, db.UpdateVideoStatusParams{
 		Column1: req.Msg.Ids,

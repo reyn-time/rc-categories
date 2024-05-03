@@ -14,9 +14,11 @@ import (
 type ReorderVideoStatus string
 
 const (
-	ReorderVideoStatusApproved ReorderVideoStatus = "approved"
-	ReorderVideoStatusArchived ReorderVideoStatus = "archived"
-	ReorderVideoStatusPending  ReorderVideoStatus = "pending"
+	ReorderVideoStatusApproved   ReorderVideoStatus = "approved"
+	ReorderVideoStatusArchived   ReorderVideoStatus = "archived"
+	ReorderVideoStatusPending    ReorderVideoStatus = "pending"
+	ReorderVideoStatusInProgress ReorderVideoStatus = "in_progress"
+	ReorderVideoStatusInReview   ReorderVideoStatus = "in_review"
 )
 
 func (e *ReorderVideoStatus) Scan(src interface{}) error {

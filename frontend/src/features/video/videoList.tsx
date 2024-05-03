@@ -26,18 +26,22 @@ import { useMemo, useState } from "react";
 import { VideoStatus } from "../../gen/proto/video/v1/video_pb";
 import { dateToString } from "../../util/time";
 
-const statusToText = (status: VideoStatus) => {
-  if (status === VideoStatus.Approved) {
-    return (
-      <Chip size="small" label="已驗證" color="success" variant="outlined" />
-    );
-  } else if (status === VideoStatus.Archived) {
-    return <Chip size="small" label="刪除" color="error" variant="outlined" />;
-  } else {
-    return (
-      <Chip size="small" label="分類中" color="primary" variant="outlined" />
-    );
-  }
+const statusToChip: Record<VideoStatus, React.JSX.Element> = {
+  [VideoStatus.Approved]: (
+    <Chip size="small" label="已驗證" color="success" variant="outlined" />
+  ),
+  [VideoStatus.Archived]: (
+    <Chip size="small" label="刪除" color="error" variant="outlined" />
+  ),
+  [VideoStatus.Pending]: (
+    <Chip size="small" label="待分類" color="default" variant="outlined" />
+  ),
+  [VideoStatus.InProgress]: (
+    <Chip size="small" label="分類中" color="primary" variant="outlined" />
+  ),
+  [VideoStatus.InReview]: (
+    <Chip size="small" label="待驗證" color="warning" variant="outlined" />
+  ),
 };
 
 export const VideoList = () => {
@@ -59,7 +63,6 @@ export const VideoList = () => {
         ...video,
         main: convertHTMLToText(video.name),
         sub: dateToString(video.createdAt) + ` #${video.id}`,
-        statusChip: statusToText(video.status),
       })),
     [videos]
   );
@@ -181,7 +184,7 @@ export const VideoList = () => {
                           primary={
                             <Stack direction="row" alignItems="center" gap={1}>
                               {row.main}
-                              {row.statusChip}
+                              {statusToChip[row.status]}
                             </Stack>
                           }
                           secondary={row.sub}

@@ -1,5 +1,11 @@
 CREATE SCHEMA reorder;
-CREATE TYPE reorder.video_status AS ENUM ('approved', 'archived', 'pending');
+CREATE TYPE reorder.video_status AS ENUM (
+    'approved',
+    'archived',
+    'pending',
+    'in_progress',
+    'in_review'
+);
 CREATE TABLE reorder.videos (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,

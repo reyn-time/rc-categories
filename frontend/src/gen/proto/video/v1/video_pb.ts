@@ -24,12 +24,24 @@ export enum VideoStatus {
    * @generated from enum value: Approved = 2;
    */
   Approved = 2,
+
+  /**
+   * @generated from enum value: InProgress = 3;
+   */
+  InProgress = 3,
+
+  /**
+   * @generated from enum value: InReview = 4;
+   */
+  InReview = 4,
 }
 // Retrieve enum metadata with: proto3.getEnumType(VideoStatus)
 proto3.util.setEnumType(VideoStatus, "video.v1.VideoStatus", [
   { no: 0, name: "Pending" },
   { no: 1, name: "Archived" },
   { no: 2, name: "Approved" },
+  { no: 3, name: "InProgress" },
+  { no: 4, name: "InReview" },
 ]);
 
 /**
