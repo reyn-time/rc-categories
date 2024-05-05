@@ -1,4 +1,3 @@
-import { createConnectTransport } from "@connectrpc/connect-web";
 import { IntervalService } from "../../gen/proto/interval/v1/interval_connect";
 import { createPromiseClient } from "@connectrpc/connect";
 import {
@@ -12,13 +11,9 @@ import {
   UpdateIntervalRequest,
 } from "../../gen/proto/interval/v1/interval_pb";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { transport } from "../../util/connect";
 
-const client = createPromiseClient(
-  IntervalService,
-  createConnectTransport({
-    baseUrl: "http://localhost:8080",
-  })
-);
+const client = createPromiseClient(IntervalService, transport);
 
 export const intervalApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: "/" }),

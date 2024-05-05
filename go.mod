@@ -1,6 +1,6 @@
 module github.com/reyn-time/rc-categories
 
-go 1.21.4
+go 1.22.2
 
 require (
 	connectrpc.com/connect v1.16.0
@@ -8,6 +8,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.5
 	github.com/magefile/mage v1.15.0
 	github.com/rs/cors v1.10.1
+	github.com/sethvargo/go-envconfig v1.0.1
 	golang.org/x/net v0.24.0
 	google.golang.org/protobuf v1.33.0
 )

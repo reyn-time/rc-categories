@@ -1,5 +1,4 @@
 import { Code, ConnectError, createPromiseClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
 import { VideoService } from "../../gen/proto/video/v1/video_connect";
 import { PlainMessage, toPlainMessage } from "@bufbuild/protobuf";
 import {
@@ -8,13 +7,9 @@ import {
 } from "../../gen/proto/video/v1/video_pb";
 import { NoBigIntMessage } from "../../util/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { transport } from "../../util/connect";
 
-const videoClient = createPromiseClient(
-  VideoService,
-  createConnectTransport({
-    baseUrl: "http://localhost:8080",
-  })
-);
+const videoClient = createPromiseClient(VideoService, transport);
 
 export const videoApi = createApi({
   reducerPath: "videoApi",

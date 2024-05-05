@@ -1,16 +1,11 @@
 import { PlainMessage, toPlainMessage } from "@bufbuild/protobuf";
 import { Code, ConnectError, createPromiseClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
 import { CategoryService } from "../../gen/proto/category/v1/category_connect";
 import { Category } from "../../gen/proto/category/v1/category_pb";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { transport } from "../../util/connect";
 
-const client = createPromiseClient(
-  CategoryService,
-  createConnectTransport({
-    baseUrl: "http://localhost:8080",
-  })
-);
+const client = createPromiseClient(CategoryService, transport);
 
 export const categoryApi = createApi({
   reducerPath: "categoryApi",
