@@ -3,6 +3,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 
+# Build FE
 FROM base AS build
 COPY ./frontend /app
 WORKDIR /app
@@ -19,6 +20,7 @@ COPY ./backend ./backend
 COPY --from=build /app/dist /app/backend/server/dist
 RUN go build -o server ./backend/server
 
+# Final product
 FROM alpine:3.19
 WORKDIR /app
 COPY --from=go-build /app/server /app/
