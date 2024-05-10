@@ -6,6 +6,9 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
+	"path"
+	"strings"
 
 	connectcors "connectrpc.com/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -42,6 +45,26 @@ func withCORS(h http.Handler) http.Handler {
 	return middleware.Handler(h)
 }
 
+func frontendHandler() http.Handler {
+	dist, _ := fs.Sub(web, "dist")
+	fs := http.FileServer(http.FS(dist))
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			fs.ServeHTTP(w, r)
+			return
+		}
+		f, err := dist.Open(strings.TrimPrefix(path.Clean(r.URL.Path), "/"))
+		if err == nil {
+			defer f.Close()
+		}
+		if os.IsNotExist(err) {
+			r.URL.Path = "/"
+		}
+		fs.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -73,8 +96,7 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	dist, _ := fs.Sub(web, "dist")
-	mux.Handle("/", http.FileServer(http.FS(dist)))
+	mux.Handle("/", frontendHandler())
 	mux.Handle("/grpc/", http.StripPrefix("/grpc", api))
 
 	log.Printf("Server started! Lovely jubbly.")
