@@ -2,12 +2,16 @@ FROM node:20-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+WORKDIR /app
+COPY ./frontend/package.json .
+COPY ./frontend/pnpm-lock.yaml .
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Build FE
 FROM base AS build
 COPY ./frontend /app
+COPY --from=base /app/node_modules /app/node_modules
 WORKDIR /app
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 RUN pnpm run build
 
 # Build BE
