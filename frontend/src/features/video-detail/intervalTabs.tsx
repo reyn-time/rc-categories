@@ -1,5 +1,6 @@
 import {
   Box,
+  Fade,
   Slide,
   Stack,
   ToggleButton,
@@ -58,14 +59,18 @@ export const IntervalTabs = (props: {
           </ToggleButton>
         ))}
       </ToggleButtonGroup>
-      <Box sx={{ position: "relative" }}>
-        <Slide in={panel === null} direction="left" appear={false}>
+      <Box
+        sx={{
+          position: "relative",
+        }}
+      >
+        <Fade in={panel === null} appear={false}>
           <IntervalList
             videoId={videoId}
             seekTo={seekTo}
             setPanel={setPanel}
           ></IntervalList>
-        </Slide>
+        </Fade>
 
         <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%" }}>
           <Slide in={!!panel?.type} direction="left" mountOnEnter unmountOnExit>
