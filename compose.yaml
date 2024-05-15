@@ -2,11 +2,9 @@ services:
   backend:
     build: .
     environment:
-      - POSTGRES_CONN_STR=user=postgres password=password sslmode=disable host=db
-    ports:
-      - "8080:8080"
+      - POSTGRES_CONN_STR=user=postgres password=password sslmode=disable host=pgdb
 
-  db:
+  pgdb:
     image: postgres:16.2
     environment:
       POSTGRES_PASSWORD: password
