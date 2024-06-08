@@ -18,7 +18,8 @@ FROM reorder.video_intervals v
         from reorder.video_interval_categories
         group by video_interval_id
     ) c ON v.id = c.video_interval_id
-WHERE video_id = $1;
+WHERE video_id = $1
+ORDER BY v.start_time;
 -- name: PostInterval :one
 INSERT INTO reorder.video_intervals (video_id, start_time, end_time, description)
 VALUES ($1, $2, $3, $4)

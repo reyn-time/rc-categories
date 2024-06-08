@@ -72,6 +72,7 @@ FROM reorder.video_intervals v
         group by video_interval_id
     ) c ON v.id = c.video_interval_id
 WHERE video_id = $1
+ORDER BY v.start_time
 `
 
 type ListIntervalsRow struct {
