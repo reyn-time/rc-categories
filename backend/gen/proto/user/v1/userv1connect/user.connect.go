@@ -35,17 +35,21 @@ const (
 const (
 	// UserServiceGetUserProcedure is the fully-qualified name of the UserService's GetUser RPC.
 	UserServiceGetUserProcedure = "/user.v1.UserService/GetUser"
+	// UserServiceLogoutUserProcedure is the fully-qualified name of the UserService's LogoutUser RPC.
+	UserServiceLogoutUserProcedure = "/user.v1.UserService/LogoutUser"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	userServiceServiceDescriptor       = v1.File_proto_user_v1_user_proto.Services().ByName("UserService")
-	userServiceGetUserMethodDescriptor = userServiceServiceDescriptor.Methods().ByName("GetUser")
+	userServiceServiceDescriptor          = v1.File_proto_user_v1_user_proto.Services().ByName("UserService")
+	userServiceGetUserMethodDescriptor    = userServiceServiceDescriptor.Methods().ByName("GetUser")
+	userServiceLogoutUserMethodDescriptor = userServiceServiceDescriptor.Methods().ByName("LogoutUser")
 )
 
 // UserServiceClient is a client for the user.v1.UserService service.
 type UserServiceClient interface {
 	GetUser(context.Context, *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error)
+	LogoutUser(context.Context, *connect.Request[v1.LogoutUserRequest]) (*connect.Response[v1.LogoutUserResponse], error)
 }
 
 // NewUserServiceClient constructs a client for the user.v1.UserService service. By default, it uses
@@ -64,12 +68,19 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 			connect.WithSchema(userServiceGetUserMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		logoutUser: connect.NewClient[v1.LogoutUserRequest, v1.LogoutUserResponse](
+			httpClient,
+			baseURL+UserServiceLogoutUserProcedure,
+			connect.WithSchema(userServiceLogoutUserMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	getUser *connect.Client[v1.GetUserRequest, v1.GetUserResponse]
+	getUser    *connect.Client[v1.GetUserRequest, v1.GetUserResponse]
+	logoutUser *connect.Client[v1.LogoutUserRequest, v1.LogoutUserResponse]
 }
 
 // GetUser calls user.v1.UserService.GetUser.
@@ -77,9 +88,15 @@ func (c *userServiceClient) GetUser(ctx context.Context, req *connect.Request[v1
 	return c.getUser.CallUnary(ctx, req)
 }
 
+// LogoutUser calls user.v1.UserService.LogoutUser.
+func (c *userServiceClient) LogoutUser(ctx context.Context, req *connect.Request[v1.LogoutUserRequest]) (*connect.Response[v1.LogoutUserResponse], error) {
+	return c.logoutUser.CallUnary(ctx, req)
+}
+
 // UserServiceHandler is an implementation of the user.v1.UserService service.
 type UserServiceHandler interface {
 	GetUser(context.Context, *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error)
+	LogoutUser(context.Context, *connect.Request[v1.LogoutUserRequest]) (*connect.Response[v1.LogoutUserResponse], error)
 }
 
 // NewUserServiceHandler builds an HTTP handler from the service implementation. It returns the path
@@ -94,10 +111,18 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 		connect.WithSchema(userServiceGetUserMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	userServiceLogoutUserHandler := connect.NewUnaryHandler(
+		UserServiceLogoutUserProcedure,
+		svc.LogoutUser,
+		connect.WithSchema(userServiceLogoutUserMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/user.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case UserServiceGetUserProcedure:
 			userServiceGetUserHandler.ServeHTTP(w, r)
+		case UserServiceLogoutUserProcedure:
+			userServiceLogoutUserHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -109,4 +134,8 @@ type UnimplementedUserServiceHandler struct{}
 
 func (UnimplementedUserServiceHandler) GetUser(context.Context, *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("user.v1.UserService.GetUser is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) LogoutUser(context.Context, *connect.Request[v1.LogoutUserRequest]) (*connect.Response[v1.LogoutUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("user.v1.UserService.LogoutUser is not implemented"))
 }

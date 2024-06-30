@@ -6,9 +6,14 @@ import {
   Icon,
   Avatar,
   Skeleton,
+  Tooltip,
+  Menu,
+  MenuItem,
+  ListItemIcon,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { useGetUserQuery } from "../user/userSlice";
+import { useGetUserQuery, useLogoutUserMutation } from "../user/userSlice";
+import { useState } from "react";
 
 export const CustomAppBar = () => {
   const navigate = useNavigate();
@@ -38,11 +43,27 @@ export const CustomAppBar = () => {
 };
 
 const UserPortal = () => {
-  const { data: user, isLoading: isUserLoading } = useGetUserQuery();
-  if (isUserLoading) {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    isFetching: isUserFetching,
+    isError: isUserError,
+  } = useGetUserQuery();
+  const [logout] = useLogoutUserMutation();
+
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  if (isUserLoading || isUserFetching) {
     return <Skeleton variant="circular" height={40} width={40} />;
   }
-  if (user === undefined) {
+  if (user === undefined || isUserError) {
     return (
       <IconButton
         size="large"
@@ -59,9 +80,56 @@ const UserPortal = () => {
       </IconButton>
     );
   }
+  // TODO: Provide logout functionality via a dropdown.
   return (
-    <Avatar {...stringAvatar(user.name)} alt={user.name} src={user.photoUrl} />
+    <>
+      <Tooltip title="開啟設定">
+        <IconButton onClick={handleClick}>
+          <Avatar
+            {...stringAvatar(user.name)}
+            alt={user.name}
+            src={user.photoUrl}
+          />
+        </IconButton>
+      </Tooltip>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+      >
+        <MenuItem
+          onClick={() => {
+            void logout();
+            handleClose();
+          }}
+        >
+          <ListItemIcon>
+            <Icon fontSize="small">logout</Icon>
+          </ListItemIcon>
+          登出
+        </MenuItem>
+      </Menu>
+    </>
   );
+};
+
+const stringAvatar = (name: string) => {
+  let initials = "?";
+  const parts = name.split(" ");
+  if (parts.length >= 2) {
+    initials = `${parts[0][0]}${parts[1][0]}`;
+  } else if (parts.length == 1 && name.length > 0) {
+    initials = name[0];
+  }
+
+  return {
+    sx: {
+      bgcolor: stringToColor(name),
+    },
+    children: initials,
+  };
 };
 
 const stringToColor = (string: string) => {
@@ -80,13 +148,4 @@ const stringToColor = (string: string) => {
   }
 
   return color;
-};
-
-const stringAvatar = (name: string) => {
-  return {
-    sx: {
-      bgcolor: stringToColor(name),
-    },
-    children: `${name.split(" ")[0][0]}${name.split(" ")[1][0]}`,
-  };
 };

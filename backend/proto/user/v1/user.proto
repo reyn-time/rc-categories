@@ -4,6 +4,7 @@ package user.v1;
 
 service UserService {
   rpc GetUser(GetUserRequest) returns (GetUserResponse) {} 
+  rpc LogoutUser(LogoutUserRequest) returns (LogoutUserResponse) {}
 }
 
 message GetUserRequest {
@@ -11,6 +12,12 @@ message GetUserRequest {
 
 message GetUserResponse {
   User user = 1;
+}
+
+message LogoutUserRequest {
+}
+
+message LogoutUserResponse {
 }
 
 message User {

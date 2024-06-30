@@ -30,7 +30,26 @@ export const userApi = createApi({
       },
       providesTags: ["User"],
     }),
+    logoutUser: builder.mutation<void, void>({
+      queryFn: async () => {
+        try {
+          await userClient.logoutUser({});
+          return { data: undefined };
+        } catch (error) {
+          // TODO: refactor error handling.
+          const connectErr = ConnectError.from(error);
+          return {
+            error: {
+              status: connectErr.code,
+              statusText: Code[connectErr.code],
+              data: connectErr.rawMessage,
+            },
+          };
+        }
+      },
+      invalidatesTags: ["User"],
+    }),
   }),
 });
 
-export const { useGetUserQuery } = userApi;
+export const { useGetUserQuery, useLogoutUserMutation } = userApi;

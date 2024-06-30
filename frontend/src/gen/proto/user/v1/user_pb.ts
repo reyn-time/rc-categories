@@ -75,6 +75,68 @@ export class GetUserResponse extends Message<GetUserResponse> {
 }
 
 /**
+ * @generated from message user.v1.LogoutUserRequest
+ */
+export class LogoutUserRequest extends Message<LogoutUserRequest> {
+  constructor(data?: PartialMessage<LogoutUserRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "user.v1.LogoutUserRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): LogoutUserRequest {
+    return new LogoutUserRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): LogoutUserRequest {
+    return new LogoutUserRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): LogoutUserRequest {
+    return new LogoutUserRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: LogoutUserRequest | PlainMessage<LogoutUserRequest> | undefined, b: LogoutUserRequest | PlainMessage<LogoutUserRequest> | undefined): boolean {
+    return proto3.util.equals(LogoutUserRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message user.v1.LogoutUserResponse
+ */
+export class LogoutUserResponse extends Message<LogoutUserResponse> {
+  constructor(data?: PartialMessage<LogoutUserResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "user.v1.LogoutUserResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): LogoutUserResponse {
+    return new LogoutUserResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): LogoutUserResponse {
+    return new LogoutUserResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): LogoutUserResponse {
+    return new LogoutUserResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: LogoutUserResponse | PlainMessage<LogoutUserResponse> | undefined, b: LogoutUserResponse | PlainMessage<LogoutUserResponse> | undefined): boolean {
+    return proto3.util.equals(LogoutUserResponse, a, b);
+  }
+}
+
+/**
  * @generated from message user.v1.User
  */
 export class User extends Message<User> {

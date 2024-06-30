@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/gorilla/securecookie"
@@ -18,6 +19,7 @@ type UserService struct {
 }
 
 func (s *UserService) GetUser(ctx context.Context, req *connect.Request[userpb.GetUserRequest]) (*connect.Response[userpb.GetUserResponse], error) {
+	// TODO: Move this to an authentication middleware
 	httpReq := http.Request{Header: req.Header().Clone()}
 	authData, err := httpReq.Cookie(s.Config.CookieName)
 	if err != nil {
@@ -40,5 +42,23 @@ func (s *UserService) GetUser(ctx context.Context, req *connect.Request[userpb.G
 			PhotoUrl: user.PhotoUrl,
 		},
 	})
+	return res, nil
+}
+
+func (s *UserService) LogoutUser(ctx context.Context, req *connect.Request[userpb.LogoutUserRequest]) (*connect.Response[userpb.LogoutUserResponse], error) {
+	// Remove auth cookie
+	cookie := http.Cookie{
+		Name:     s.Config.CookieName,
+		Value:    "",
+		Domain:   s.Config.CookieDomain,
+		Path:     s.Config.CookiePath,
+		Expires:  time.Unix(0, 0), // Set a time in the past to clear the cookie
+		Secure:   true,
+		HttpOnly: true,
+		SameSite: http.SameSite(s.Config.CookieSameSite),
+	}
+
+	res := connect.NewResponse(&userpb.LogoutUserResponse{})
+	res.Header().Add("Set-Cookie", cookie.String())
 	return res, nil
 }
