@@ -3,6 +3,7 @@ services:
     build: .
     environment:
       - POSTGRES_CONN_STR=user=postgres password=password sslmode=disable host=pgdb
+      - ENV=production
 
   pgdb:
     image: postgres:16.2

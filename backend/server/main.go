@@ -16,9 +16,12 @@ import (
 
 	categoryconn "github.com/reyn-time/rc-categories/backend/gen/proto/category/v1/categoryv1connect"
 	intervalconn "github.com/reyn-time/rc-categories/backend/gen/proto/interval/v1/intervalv1connect"
+	userconn "github.com/reyn-time/rc-categories/backend/gen/proto/user/v1/userv1connect"
 	videoconn "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1/videov1connect"
+	"github.com/reyn-time/rc-categories/backend/oauth"
 	"github.com/reyn-time/rc-categories/backend/service/category"
 	"github.com/reyn-time/rc-categories/backend/service/interval"
+	"github.com/reyn-time/rc-categories/backend/service/user"
 	"github.com/reyn-time/rc-categories/backend/service/video"
 	"github.com/rs/cors"
 	"github.com/sethvargo/go-envconfig"
@@ -27,7 +30,9 @@ import (
 )
 
 type Config struct {
-	PostgresConnString string `env:"POSTGRES_CONN_STR, default=user=postgres password=password sslmode=disable"`
+	PostgresConnString string             `env:"POSTGRES_CONN_STR, default=user=postgres password=password sslmode=disable"`
+	Environment        string             `env:"ENV, default=development"`
+	OauthConfig        *oauth.OauthConfig `env:", prefix=OAUTH_"`
 }
 
 var (
@@ -37,10 +42,11 @@ var (
 
 func withCORS(h http.Handler) http.Handler {
 	middleware := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:5173"},
-		AllowedMethods: []string{"POST", "OPTIONS"},
-		AllowedHeaders: connectcors.AllowedHeaders(),
-		ExposedHeaders: connectcors.ExposedHeaders(),
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"POST", "OPTIONS"},
+		AllowedHeaders:   connectcors.AllowedHeaders(),
+		ExposedHeaders:   connectcors.ExposedHeaders(),
+		AllowCredentials: true,
 	})
 	return middleware.Handler(h)
 }
@@ -93,17 +99,26 @@ func main() {
 		Conn:    conn,
 		Queries: queries,
 	}))
+	api.Handle(userconn.NewUserServiceHandler(&user.UserService{
+		Config: c.OauthConfig,
+	}))
 
 	mux := http.NewServeMux()
 
 	mux.Handle("/", frontendHandler())
 	mux.Handle("/grpc/", http.StripPrefix("/grpc", api))
+	mux.Handle(oauth.NewOauthServiceHandler(oauth.OauthService{Config: c.OauthConfig}))
 
 	log.Printf("Server started! Lovely jubbly.")
 
+	handler := h2c.NewHandler(mux, &http2.Server{})
+	if c.Environment == "development" {
+		handler = withCORS(handler)
+	}
+
 	err = http.ListenAndServe(
 		":8080",
-		withCORS(h2c.NewHandler(mux, &http2.Server{})),
+		handler,
 	)
 	log.Printf("listen failed: %v\n", err)
 }

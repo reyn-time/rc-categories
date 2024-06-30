@@ -64,6 +64,13 @@ type ReorderCategory struct {
 	Rank        int32
 }
 
+type ReorderUser struct {
+	ID       int32
+	Email    string
+	Name     pgtype.Text
+	PhotoUrl pgtype.Text
+}
+
 type ReorderVideo struct {
 	ID        int32
 	Name      string

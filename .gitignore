@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 .env.production
 compose.override.yaml
+
+# OAuth
+secrets.json

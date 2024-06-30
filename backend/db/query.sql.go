@@ -31,6 +31,24 @@ func (q *Queries) DeleteIntervalCategories(ctx context.Context, videoIntervalID 
 	return err
 }
 
+const getUser = `-- name: GetUser :one
+SELECT id, email, name, photo_url
+FROM reorder.users
+WHERE email = $1
+`
+
+func (q *Queries) GetUser(ctx context.Context, email string) (ReorderUser, error) {
+	row := q.db.QueryRow(ctx, getUser, email)
+	var i ReorderUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.PhotoUrl,
+	)
+	return i, err
+}
+
 const listCategories = `-- name: ListCategories :many
 SELECT id, name, description, parent_id, rank
 FROM reorder.categories
@@ -223,5 +241,24 @@ type UpdateVideoStatusParams struct {
 
 func (q *Queries) UpdateVideoStatus(ctx context.Context, arg UpdateVideoStatusParams) error {
 	_, err := q.db.Exec(ctx, updateVideoStatus, arg.Column1, arg.Status)
+	return err
+}
+
+const upsertUser = `-- name: UpsertUser :exec
+INSERT INTO reorder.users (email, name, photo_url)
+VALUES ($1, $2, $3) ON CONFLICT DO
+UPDATE
+SET name = $2,
+    photo_url = $3
+`
+
+type UpsertUserParams struct {
+	Email    string
+	Name     pgtype.Text
+	PhotoUrl pgtype.Text
+}
+
+func (q *Queries) UpsertUser(ctx context.Context, arg UpsertUserParams) error {
+	_, err := q.db.Exec(ctx, upsertUser, arg.Email, arg.Name, arg.PhotoUrl)
 	return err
 }

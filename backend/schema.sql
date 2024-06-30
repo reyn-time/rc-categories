@@ -34,3 +34,10 @@ CREATE TABLE reorder.video_interval_categories (
     video_interval_id INTEGER NOT NULL REFERENCES reorder.video_intervals(id) ON DELETE CASCADE,
     category_id INTEGER NOT NULL REFERENCES reorder.categories(id)
 );
+CREATE TABLE reorder.users (
+    id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL,
+    name TEXT,
+    photo_url TEXT,
+    UNIQUE (email)
+);

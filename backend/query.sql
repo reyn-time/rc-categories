@@ -39,3 +39,13 @@ WHERE video_interval_id = $1;
 -- name: DeleteInterval :exec
 DELETE FROM reorder.video_intervals
 WHERE id = $1;
+-- name: GetUser :one
+SELECT *
+FROM reorder.users
+WHERE email = $1;
+-- name: UpsertUser :exec
+INSERT INTO reorder.users (email, name, photo_url)
+VALUES ($1, $2, $3) ON CONFLICT DO
+UPDATE
+SET name = $2,
+    photo_url = $3;
