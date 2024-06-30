@@ -45,7 +45,7 @@ FROM reorder.users
 WHERE email = $1;
 -- name: UpsertUser :exec
 INSERT INTO reorder.users (email, name, photo_url)
-VALUES ($1, $2, $3) ON CONFLICT DO
+VALUES ($1, $2, $3) ON CONFLICT (email) DO
 UPDATE
 SET name = $2,
     photo_url = $3;

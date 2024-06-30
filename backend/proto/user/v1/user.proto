@@ -10,4 +10,12 @@ message GetUserRequest {
 }
 
 message GetUserResponse {
+  User user = 1;
+}
+
+message User {
+  int32 id = 1;
+  string email = 2;
+  string name = 3;
+  string photo_url = 4;
 }

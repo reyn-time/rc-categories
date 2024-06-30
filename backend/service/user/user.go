@@ -2,34 +2,43 @@ package user
 
 import (
 	"context"
-	"log"
 	"net/http"
 
 	"connectrpc.com/connect"
 	"github.com/gorilla/securecookie"
+	"github.com/reyn-time/rc-categories/backend/db"
 	userpb "github.com/reyn-time/rc-categories/backend/gen/proto/user/v1"
 	"github.com/reyn-time/rc-categories/backend/oauth"
 )
 
 type UserService struct {
-	Config *oauth.OauthConfig
+	Config  *oauth.OauthConfig
+	SC      *securecookie.SecureCookie
+	Queries *db.Queries
 }
 
 func (s *UserService) GetUser(ctx context.Context, req *connect.Request[userpb.GetUserRequest]) (*connect.Response[userpb.GetUserResponse], error) {
-	rawCookies := req.Header().Get("Cookie")
-	header := http.Header{}
-	header.Add("Cookie", rawCookies)
-	httpReq := http.Request{Header: header}
+	httpReq := http.Request{Header: req.Header().Clone()}
 	authData, err := httpReq.Cookie(s.Config.CookieName)
 	if err != nil {
 		return nil, err
 	}
 	encryptedVal := authData.Value
 	dict := map[string]string{}
-	sc := securecookie.New(s.Config.CookieHashKey, s.Config.CookieBlockKey)
-	sc.Decode(s.Config.CookieName, encryptedVal, &dict)
-	log.Println(dict)
+	s.SC.Decode(s.Config.CookieName, encryptedVal, &dict)
+	email := dict["email"]
+	user, err := s.Queries.GetUser(ctx, email)
+	if err != nil {
+		return nil, err
+	}
 
-	res := connect.NewResponse(&userpb.GetUserResponse{})
+	res := connect.NewResponse(&userpb.GetUserResponse{
+		User: &userpb.User{
+			Id:       user.ID,
+			Email:    user.Email,
+			Name:     user.Name,
+			PhotoUrl: user.PhotoUrl,
+		},
+	})
 	return res, nil
 }

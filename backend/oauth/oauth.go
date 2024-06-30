@@ -13,6 +13,7 @@ import (
 	"net/url"
 
 	"github.com/gorilla/securecookie"
+	"github.com/reyn-time/rc-categories/backend/db"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -32,9 +33,10 @@ type OauthConfig struct {
 }
 
 type OauthService struct {
+	Queries           *db.Queries
 	Config            *OauthConfig
+	SC                *securecookie.SecureCookie
 	googleOauthConfig *oauth2.Config
-	cookie            *securecookie.SecureCookie
 }
 
 type oauthSecret struct {
@@ -55,8 +57,6 @@ func NewOauthServiceHandler(service OauthService) (string, http.Handler) {
 		},
 		Endpoint: google.Endpoint,
 	}
-
-	service.cookie = securecookie.New(service.Config.CookieHashKey, service.Config.CookieBlockKey)
 
 	return "/auth/google/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
@@ -88,9 +88,18 @@ func (o *OauthService) OauthGoogleCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// TODO: Update user record in database.
+	// Update user record in database.
+	if err = o.Queries.UpsertUser(context.TODO(), db.UpsertUserParams{
+		Email:    data.Email,
+		Name:     data.Name,
+		PhotoUrl: data.Picture,
+	}); err != nil {
+		log.Println(err.Error())
+		http.Redirect(w, r, o.Config.RedirectURL, http.StatusTemporaryRedirect)
+		return
+	}
 
-	encoded, err := o.cookie.Encode(o.Config.CookieName, map[string]string{
+	encoded, err := o.SC.Encode(o.Config.CookieName, map[string]string{
 		"email": data.Email,
 	})
 	if err != nil {

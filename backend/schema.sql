@@ -37,7 +37,7 @@ CREATE TABLE reorder.video_interval_categories (
 CREATE TABLE reorder.users (
     id SERIAL PRIMARY KEY,
     email TEXT NOT NULL,
-    name TEXT,
-    photo_url TEXT,
+    name TEXT NOT NULL,
+    photo_url TEXT NOT NULL,
     UNIQUE (email)
 );

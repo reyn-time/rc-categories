@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	connectcors "connectrpc.com/cors"
+	"github.com/gorilla/securecookie"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/reyn-time/rc-categories/backend/db"
 
@@ -78,6 +79,7 @@ func main() {
 	if err := envconfig.Process(ctx, &c); err != nil {
 		log.Fatal(err)
 	}
+	sc := securecookie.New(c.OauthConfig.CookieHashKey, c.OauthConfig.CookieBlockKey)
 
 	conn, err := pgxpool.New(ctx, c.PostgresConnString)
 	if err != nil {
@@ -100,14 +102,16 @@ func main() {
 		Queries: queries,
 	}))
 	api.Handle(userconn.NewUserServiceHandler(&user.UserService{
-		Config: c.OauthConfig,
+		Queries: queries,
+		Config:  c.OauthConfig,
+		SC:      sc,
 	}))
 
 	mux := http.NewServeMux()
 
 	mux.Handle("/", frontendHandler())
 	mux.Handle("/grpc/", http.StripPrefix("/grpc", api))
-	mux.Handle(oauth.NewOauthServiceHandler(oauth.OauthService{Config: c.OauthConfig}))
+	mux.Handle(oauth.NewOauthServiceHandler(oauth.OauthService{Queries: queries, Config: c.OauthConfig, SC: sc}))
 
 	log.Printf("Server started! Lovely jubbly.")
 

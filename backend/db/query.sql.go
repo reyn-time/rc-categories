@@ -246,7 +246,7 @@ func (q *Queries) UpdateVideoStatus(ctx context.Context, arg UpdateVideoStatusPa
 
 const upsertUser = `-- name: UpsertUser :exec
 INSERT INTO reorder.users (email, name, photo_url)
-VALUES ($1, $2, $3) ON CONFLICT DO
+VALUES ($1, $2, $3) ON CONFLICT (email) DO
 UPDATE
 SET name = $2,
     photo_url = $3
@@ -254,8 +254,8 @@ SET name = $2,
 
 type UpsertUserParams struct {
 	Email    string
-	Name     pgtype.Text
-	PhotoUrl pgtype.Text
+	Name     string
+	PhotoUrl string
 }
 
 func (q *Queries) UpsertUser(ctx context.Context, arg UpsertUserParams) error {
