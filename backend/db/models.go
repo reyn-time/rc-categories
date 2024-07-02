@@ -77,6 +77,7 @@ type ReorderVideo struct {
 	YoutubeID string
 	CreatedAt pgtype.Timestamp
 	Status    ReorderVideoStatus
+	Editor    pgtype.Int4
 }
 
 type ReorderVideoInterval struct {

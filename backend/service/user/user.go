@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -19,19 +20,9 @@ type UserService struct {
 }
 
 func (s *UserService) GetUser(ctx context.Context, req *connect.Request[userpb.GetUserRequest]) (*connect.Response[userpb.GetUserResponse], error) {
-	// TODO: Move this to an authentication middleware
-	httpReq := http.Request{Header: req.Header().Clone()}
-	authData, err := httpReq.Cookie(s.Config.CookieName)
-	if err != nil {
-		return nil, err
-	}
-	encryptedVal := authData.Value
-	dict := map[string]string{}
-	s.SC.Decode(s.Config.CookieName, encryptedVal, &dict)
-	email := dict["email"]
-	user, err := s.Queries.GetUser(ctx, email)
-	if err != nil {
-		return nil, err
+	user, ok := ctx.Value(oauth.UserCtxKey{}).(db.ReorderUser)
+	if !ok {
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("Unauthenticated user"))
 	}
 
 	res := connect.NewResponse(&userpb.GetUserResponse{

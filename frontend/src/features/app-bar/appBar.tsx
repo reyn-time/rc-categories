@@ -80,7 +80,7 @@ const UserPortal = () => {
       </IconButton>
     );
   }
-  // TODO: Provide logout functionality via a dropdown.
+
   return (
     <>
       <Tooltip title="開啟設定">

@@ -5,6 +5,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, Timestamp, proto3 } from "@bufbuild/protobuf";
+import { User } from "../../user/v1/user_pb.js";
 
 /**
  * @generated from enum video.v1.VideoStatus
@@ -187,6 +188,74 @@ export class ChangeVideoStatusResponse extends Message<ChangeVideoStatusResponse
 }
 
 /**
+ * @generated from message video.v1.ChangeVideoEditorRequest
+ */
+export class ChangeVideoEditorRequest extends Message<ChangeVideoEditorRequest> {
+  /**
+   * @generated from field: int32 id = 1;
+   */
+  id = 0;
+
+  constructor(data?: PartialMessage<ChangeVideoEditorRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "video.v1.ChangeVideoEditorRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ChangeVideoEditorRequest {
+    return new ChangeVideoEditorRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ChangeVideoEditorRequest {
+    return new ChangeVideoEditorRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ChangeVideoEditorRequest {
+    return new ChangeVideoEditorRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ChangeVideoEditorRequest | PlainMessage<ChangeVideoEditorRequest> | undefined, b: ChangeVideoEditorRequest | PlainMessage<ChangeVideoEditorRequest> | undefined): boolean {
+    return proto3.util.equals(ChangeVideoEditorRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message video.v1.ChangeVideoEditorResponse
+ */
+export class ChangeVideoEditorResponse extends Message<ChangeVideoEditorResponse> {
+  constructor(data?: PartialMessage<ChangeVideoEditorResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "video.v1.ChangeVideoEditorResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ChangeVideoEditorResponse {
+    return new ChangeVideoEditorResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ChangeVideoEditorResponse {
+    return new ChangeVideoEditorResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ChangeVideoEditorResponse {
+    return new ChangeVideoEditorResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ChangeVideoEditorResponse | PlainMessage<ChangeVideoEditorResponse> | undefined, b: ChangeVideoEditorResponse | PlainMessage<ChangeVideoEditorResponse> | undefined): boolean {
+    return proto3.util.equals(ChangeVideoEditorResponse, a, b);
+  }
+}
+
+/**
  * @generated from message video.v1.Video
  */
 export class Video extends Message<Video> {
@@ -220,6 +289,11 @@ export class Video extends Message<Video> {
    */
   status = VideoStatus.Pending;
 
+  /**
+   * @generated from field: user.v1.User editor = 7;
+   */
+  editor?: User;
+
   constructor(data?: PartialMessage<Video>) {
     super();
     proto3.util.initPartial(data, this);
@@ -234,6 +308,7 @@ export class Video extends Message<Video> {
     { no: 3, name: "description", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "created_at", kind: "message", T: Timestamp },
     { no: 6, name: "status", kind: "enum", T: proto3.getEnumType(VideoStatus) },
+    { no: 7, name: "editor", kind: "message", T: User },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): Video {

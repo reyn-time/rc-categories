@@ -3,10 +3,12 @@ syntax = "proto3";
 package video.v1;
 
 import "google/protobuf/timestamp.proto";
+import "proto/user/v1/user.proto";
 
 service VideoService {
   rpc ListVideo(ListVideoRequest) returns (ListVideoResponse) {}
   rpc ChangeVideoStatus(ChangeVideoStatusRequest) returns (ChangeVideoStatusResponse) {}
+  rpc ChangeVideoEditor(ChangeVideoEditorRequest) returns (ChangeVideoEditorResponse) {}
 }
 
 message ListVideoRequest {
@@ -17,20 +19,28 @@ message ListVideoResponse {
 }
 
 message ChangeVideoStatusRequest {
-    repeated int32 ids = 1;
-    VideoStatus status = 2;
+  repeated int32 ids = 1;
+  VideoStatus status = 2;
 }
 
 message ChangeVideoStatusResponse {
 }
 
+message ChangeVideoEditorRequest {
+  int32 id = 1;
+}
+
+message ChangeVideoEditorResponse {
+}
+
 message Video {
-    int32 id = 1;
-    string name = 2;
-    string youtube_id = 5;
-    string description = 3;
-    google.protobuf.Timestamp created_at = 4;
-    VideoStatus status = 6;
+  int32 id = 1;
+  string name = 2;
+  string youtube_id = 5;
+  string description = 3;
+  google.protobuf.Timestamp created_at = 4;
+  VideoStatus status = 6;
+  user.v1.User editor = 7;
 }
 
 enum VideoStatus {

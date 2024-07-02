@@ -10,6 +10,7 @@ import (
 	"path"
 	"strings"
 
+	"connectrpc.com/connect"
 	connectcors "connectrpc.com/cors"
 	"github.com/gorilla/securecookie"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -90,6 +91,9 @@ func main() {
 
 	queries := db.New(conn)
 
+	oauthService := oauth.OauthService{Queries: queries, Config: c.OauthConfig, SC: sc}
+	interceptors := connect.WithInterceptors(oauthService.NewAuthInterceptor())
+
 	api := http.NewServeMux()
 	api.Handle(videoconn.NewVideoServiceHandler(&video.VideoService{
 		Queries: queries,
@@ -105,13 +109,13 @@ func main() {
 		Queries: queries,
 		Config:  c.OauthConfig,
 		SC:      sc,
-	}))
+	}, interceptors))
 
 	mux := http.NewServeMux()
 
 	mux.Handle("/", frontendHandler())
 	mux.Handle("/grpc/", http.StripPrefix("/grpc", api))
-	mux.Handle(oauth.NewOauthServiceHandler(oauth.OauthService{Queries: queries, Config: c.OauthConfig, SC: sc}))
+	mux.Handle(oauth.NewOauthServiceHandler(oauthService))
 
 	log.Printf("Server started! Lovely jubbly.")
 

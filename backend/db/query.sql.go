@@ -132,26 +132,49 @@ func (q *Queries) ListIntervals(ctx context.Context, videoID int32) ([]ListInter
 }
 
 const listVideos = `-- name: ListVideos :many
-SELECT id, name, youtube_id, created_at, status
-FROM reorder.videos
+SELECT v.id, v.name, v.youtube_id, v.created_at, v.status, v.editor,
+    u.id as user_id,
+    u.email,
+    u.name as user_name,
+    u.photo_url
+FROM reorder.videos v
+    LEFT JOIN reorder.users u ON v.editor = u.id
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListVideos(ctx context.Context) ([]ReorderVideo, error) {
+type ListVideosRow struct {
+	ID        int32
+	Name      string
+	YoutubeID string
+	CreatedAt pgtype.Timestamp
+	Status    ReorderVideoStatus
+	Editor    pgtype.Int4
+	UserID    pgtype.Int4
+	Email     pgtype.Text
+	UserName  pgtype.Text
+	PhotoUrl  pgtype.Text
+}
+
+func (q *Queries) ListVideos(ctx context.Context) ([]ListVideosRow, error) {
 	rows, err := q.db.Query(ctx, listVideos)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ReorderVideo
+	var items []ListVideosRow
 	for rows.Next() {
-		var i ReorderVideo
+		var i ListVideosRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
 			&i.YoutubeID,
 			&i.CreatedAt,
 			&i.Status,
+			&i.Editor,
+			&i.UserID,
+			&i.Email,
+			&i.UserName,
+			&i.PhotoUrl,
 		); err != nil {
 			return nil, err
 		}

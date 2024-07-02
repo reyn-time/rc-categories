@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"connectrpc.com/connect"
 	"github.com/gorilla/securecookie"
 	"github.com/reyn-time/rc-categories/backend/db"
 	"golang.org/x/oauth2"
@@ -44,6 +45,8 @@ type oauthSecret struct {
 	ClientSecret string `json:"client_secret"`
 }
 
+type UserCtxKey struct{}
+
 func NewOauthServiceHandler(service OauthService) (string, http.Handler) {
 	var secret oauthSecret
 	json.Unmarshal(secretsJson, &secret)
@@ -68,6 +71,35 @@ func NewOauthServiceHandler(service OauthService) (string, http.Handler) {
 			http.NotFound(w, r)
 		}
 	})
+}
+
+func (o *OauthService) NewAuthInterceptor() connect.UnaryInterceptorFunc {
+	interceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+		return connect.UnaryFunc(func(
+			ctx context.Context,
+			req connect.AnyRequest,
+		) (connect.AnyResponse, error) {
+			// Extracts user email from cookie if existent
+			httpReq := http.Request{Header: req.Header().Clone()}
+			authData, err := httpReq.Cookie(o.Config.CookieName)
+			if err != nil {
+				return next(ctx, req)
+			}
+			encryptedVal := authData.Value
+			dict := map[string]string{}
+			o.SC.Decode(o.Config.CookieName, encryptedVal, &dict)
+			email := dict["email"]
+
+			// Reads user from DB based on email, and set it in ctx.
+			user, err := o.Queries.GetUser(ctx, email)
+			if err != nil {
+				return next(ctx, req)
+			}
+			newCtx := context.WithValue(ctx, UserCtxKey{}, user)
+			return next(newCtx, req)
+		})
+	}
+	return connect.UnaryInterceptorFunc(interceptor)
 }
 
 func (o *OauthService) OauthGoogleLogin(w http.ResponseWriter, r *http.Request) {

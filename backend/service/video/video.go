@@ -5,6 +5,7 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/reyn-time/rc-categories/backend/db"
+	userpb "github.com/reyn-time/rc-categories/backend/gen/proto/user/v1"
 	videopb "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -37,6 +38,14 @@ func (s *VideoService) ListVideo(ctx context.Context, req *connect.Request[video
 			CreatedAt: timestamppb.New(v.CreatedAt.Time),
 			Status:    statusMapping[v.Status],
 		}
+		if v.UserID.Valid {
+			videos[i].Editor = &userpb.User{
+				Id:       v.UserID.Int32,
+				Email:    v.Email.String,
+				PhotoUrl: v.PhotoUrl.String,
+				Name:     v.UserName.String,
+			}
+		}
 	}
 
 	res := connect.NewResponse(&videopb.ListVideoResponse{
@@ -64,5 +73,11 @@ func (s *VideoService) ChangeVideoStatus(ctx context.Context, req *connect.Reque
 	}
 
 	res := connect.NewResponse(&videopb.ChangeVideoStatusResponse{})
+	return res, nil
+}
+
+func (s *VideoService) ChangeVideoEditor(ctx context.Context, req *connect.Request[videopb.ChangeVideoEditorRequest]) (*connect.Response[videopb.ChangeVideoEditorResponse], error) {
+	// TODO: Set video editor to the request user.
+	res := connect.NewResponse(&videopb.ChangeVideoEditorResponse{})
 	return res, nil
 }
