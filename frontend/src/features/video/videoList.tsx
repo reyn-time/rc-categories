@@ -21,6 +21,8 @@ import {
   Chip,
   Menu,
   MenuItem,
+  ListItemAvatar,
+  Avatar,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { convertHTMLToText } from "../../util/encoding";
@@ -31,6 +33,7 @@ import {
   allVideoStatus,
   videoStatusToStatusText,
 } from "../../util/videoStatus";
+import { userAvatarProps } from "../user/avatar";
 
 export const VideoList = () => {
   const {
@@ -218,6 +221,18 @@ export const VideoList = () => {
                             />
                           </ListItemIcon>
                         )}
+
+                        {
+                          <ListItemAvatar>
+                            {row.editor ? (
+                              <Avatar {...userAvatarProps(row.editor)} />
+                            ) : (
+                              <Avatar>
+                                <Icon>person_off</Icon>
+                              </Avatar>
+                            )}
+                          </ListItemAvatar>
+                        }
 
                         <ListItemText
                           primary={

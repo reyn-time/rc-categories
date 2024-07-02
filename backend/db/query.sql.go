@@ -251,6 +251,22 @@ func (q *Queries) UpdateInterval(ctx context.Context, arg UpdateIntervalParams) 
 	return err
 }
 
+const updateVideoEditor = `-- name: UpdateVideoEditor :exec
+UPDATE reorder.videos
+SET editor = $2
+WHERE id = $1
+`
+
+type UpdateVideoEditorParams struct {
+	ID     int32
+	Editor pgtype.Int4
+}
+
+func (q *Queries) UpdateVideoEditor(ctx context.Context, arg UpdateVideoEditorParams) error {
+	_, err := q.db.Exec(ctx, updateVideoEditor, arg.ID, arg.Editor)
+	return err
+}
+
 const updateVideoStatus = `-- name: UpdateVideoStatus :exec
 UPDATE reorder.videos
 SET status = $2

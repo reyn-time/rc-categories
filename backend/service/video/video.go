@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/reyn-time/rc-categories/backend/db"
 	userpb "github.com/reyn-time/rc-categories/backend/gen/proto/user/v1"
 	videopb "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1"
@@ -77,7 +78,20 @@ func (s *VideoService) ChangeVideoStatus(ctx context.Context, req *connect.Reque
 }
 
 func (s *VideoService) ChangeVideoEditor(ctx context.Context, req *connect.Request[videopb.ChangeVideoEditorRequest]) (*connect.Response[videopb.ChangeVideoEditorResponse], error) {
-	// TODO: Set video editor to the request user.
+	editorID := pgtype.Int4{Valid: false}
+	if req.Msg.EditorId > 0 {
+		editorID.Valid = true
+		editorID.Int32 = req.Msg.EditorId
+	}
+
+	err := s.Queries.UpdateVideoEditor(ctx, db.UpdateVideoEditorParams{
+		ID:     req.Msg.Id,
+		Editor: editorID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	res := connect.NewResponse(&videopb.ChangeVideoEditorResponse{})
 	return res, nil
 }

@@ -11,6 +11,10 @@ ORDER BY created_at DESC;
 UPDATE reorder.videos
 SET status = $2
 WHERE id = ANY($1::integer []);
+-- name: UpdateVideoEditor :exec
+UPDATE reorder.videos
+SET editor = $2
+WHERE id = $1;
 -- name: ListCategories :many
 SELECT *
 FROM reorder.categories;

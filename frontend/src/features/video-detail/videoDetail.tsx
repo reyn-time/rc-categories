@@ -66,7 +66,7 @@ export const VideoDetail = () => {
         <Grid item xs={12} lg={8} xl={7}>
           {duration && playerRef.current && !isCategoryLoading && video ? (
             <IntervalTabs
-              videoId={video.id}
+              video={video}
               seekTo={seekTo}
               duration={duration}
               currentTime={currentTime}

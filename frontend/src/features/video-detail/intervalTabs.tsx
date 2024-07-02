@@ -1,5 +1,7 @@
 import {
+  Avatar,
   Box,
+  Chip,
   Fade,
   Slide,
   Stack,
@@ -10,21 +12,24 @@ import { IntervalList } from "./intervalList";
 import { IntervalInputForm } from "./intervalInput";
 import { useState } from "react";
 import { PanelTypes } from "./intervalTypes";
-import { VideoStatus } from "../../gen/proto/video/v1/video_pb";
+import { Video, VideoStatus } from "../../gen/proto/video/v1/video_pb";
 import {
   allVideoStatus,
   videoStatusToStatusText,
 } from "../../util/videoStatus";
 import { useChangeVideoStatusMutation } from "../video/videoSlice";
+import { PlainMessage } from "@bufbuild/protobuf";
+import { NoBigIntMessage } from "../../util/types";
+import { userAvatarProps } from "../user/avatar";
 
 export const IntervalTabs = (props: {
-  videoId: number;
+  video: NoBigIntMessage<PlainMessage<Video>>;
   seekTo: (second: number) => void;
   duration: number;
   currentTime: number;
   status: VideoStatus;
 }) => {
-  const { videoId, seekTo, duration, currentTime, status } = props;
+  const { video, seekTo, duration, currentTime, status } = props;
   const [panel, setPanel] = useState<PanelTypes | null>(null);
   const [changeVideoStatus] = useChangeVideoStatusMutation();
   const [buttonEnabled, setButtonEnabled] = useState(true);
@@ -32,7 +37,7 @@ export const IntervalTabs = (props: {
   const onStatusChange = (newStatus: VideoStatus) => {
     setButtonEnabled(false);
     void changeVideoStatus({
-      ids: [videoId],
+      ids: [video.id],
       status: newStatus,
     }).then(() => {
       setButtonEnabled(true);
@@ -41,24 +46,37 @@ export const IntervalTabs = (props: {
 
   return (
     <Stack gap={2}>
-      <ToggleButtonGroup
-        exclusive
-        value={status}
-        size="small"
-        aria-label="text alignment"
-        onChange={(_, value) => onStatusChange(+value)}
+      <Stack
+        direction="row"
+        gap={1}
+        alignItems="center"
+        justifyContent="space-between"
       >
-        {allVideoStatus.map((status) => (
-          <ToggleButton
-            key={status}
-            color={videoStatusToStatusText[status].color}
-            value={status}
-            disabled={!buttonEnabled}
-          >
-            {videoStatusToStatusText[status].text}
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup>
+        <ToggleButtonGroup
+          exclusive
+          value={status}
+          size="small"
+          aria-label="text alignment"
+          onChange={(_, value) => onStatusChange(+value)}
+        >
+          {allVideoStatus.map((status) => (
+            <ToggleButton
+              key={status}
+              color={videoStatusToStatusText[status].color}
+              value={status}
+              disabled={!buttonEnabled}
+            >
+              {videoStatusToStatusText[status].text}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+        {/* TODO: Create dropdown to select other users as editors */}
+        <Chip
+          avatar={video.editor && <Avatar {...userAvatarProps(video.editor)} />}
+          label={"負責人：" + (video.editor?.name ?? "不明")}
+          onClick={() => {}}
+        />
+      </Stack>
       <Box
         sx={{
           position: "relative",
@@ -66,7 +84,7 @@ export const IntervalTabs = (props: {
       >
         <Fade in={panel === null} appear={false}>
           <IntervalList
-            videoId={videoId}
+            videoId={video.id}
             seekTo={seekTo}
             setPanel={setPanel}
           ></IntervalList>
@@ -75,7 +93,7 @@ export const IntervalTabs = (props: {
         <Box sx={{ position: "absolute", top: 0, left: 0, width: "100%" }}>
           <Slide in={!!panel?.type} direction="left" mountOnEnter unmountOnExit>
             <IntervalInputForm
-              videoId={videoId}
+              videoId={video.id}
               intervalId={
                 panel?.type === "UpdateInterval" ? panel.interval.id : undefined
               }

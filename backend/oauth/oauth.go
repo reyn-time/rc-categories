@@ -17,6 +17,7 @@ import (
 	"github.com/reyn-time/rc-categories/backend/db"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
+	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
 //go:embed secrets.json
@@ -79,6 +80,17 @@ func (o *OauthService) NewAuthInterceptor() connect.UnaryInterceptorFunc {
 			ctx context.Context,
 			req connect.AnyRequest,
 		) (connect.AnyResponse, error) {
+			// TODO: Check for auth option markings
+			methodDescriptor, ok := req.Spec().Schema.(protoreflect.MethodDescriptor)
+			if !ok {
+				log.Println("Method descriptor not found")
+			} else {
+				methodDescriptor.Options().ProtoReflect().Range(func(key protoreflect.FieldDescriptor, val protoreflect.Value) bool {
+					log.Println(key.FullName(), val.Interface())
+					return true
+				})
+			}
+
 			// Extracts user email from cookie if existent
 			httpReq := http.Request{Header: req.Header().Clone()}
 			authData, err := httpReq.Cookie(o.Config.CookieName)

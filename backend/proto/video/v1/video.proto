@@ -28,6 +28,7 @@ message ChangeVideoStatusResponse {
 
 message ChangeVideoEditorRequest {
   int32 id = 1;
+  int32 editor_id = 2;
 }
 
 message ChangeVideoEditorResponse {

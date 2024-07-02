@@ -196,6 +196,11 @@ export class ChangeVideoEditorRequest extends Message<ChangeVideoEditorRequest> 
    */
   id = 0;
 
+  /**
+   * @generated from field: int32 editor_id = 2;
+   */
+  editorId = 0;
+
   constructor(data?: PartialMessage<ChangeVideoEditorRequest>) {
     super();
     proto3.util.initPartial(data, this);
@@ -205,6 +210,7 @@ export class ChangeVideoEditorRequest extends Message<ChangeVideoEditorRequest> 
   static readonly typeName = "video.v1.ChangeVideoEditorRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
     { no: 1, name: "id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 2, name: "editor_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ChangeVideoEditorRequest {

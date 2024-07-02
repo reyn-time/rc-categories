@@ -2,9 +2,15 @@ syntax = "proto3";
 
 package user.v1;
 
+import "proto/auth/v1/auth.proto";
+
 service UserService {
-  rpc GetUser(GetUserRequest) returns (GetUserResponse) {} 
-  rpc LogoutUser(LogoutUserRequest) returns (LogoutUserResponse) {}
+  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    option (auth.v1.auth_enabled) = false;
+  } 
+  rpc LogoutUser(LogoutUserRequest) returns (LogoutUserResponse) {
+    option (auth.v1.auth_enabled) = false;
+  }
 }
 
 message GetUserRequest {

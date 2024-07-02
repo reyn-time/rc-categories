@@ -4,16 +4,17 @@ import {
   Toolbar,
   IconButton,
   Icon,
-  Avatar,
   Skeleton,
   Tooltip,
   Menu,
   MenuItem,
   ListItemIcon,
+  Avatar,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useGetUserQuery, useLogoutUserMutation } from "../user/userSlice";
 import { useState } from "react";
+import { userAvatarProps } from "../user/avatar";
 
 export const CustomAppBar = () => {
   const navigate = useNavigate();
@@ -85,11 +86,7 @@ const UserPortal = () => {
     <>
       <Tooltip title="開啟設定">
         <IconButton onClick={handleClick}>
-          <Avatar
-            {...stringAvatar(user.name)}
-            alt={user.name}
-            src={user.photoUrl}
-          />
+          <Avatar {...userAvatarProps(user)} />
         </IconButton>
       </Tooltip>
       <Menu
@@ -113,39 +110,4 @@ const UserPortal = () => {
       </Menu>
     </>
   );
-};
-
-const stringAvatar = (name: string) => {
-  let initials = "?";
-  const parts = name.split(" ");
-  if (parts.length >= 2) {
-    initials = `${parts[0][0]}${parts[1][0]}`;
-  } else if (parts.length == 1 && name.length > 0) {
-    initials = name[0];
-  }
-
-  return {
-    sx: {
-      bgcolor: stringToColor(name),
-    },
-    children: initials,
-  };
-};
-
-const stringToColor = (string: string) => {
-  let hash = 0;
-  let i;
-
-  for (i = 0; i < string.length; i += 1) {
-    hash = string.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  let color = "#";
-
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.slice(-2);
-  }
-
-  return color;
 };
