@@ -10,12 +10,29 @@ const userClient = createPromiseClient(UserService, transport);
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({ baseUrl: "/" }),
-  tagTypes: ["User"],
+  tagTypes: ["User", "Users"],
   endpoints: (builder) => ({
+    getUsers: builder.query<PlainMessage<User>[], void>({
+      queryFn: async () => {
+        try {
+          const res = await userClient.getUsers({});
+          return { data: res.users };
+        } catch (error) {
+          const connectErr = ConnectError.from(error);
+          return {
+            error: {
+              status: connectErr.code,
+              statusText: Code[connectErr.code],
+              data: connectErr.rawMessage,
+            },
+          };
+        }
+      },
+    }),
     getUser: builder.query<PlainMessage<User> | undefined, void>({
       queryFn: async () => {
         try {
-          const res = await userClient.getUser({});
+          const res = await userClient.getCurrentUser({});
           return { data: res.user };
         } catch (error) {
           const connectErr = ConnectError.from(error);
@@ -52,4 +69,5 @@ export const userApi = createApi({
   }),
 });
 
-export const { useGetUserQuery, useLogoutUserMutation } = userApi;
+export const { useGetUsersQuery, useGetUserQuery, useLogoutUserMutation } =
+  userApi;

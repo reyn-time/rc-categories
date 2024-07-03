@@ -48,6 +48,9 @@ WHERE video_interval_id = $1;
 -- name: DeleteInterval :exec
 DELETE FROM reorder.video_intervals
 WHERE id = $1;
+-- name: ListUsers :many
+SELECT *
+FROM reorder.users;
 -- name: GetUser :one
 SELECT *
 FROM reorder.users

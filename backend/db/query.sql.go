@@ -131,6 +131,36 @@ func (q *Queries) ListIntervals(ctx context.Context, videoID int32) ([]ListInter
 	return items, nil
 }
 
+const listUsers = `-- name: ListUsers :many
+SELECT id, email, name, photo_url
+FROM reorder.users
+`
+
+func (q *Queries) ListUsers(ctx context.Context) ([]ReorderUser, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ReorderUser
+	for rows.Next() {
+		var i ReorderUser
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.PhotoUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listVideos = `-- name: ListVideos :many
 SELECT v.id, v.name, v.youtube_id, v.created_at, v.status, v.editor,
     u.id as user_id,

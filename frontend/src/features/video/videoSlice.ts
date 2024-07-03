@@ -2,6 +2,7 @@ import { Code, ConnectError, createPromiseClient } from "@connectrpc/connect";
 import { VideoService } from "../../gen/proto/video/v1/video_connect";
 import { PlainMessage, toPlainMessage } from "@bufbuild/protobuf";
 import {
+  ChangeVideoEditorRequest,
   ChangeVideoStatusRequest,
   Video,
 } from "../../gen/proto/video/v1/video_pb";
@@ -44,6 +45,27 @@ export const videoApi = createApi({
       },
       providesTags: ["Video"],
     }),
+    changeVideoEditor: builder.mutation<
+      void,
+      PlainMessage<ChangeVideoEditorRequest>
+    >({
+      queryFn: async (req) => {
+        try {
+          await videoClient.changeVideoEditor(req);
+          return { data: undefined };
+        } catch (error) {
+          const connectErr = ConnectError.from(error);
+          return {
+            error: {
+              status: connectErr.code,
+              statusText: Code[connectErr.code],
+              data: connectErr.rawMessage,
+            },
+          };
+        }
+      },
+      invalidatesTags: ["Video"],
+    }),
     changeVideoStatus: builder.mutation<
       void,
       PlainMessage<ChangeVideoStatusRequest>
@@ -63,9 +85,13 @@ export const videoApi = createApi({
           };
         }
       },
-      invalidatesTags: ["Video"],
+      invalidatesTags: ["Video"], //TODO: More fine-grained invalidation for videos
     }),
   }),
 });
 
-export const { useListVideoQuery, useChangeVideoStatusMutation } = videoApi;
+export const {
+  useListVideoQuery,
+  useChangeVideoStatusMutation,
+  useChangeVideoEditorMutation,
+} = videoApi;

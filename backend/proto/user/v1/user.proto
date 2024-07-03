@@ -5,7 +5,10 @@ package user.v1;
 import "proto/auth/v1/auth.proto";
 
 service UserService {
-  rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+  rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {
+    option (auth.v1.auth_enabled) = true;
+  }
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse) {
     option (auth.v1.auth_enabled) = false;
   } 
   rpc LogoutUser(LogoutUserRequest) returns (LogoutUserResponse) {
@@ -13,10 +16,17 @@ service UserService {
   }
 }
 
-message GetUserRequest {
+message GetUsersRequest {
 }
 
-message GetUserResponse {
+message GetUsersResponse {
+  repeated User users = 1;
+}
+
+message GetCurrentUserRequest {
+}
+
+message GetCurrentUserResponse {
   User user = 1;
 }
 

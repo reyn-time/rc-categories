@@ -19,13 +19,31 @@ type UserService struct {
 	Queries *db.Queries
 }
 
-func (s *UserService) GetUser(ctx context.Context, req *connect.Request[userpb.GetUserRequest]) (*connect.Response[userpb.GetUserResponse], error) {
+func (s *UserService) GetUsers(ctx context.Context, req *connect.Request[userpb.GetUsersRequest]) (*connect.Response[userpb.GetUsersResponse], error) {
+	users, err := s.Queries.ListUsers(ctx)
+	if err != nil {
+		return nil, err
+	}
+	usersPb := make([]*userpb.User, len(users))
+	for i, user := range users {
+		usersPb[i] = &userpb.User{
+			Id:       user.ID,
+			Email:    user.Email,
+			Name:     user.Name,
+			PhotoUrl: user.PhotoUrl,
+		}
+	}
+	res := connect.NewResponse(&userpb.GetUsersResponse{Users: usersPb})
+	return res, nil
+}
+
+func (s *UserService) GetCurrentUser(ctx context.Context, req *connect.Request[userpb.GetCurrentUserRequest]) (*connect.Response[userpb.GetCurrentUserResponse], error) {
 	user, ok := ctx.Value(oauth.UserCtxKey{}).(db.ReorderUser)
 	if !ok {
-		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("Unauthenticated user"))
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("unauthenticated user"))
 	}
 
-	res := connect.NewResponse(&userpb.GetUserResponse{
+	res := connect.NewResponse(&userpb.GetCurrentUserResponse{
 		User: &userpb.User{
 			Id:       user.ID,
 			Email:    user.Email,

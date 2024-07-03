@@ -92,19 +92,19 @@ func main() {
 	queries := db.New(conn)
 
 	oauthService := oauth.OauthService{Queries: queries, Config: c.OauthConfig, SC: sc}
-	interceptors := connect.WithInterceptors(oauthService.NewAuthInterceptor())
+	interceptors := connect.WithInterceptors(oauthService.NewAuthInterceptors()...)
 
 	api := http.NewServeMux()
 	api.Handle(videoconn.NewVideoServiceHandler(&video.VideoService{
 		Queries: queries,
-	}))
+	}, interceptors))
 	api.Handle(categoryconn.NewCategoryServiceHandler(&category.CategoryService{
 		Queries: queries,
-	}))
+	}, interceptors))
 	api.Handle(intervalconn.NewIntervalServiceHandler(&interval.IntervalService{
 		Conn:    conn,
 		Queries: queries,
-	}))
+	}, interceptors))
 	api.Handle(userconn.NewUserServiceHandler(&user.UserService{
 		Queries: queries,
 		Config:  c.OauthConfig,

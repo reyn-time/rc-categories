@@ -33,22 +33,27 @@ const (
 // reflection-formatted method names, remove the leading slash and convert the remaining slash to a
 // period.
 const (
-	// UserServiceGetUserProcedure is the fully-qualified name of the UserService's GetUser RPC.
-	UserServiceGetUserProcedure = "/user.v1.UserService/GetUser"
+	// UserServiceGetUsersProcedure is the fully-qualified name of the UserService's GetUsers RPC.
+	UserServiceGetUsersProcedure = "/user.v1.UserService/GetUsers"
+	// UserServiceGetCurrentUserProcedure is the fully-qualified name of the UserService's
+	// GetCurrentUser RPC.
+	UserServiceGetCurrentUserProcedure = "/user.v1.UserService/GetCurrentUser"
 	// UserServiceLogoutUserProcedure is the fully-qualified name of the UserService's LogoutUser RPC.
 	UserServiceLogoutUserProcedure = "/user.v1.UserService/LogoutUser"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	userServiceServiceDescriptor          = v1.File_proto_user_v1_user_proto.Services().ByName("UserService")
-	userServiceGetUserMethodDescriptor    = userServiceServiceDescriptor.Methods().ByName("GetUser")
-	userServiceLogoutUserMethodDescriptor = userServiceServiceDescriptor.Methods().ByName("LogoutUser")
+	userServiceServiceDescriptor              = v1.File_proto_user_v1_user_proto.Services().ByName("UserService")
+	userServiceGetUsersMethodDescriptor       = userServiceServiceDescriptor.Methods().ByName("GetUsers")
+	userServiceGetCurrentUserMethodDescriptor = userServiceServiceDescriptor.Methods().ByName("GetCurrentUser")
+	userServiceLogoutUserMethodDescriptor     = userServiceServiceDescriptor.Methods().ByName("LogoutUser")
 )
 
 // UserServiceClient is a client for the user.v1.UserService service.
 type UserServiceClient interface {
-	GetUser(context.Context, *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error)
+	GetUsers(context.Context, *connect.Request[v1.GetUsersRequest]) (*connect.Response[v1.GetUsersResponse], error)
+	GetCurrentUser(context.Context, *connect.Request[v1.GetCurrentUserRequest]) (*connect.Response[v1.GetCurrentUserResponse], error)
 	LogoutUser(context.Context, *connect.Request[v1.LogoutUserRequest]) (*connect.Response[v1.LogoutUserResponse], error)
 }
 
@@ -62,10 +67,16 @@ type UserServiceClient interface {
 func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ...connect.ClientOption) UserServiceClient {
 	baseURL = strings.TrimRight(baseURL, "/")
 	return &userServiceClient{
-		getUser: connect.NewClient[v1.GetUserRequest, v1.GetUserResponse](
+		getUsers: connect.NewClient[v1.GetUsersRequest, v1.GetUsersResponse](
 			httpClient,
-			baseURL+UserServiceGetUserProcedure,
-			connect.WithSchema(userServiceGetUserMethodDescriptor),
+			baseURL+UserServiceGetUsersProcedure,
+			connect.WithSchema(userServiceGetUsersMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		getCurrentUser: connect.NewClient[v1.GetCurrentUserRequest, v1.GetCurrentUserResponse](
+			httpClient,
+			baseURL+UserServiceGetCurrentUserProcedure,
+			connect.WithSchema(userServiceGetCurrentUserMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
 		logoutUser: connect.NewClient[v1.LogoutUserRequest, v1.LogoutUserResponse](
@@ -79,13 +90,19 @@ func NewUserServiceClient(httpClient connect.HTTPClient, baseURL string, opts ..
 
 // userServiceClient implements UserServiceClient.
 type userServiceClient struct {
-	getUser    *connect.Client[v1.GetUserRequest, v1.GetUserResponse]
-	logoutUser *connect.Client[v1.LogoutUserRequest, v1.LogoutUserResponse]
+	getUsers       *connect.Client[v1.GetUsersRequest, v1.GetUsersResponse]
+	getCurrentUser *connect.Client[v1.GetCurrentUserRequest, v1.GetCurrentUserResponse]
+	logoutUser     *connect.Client[v1.LogoutUserRequest, v1.LogoutUserResponse]
 }
 
-// GetUser calls user.v1.UserService.GetUser.
-func (c *userServiceClient) GetUser(ctx context.Context, req *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error) {
-	return c.getUser.CallUnary(ctx, req)
+// GetUsers calls user.v1.UserService.GetUsers.
+func (c *userServiceClient) GetUsers(ctx context.Context, req *connect.Request[v1.GetUsersRequest]) (*connect.Response[v1.GetUsersResponse], error) {
+	return c.getUsers.CallUnary(ctx, req)
+}
+
+// GetCurrentUser calls user.v1.UserService.GetCurrentUser.
+func (c *userServiceClient) GetCurrentUser(ctx context.Context, req *connect.Request[v1.GetCurrentUserRequest]) (*connect.Response[v1.GetCurrentUserResponse], error) {
+	return c.getCurrentUser.CallUnary(ctx, req)
 }
 
 // LogoutUser calls user.v1.UserService.LogoutUser.
@@ -95,7 +112,8 @@ func (c *userServiceClient) LogoutUser(ctx context.Context, req *connect.Request
 
 // UserServiceHandler is an implementation of the user.v1.UserService service.
 type UserServiceHandler interface {
-	GetUser(context.Context, *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error)
+	GetUsers(context.Context, *connect.Request[v1.GetUsersRequest]) (*connect.Response[v1.GetUsersResponse], error)
+	GetCurrentUser(context.Context, *connect.Request[v1.GetCurrentUserRequest]) (*connect.Response[v1.GetCurrentUserResponse], error)
 	LogoutUser(context.Context, *connect.Request[v1.LogoutUserRequest]) (*connect.Response[v1.LogoutUserResponse], error)
 }
 
@@ -105,10 +123,16 @@ type UserServiceHandler interface {
 // By default, handlers support the Connect, gRPC, and gRPC-Web protocols with the binary Protobuf
 // and JSON codecs. They also support gzip compression.
 func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption) (string, http.Handler) {
-	userServiceGetUserHandler := connect.NewUnaryHandler(
-		UserServiceGetUserProcedure,
-		svc.GetUser,
-		connect.WithSchema(userServiceGetUserMethodDescriptor),
+	userServiceGetUsersHandler := connect.NewUnaryHandler(
+		UserServiceGetUsersProcedure,
+		svc.GetUsers,
+		connect.WithSchema(userServiceGetUsersMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	userServiceGetCurrentUserHandler := connect.NewUnaryHandler(
+		UserServiceGetCurrentUserProcedure,
+		svc.GetCurrentUser,
+		connect.WithSchema(userServiceGetCurrentUserMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
 	userServiceLogoutUserHandler := connect.NewUnaryHandler(
@@ -119,8 +143,10 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 	)
 	return "/user.v1.UserService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
-		case UserServiceGetUserProcedure:
-			userServiceGetUserHandler.ServeHTTP(w, r)
+		case UserServiceGetUsersProcedure:
+			userServiceGetUsersHandler.ServeHTTP(w, r)
+		case UserServiceGetCurrentUserProcedure:
+			userServiceGetCurrentUserHandler.ServeHTTP(w, r)
 		case UserServiceLogoutUserProcedure:
 			userServiceLogoutUserHandler.ServeHTTP(w, r)
 		default:
@@ -132,8 +158,12 @@ func NewUserServiceHandler(svc UserServiceHandler, opts ...connect.HandlerOption
 // UnimplementedUserServiceHandler returns CodeUnimplemented from all methods.
 type UnimplementedUserServiceHandler struct{}
 
-func (UnimplementedUserServiceHandler) GetUser(context.Context, *connect.Request[v1.GetUserRequest]) (*connect.Response[v1.GetUserResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("user.v1.UserService.GetUser is not implemented"))
+func (UnimplementedUserServiceHandler) GetUsers(context.Context, *connect.Request[v1.GetUsersRequest]) (*connect.Response[v1.GetUsersResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("user.v1.UserService.GetUsers is not implemented"))
+}
+
+func (UnimplementedUserServiceHandler) GetCurrentUser(context.Context, *connect.Request[v1.GetCurrentUserRequest]) (*connect.Response[v1.GetCurrentUserResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("user.v1.UserService.GetCurrentUser is not implemented"))
 }
 
 func (UnimplementedUserServiceHandler) LogoutUser(context.Context, *connect.Request[v1.LogoutUserRequest]) (*connect.Response[v1.LogoutUserResponse], error) {

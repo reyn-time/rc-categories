@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -74,23 +75,12 @@ func NewOauthServiceHandler(service OauthService) (string, http.Handler) {
 	})
 }
 
-func (o *OauthService) NewAuthInterceptor() connect.UnaryInterceptorFunc {
-	interceptor := func(next connect.UnaryFunc) connect.UnaryFunc {
+func (o *OauthService) NewAuthInterceptors() []connect.Interceptor {
+	interceptor1 := func(next connect.UnaryFunc) connect.UnaryFunc {
 		return connect.UnaryFunc(func(
 			ctx context.Context,
 			req connect.AnyRequest,
 		) (connect.AnyResponse, error) {
-			// TODO: Check for auth option markings
-			methodDescriptor, ok := req.Spec().Schema.(protoreflect.MethodDescriptor)
-			if !ok {
-				log.Println("Method descriptor not found")
-			} else {
-				methodDescriptor.Options().ProtoReflect().Range(func(key protoreflect.FieldDescriptor, val protoreflect.Value) bool {
-					log.Println(key.FullName(), val.Interface())
-					return true
-				})
-			}
-
 			// Extracts user email from cookie if existent
 			httpReq := http.Request{Header: req.Header().Clone()}
 			authData, err := httpReq.Cookie(o.Config.CookieName)
@@ -111,7 +101,39 @@ func (o *OauthService) NewAuthInterceptor() connect.UnaryInterceptorFunc {
 			return next(newCtx, req)
 		})
 	}
-	return connect.UnaryInterceptorFunc(interceptor)
+
+	interceptor2 := func(next connect.UnaryFunc) connect.UnaryFunc {
+		return connect.UnaryFunc(func(
+			ctx context.Context,
+			req connect.AnyRequest,
+		) (connect.AnyResponse, error) {
+			// Check if auth enabled in RPC method
+			authEnabled := false
+			methodDescriptor, ok := req.Spec().Schema.(protoreflect.MethodDescriptor)
+			if ok {
+				methodDescriptor.Options().ProtoReflect().Range(func(key protoreflect.FieldDescriptor, val protoreflect.Value) bool {
+					if key.FullName() == "auth.v1.auth_enabled" {
+						authEnabled = val.Interface().(bool)
+						return false
+					}
+					return true
+				})
+			}
+
+			if authEnabled {
+				userRaw := ctx.Value(UserCtxKey{})
+				if userRaw == nil {
+					return nil, connect.NewError(
+						connect.CodeUnauthenticated,
+						errors.New("unauthenticated user"),
+					)
+				}
+			}
+			return next(ctx, req)
+		})
+	}
+
+	return []connect.Interceptor{connect.UnaryInterceptorFunc(interceptor1), connect.UnaryInterceptorFunc(interceptor2)}
 }
 
 func (o *OauthService) OauthGoogleLogin(w http.ResponseWriter, r *http.Request) {
