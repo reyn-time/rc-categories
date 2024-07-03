@@ -4,6 +4,10 @@ services:
     environment:
       - POSTGRES_CONN_STR=user=postgres password=password sslmode=disable host=pgdb
       - ENV=production
+      - OAUTH_REDIRECT_URL=http://localhost:8080/
+      - OAUTH_COOKIE_SAMESITE=3
+    ports:
+      - "8080:8080"
 
   pgdb:
     image: postgres:16.2

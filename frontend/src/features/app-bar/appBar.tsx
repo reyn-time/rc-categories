@@ -11,7 +11,7 @@ import {
   ListItemIcon,
   Avatar,
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useGetUserQuery, useLogoutUserMutation } from "../user/userSlice";
 import { useState } from "react";
 import { userAvatarProps } from "../user/avatar";
@@ -69,13 +69,14 @@ const UserPortal = () => {
       <IconButton
         size="large"
         color="inherit"
-        component={Link}
-        to={
-          new URL(
-            "../auth/google/login",
-            import.meta.env.VITE_API_BASE_URL as string
-          ).href
-        }
+        onClick={() => {
+          window.location.replace(
+            new URL(
+              "../auth/google/login",
+              import.meta.env.VITE_API_BASE_URL as string
+            ).href
+          );
+        }}
       >
         <Icon>login</Icon>
       </IconButton>
