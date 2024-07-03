@@ -158,6 +158,8 @@ export const IntervalTabs = (props: {
   );
 };
 
+// TODO: Allow users to refresh the list of users?
+// TODO: Show skeleton on loading.
 const SelectUserMenu = (props: {
   anchorEl: HTMLElement | null;
   selectedUserEmail: string;

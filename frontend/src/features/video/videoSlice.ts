@@ -5,10 +5,13 @@ import {
   ChangeVideoEditorRequest,
   ChangeVideoStatusRequest,
   Video,
+  VideoStatus,
 } from "../../gen/proto/video/v1/video_pb";
 import { NoBigIntMessage } from "../../util/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { transport } from "../../util/connect";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { allVideoStatus } from "../../util/videoStatus";
 
 const videoClient = createPromiseClient(VideoService, transport);
 
@@ -90,8 +93,41 @@ export const videoApi = createApi({
   }),
 });
 
+interface VideoFilterState {
+  pageNumber: number;
+  selectedVideoStatus: Set<VideoStatus>;
+  searchTerm: string;
+}
+
+const initialState = {
+  pageNumber: 1,
+  selectedVideoStatus: new Set(
+    allVideoStatus.filter((status) => status != VideoStatus.Archived)
+  ),
+  searchTerm: "",
+} satisfies VideoFilterState as VideoFilterState;
+
+export const videoFilterSlice = createSlice({
+  name: "videoFilter",
+  initialState,
+  reducers: {
+    setPageNumber(state, action: PayloadAction<number>) {
+      state.pageNumber = action.payload;
+    },
+    setSelectedVideoStatus(state, action: PayloadAction<Set<number>>) {
+      state.selectedVideoStatus = action.payload;
+    },
+    setSearchTerm(state, action: PayloadAction<string>) {
+      state.searchTerm = action.payload;
+    },
+  },
+});
+
 export const {
   useListVideoQuery,
   useChangeVideoStatusMutation,
   useChangeVideoEditorMutation,
 } = videoApi;
+
+export const { setPageNumber, setSelectedVideoStatus, setSearchTerm } =
+  videoFilterSlice.actions;

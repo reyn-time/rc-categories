@@ -147,6 +147,7 @@ func (o *OauthService) OauthGoogleLogin(w http.ResponseWriter, r *http.Request) 
 }
 
 func (o *OauthService) OauthGoogleCallback(w http.ResponseWriter, r *http.Request) {
+	// TODO: On error, tell frontend that something is wrong.
 	data, err := o.getUserDataFromGoogle(r.FormValue("code"))
 	if err != nil {
 		log.Println(err.Error())

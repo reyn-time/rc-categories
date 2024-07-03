@@ -1,4 +1,10 @@
-import { useChangeVideoStatusMutation, useListVideoQuery } from "./videoSlice";
+import {
+  setPageNumber,
+  setSearchTerm,
+  setSelectedVideoStatus,
+  useChangeVideoStatusMutation,
+  useListVideoQuery,
+} from "./videoSlice";
 import {
   Paper,
   Grid,
@@ -34,7 +40,9 @@ import {
   videoStatusToStatusText,
 } from "../../util/videoStatus";
 import { userAvatarProps } from "../user/avatar";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 
+// TODO: Add a button to refresh video list.
 export const VideoList = () => {
   const {
     data: videos = [],
@@ -45,15 +53,14 @@ export const VideoList = () => {
   const [changeVideoStatus] = useChangeVideoStatusMutation();
   const navigate = useNavigate();
   const [checked, setChecked] = useState(new Set<number>());
-  const [pageNumber, setPageNumber] = useState(1);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedVideoStatus, setSelectedVideoStatus] = useState(
-    new Set<VideoStatus>(
-      allVideoStatus.filter((status) => status !== VideoStatus.Archived)
-    )
+  const pageNumber = useAppSelector((state) => state.videoFilter.pageNumber);
+  const selectedVideoStatus = useAppSelector(
+    (state) => state.videoFilter.selectedVideoStatus
   );
+  const searchTerm = useAppSelector((state) => state.videoFilter.searchTerm);
+  const dispatch = useAppDispatch();
 
   const isFilterPanelOpen = Boolean(anchorEl);
 
@@ -88,7 +95,7 @@ export const VideoList = () => {
       status: VideoStatus.Archived,
     });
     setChecked(new Set());
-    setPageNumber(1);
+    dispatch(setPageNumber(1));
     setIsEditMode(false);
   };
 
@@ -98,7 +105,7 @@ export const VideoList = () => {
       status: VideoStatus.Pending,
     });
     setChecked(new Set());
-    setPageNumber(1);
+    dispatch(setPageNumber(1));
     setIsEditMode(false);
   };
 
@@ -117,8 +124,8 @@ export const VideoList = () => {
     } else {
       newSelected.add(status);
     }
-    setSelectedVideoStatus(newSelected);
-    setPageNumber(1);
+    dispatch(setSelectedVideoStatus(newSelected));
+    dispatch(setPageNumber(1));
   };
 
   return (
@@ -136,7 +143,7 @@ export const VideoList = () => {
                 count={numOfPages}
                 size="large"
                 page={pageNumber}
-                onChange={(_, value) => setPageNumber(value)}
+                onChange={(_, value) => dispatch(setPageNumber(value))}
               />
               <Stack direction="row" gap={1} alignItems="center">
                 <TextField
@@ -152,8 +159,8 @@ export const VideoList = () => {
                   }}
                   value={searchTerm}
                   onChange={(e) => {
-                    setPageNumber(1);
-                    setSearchTerm(e.target.value);
+                    dispatch(setPageNumber(1));
+                    dispatch(setSearchTerm(e.target.value));
                   }}
                 />
                 <IconButton onClick={handleFilterButtonClick}>
@@ -203,9 +210,11 @@ export const VideoList = () => {
                       divider
                     >
                       <ListItemButton
-                        onClick={() => {
+                        onClick={(e) => {
                           if (isEditMode) {
                             toggleCheck(row.id);
+                          } else if (e.ctrlKey || e.button === 1) {
+                            window.open(`/video/${row.id}`, "_blank");
                           } else {
                             navigate(`/video/${row.id}`);
                           }
