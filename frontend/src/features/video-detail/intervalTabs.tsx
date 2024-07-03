@@ -14,6 +14,7 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
 } from "@mui/material";
 import { IntervalList } from "./intervalList";
 import { IntervalInputForm } from "./intervalInput";
@@ -31,7 +32,7 @@ import {
 import { PlainMessage } from "@bufbuild/protobuf";
 import { NoBigIntMessage } from "../../util/types";
 import { userAvatarProps } from "../user/avatar";
-import { useGetUsersQuery } from "../user/userSlice";
+import { useGetUserQuery, useGetUsersQuery } from "../user/userSlice";
 
 export const IntervalTabs = (props: {
   video: NoBigIntMessage<PlainMessage<Video>>;
@@ -43,6 +44,7 @@ export const IntervalTabs = (props: {
   const { video, seekTo, duration, currentTime, status } = props;
   const [panel, setPanel] = useState<PanelTypes | null>(null);
   const [changeVideoStatus] = useChangeVideoStatusMutation();
+  const { data: user, isError: userIsError } = useGetUserQuery();
   const [buttonEnabled, setButtonEnabled] = useState(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -90,14 +92,20 @@ export const IntervalTabs = (props: {
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
-        {/* TODO: Disable dropdown when the user has not login */}
-        <Chip
-          avatar={video.editor && <Avatar {...userAvatarProps(video.editor)} />}
-          label={"負責人：" + (video.editor?.name ?? "不明")}
-          onClick={handleClick}
-          deleteIcon={<Icon>arrow_drop_down</Icon>}
-          onDelete={handleClick}
-        />
+        <Tooltip title={!user || userIsError ? "請先登入" : ""}>
+          <span>
+            <Chip
+              avatar={
+                video.editor && <Avatar {...userAvatarProps(video.editor)} />
+              }
+              label={"負責人：" + (video.editor?.name ?? "不明")}
+              onClick={handleClick}
+              deleteIcon={<Icon>arrow_drop_down</Icon>}
+              onDelete={handleClick}
+              disabled={!user || userIsError}
+            />
+          </span>
+        </Tooltip>
       </Stack>
       <Box
         sx={{
@@ -137,13 +145,15 @@ export const IntervalTabs = (props: {
           </Slide>
         </Box>
       </Box>
-      <SelectUserMenu
-        anchorEl={anchorEl}
-        open={open}
-        handleClose={handleClose}
-        selectedUserEmail={video.editor?.email ?? ""}
-        videoId={video.id}
-      />
+      {open && (
+        <SelectUserMenu
+          anchorEl={anchorEl}
+          open={open}
+          handleClose={handleClose}
+          selectedUserEmail={video.editor?.email ?? ""}
+          videoId={video.id}
+        />
+      )}
     </Stack>
   );
 };
