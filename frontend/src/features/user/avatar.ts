@@ -1,10 +1,7 @@
 import { User } from "../../gen/proto/user/v1/user_pb";
 import { PlainMessage } from "@bufbuild/protobuf";
 
-export const userAvatarProps = (
-  user: PlainMessage<User>,
-  sizePx: number | undefined
-) => {
+export const userAvatarProps = (user: PlainMessage<User>, sizePx?: number) => {
   let initials = "?";
   const parts = user.name.split(" ");
   if (parts.length >= 2) {
