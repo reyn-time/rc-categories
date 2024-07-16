@@ -3,7 +3,7 @@ import { UserService } from "../../gen/proto/user/v1/user_connect";
 import { transport } from "../../util/connect";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { User } from "../../gen/proto/user/v1/user_pb";
-import { PlainMessage } from "@bufbuild/protobuf";
+import { PlainMessage, toPlainMessage } from "@bufbuild/protobuf";
 
 const userClient = createPromiseClient(UserService, transport);
 
@@ -16,7 +16,7 @@ export const userApi = createApi({
       queryFn: async () => {
         try {
           const res = await userClient.getUsers({});
-          return { data: res.users };
+          return { data: res.users.map(toPlainMessage) };
         } catch (error) {
           const connectErr = ConnectError.from(error);
           return {
@@ -33,7 +33,7 @@ export const userApi = createApi({
       queryFn: async () => {
         try {
           const res = await userClient.getCurrentUser({});
-          return { data: res.user };
+          return { data: res.user ? toPlainMessage(res.user) : undefined };
         } catch (error) {
           const connectErr = ConnectError.from(error);
           return {
