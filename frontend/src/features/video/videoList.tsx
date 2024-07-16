@@ -75,7 +75,7 @@ export const VideoList = () => {
     [videos]
   );
   const filteredList = extendedList
-    .filter((video) => selectedVideoStatus.has(video.status))
+    .filter((video) => selectedVideoStatus.includes(video.status))
     .filter((video) => searchTerm === "" || video.name.includes(searchTerm));
   const pageSize = 15;
   const numOfPages = Math.ceil(filteredList.length / pageSize);
@@ -119,11 +119,11 @@ export const VideoList = () => {
   };
 
   const toggleSelectedVideoStatus = (status: VideoStatus) => {
-    const newSelected = new Set(selectedVideoStatus);
-    if (newSelected.has(status)) {
-      newSelected.delete(status);
+    let newSelected: number[] = [];
+    if (selectedVideoStatus.includes(status)) {
+      newSelected = selectedVideoStatus.filter((s) => s != status);
     } else {
-      newSelected.add(status);
+      newSelected = [...selectedVideoStatus, status];
     }
     dispatch(setSelectedVideoStatus(newSelected));
     dispatch(setPageNumber(1));
@@ -282,7 +282,7 @@ export const VideoList = () => {
         onClose={handleFilterPanelClose}
       >
         {allVideoStatus.map((status) => {
-          const selected = selectedVideoStatus.has(status);
+          const selected = selectedVideoStatus.includes(status);
           return (
             <MenuItem
               key={status}

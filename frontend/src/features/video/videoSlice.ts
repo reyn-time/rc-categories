@@ -95,15 +95,15 @@ export const videoApi = createApi({
 
 interface VideoFilterState {
   pageNumber: number;
-  selectedVideoStatus: Set<VideoStatus>;
+  selectedVideoStatus: VideoStatus[];
   searchTerm: string;
 }
 
 const initialState = {
   pageNumber: 1,
-  selectedVideoStatus: new Set(
+  selectedVideoStatus:
     allVideoStatus.filter((status) => status != VideoStatus.Archived)
-  ),
+  ,
   searchTerm: "",
 } satisfies VideoFilterState as VideoFilterState;
 
@@ -114,7 +114,7 @@ export const videoFilterSlice = createSlice({
     setPageNumber(state, action: PayloadAction<number>) {
       state.pageNumber = action.payload;
     },
-    setSelectedVideoStatus(state, action: PayloadAction<Set<number>>) {
+    setSelectedVideoStatus(state, action: PayloadAction<number[]>) {
       state.selectedVideoStatus = action.payload;
     },
     setSearchTerm(state, action: PayloadAction<string>) {
