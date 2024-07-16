@@ -156,7 +156,7 @@ func (o *OauthService) OauthGoogleCallback(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Update user record in database.
-	if err = o.Queries.UpsertUser(context.TODO(), db.UpsertUserParams{
+	if err = o.Queries.UpsertUser(r.Context(), db.UpsertUserParams{
 		Email:    data.Email,
 		Name:     data.Name,
 		PhotoUrl: data.Picture,
