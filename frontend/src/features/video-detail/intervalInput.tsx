@@ -14,6 +14,9 @@ import {
   FormGroup,
   Paper,
   Stack,
+  SliderMarkLabel,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import { forwardRef, useState } from "react";
 import { selectExtendedCategories } from "../category/categorySelector";
@@ -100,7 +103,74 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
     setPanel(null);
   };
 
-  // TODO: Make the slider a bit more user-friendly. Maybe show the current time in the track? Allow the ends to move to the current time if possible.
+  const MarkLabelComponent = (props: {
+    children: string;
+    "data-index": number;
+    style: React.CSSProperties;
+  }) => {
+    if (props["data-index"] == 1) {
+      return (
+        <Stack
+          style={{
+            ...props.style,
+            position: "absolute",
+            top: "-30px",
+            transform: "translate(-50%, 0)",
+          }}
+          flexDirection="row"
+          alignItems="center"
+          flexWrap="nowrap"
+        >
+          <Tooltip title="設定為開始時間" placement="left">
+            <IconButton
+              size="small"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setTimes((t) =>
+                  currentTime <= t[1]
+                    ? [currentTime, t[1]]
+                    : [currentTime, currentTime]
+                );
+              }}
+            >
+              <Icon fontSize="small">skip_previous</Icon>
+            </IconButton>
+          </Tooltip>
+          <Typography
+            onMouseDown={(e) => {
+              e.preventDefault();
+            }}
+            sx={{
+              color: "gray",
+              fontSize: "14px",
+              cursor: "default",
+              "white-space": "nowrap",
+              overflow: "hidden",
+            }}
+          >
+            現時
+          </Typography>
+          <Tooltip title="設定為結束時間" placement="right">
+            <IconButton
+              size="small"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                setTimes((t) =>
+                  t[0] <= currentTime
+                    ? [t[0], currentTime]
+                    : [currentTime, currentTime]
+                );
+              }}
+            >
+              <Icon fontSize="small">skip_next</Icon>
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      );
+    }
+    return <SliderMarkLabel {...props}>{props.children}</SliderMarkLabel>;
+  };
+
   return (
     <Box ref={ref}>
       <Paper sx={{ p: 3 }}>
@@ -118,9 +188,11 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
               onChange={(_event, value) => setTimes(value as [number, number])}
               marks={[
                 { value: 0, label: secondToText(0) },
+                { value: currentTime, label: "mid" },
                 { value: duration, label: secondToText(duration) },
               ]}
               sx={{ width: "80%", margin: "40px auto" }}
+              slots={{ markLabel: MarkLabelComponent }}
             />
             <Stack gap={1}>
               <Stack direction="row" alignItems="center" gap={3}>
@@ -137,30 +209,6 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
                 </Button>
               </Stack>
               <Typography>現在時間：{secondToText(currentTime)}</Typography>
-              <Stack direction="row" alignItems="center" gap={0.5}>
-                <Button
-                  onClick={() =>
-                    setTimes((t) =>
-                      currentTime <= t[1]
-                        ? [currentTime, t[1]]
-                        : [currentTime, currentTime]
-                    )
-                  }
-                >
-                  <Icon>west</Icon>&nbsp;設定為開始時間
-                </Button>
-                <Button
-                  onClick={() =>
-                    setTimes((t) =>
-                      t[0] <= currentTime
-                        ? [t[0], currentTime]
-                        : [currentTime, currentTime]
-                    )
-                  }
-                >
-                  設定為結束時間&nbsp;<Icon>east</Icon>
-                </Button>
-              </Stack>
             </Stack>
             <FormControl fullWidth>
               <InputLabel id="demo-simple-select-label">神學分類</InputLabel>
