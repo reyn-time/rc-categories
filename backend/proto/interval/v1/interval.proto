@@ -2,11 +2,19 @@ syntax = "proto3";
 
 package interval.v1;
 
+import "proto/auth/v1/auth.proto";
+
 service IntervalService {
-    rpc PostInterval(PostIntervalRequest) returns (PostIntervalResponse) {}
+    rpc PostInterval(PostIntervalRequest) returns (PostIntervalResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
     rpc ListInterval(ListIntervalRequest) returns (ListIntervalResponse) {}
-    rpc UpdateInterval(UpdateIntervalRequest) returns (UpdateIntervalResponse) {}
-    rpc DeleteInterval(DeleteIntervalRequest) returns (DeleteIntervalResponse) {}
+    rpc UpdateInterval(UpdateIntervalRequest) returns (UpdateIntervalResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
+    rpc DeleteInterval(DeleteIntervalRequest) returns (DeleteIntervalResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
 }
 
 message PostIntervalRequest {

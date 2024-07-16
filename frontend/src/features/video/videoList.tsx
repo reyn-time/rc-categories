@@ -41,6 +41,7 @@ import {
 } from "../../util/videoStatus";
 import { userAvatarProps } from "../user/avatar";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { LoginPromptDirective } from "../user/loginPromptDirective";
 
 // TODO: Add a button to refresh video list.
 export const VideoList = () => {
@@ -178,24 +179,32 @@ export const VideoList = () => {
                   </Typography>
                 )}
                 {isEditMode && (
-                  <Button
-                    variant="contained"
-                    color="error"
-                    disabled={checked.size === 0}
-                    onClick={() => handleDelete()}
-                  >
-                    刪除
-                  </Button>
+                  <LoginPromptDirective>
+                    {(disabled) => (
+                      <Button
+                        variant="contained"
+                        color="error"
+                        disabled={disabled || checked.size === 0}
+                        onClick={() => handleDelete()}
+                      >
+                        刪除
+                      </Button>
+                    )}
+                  </LoginPromptDirective>
                 )}
                 {isEditMode && (
-                  <Button
-                    variant="contained"
-                    color="inherit"
-                    disabled={checked.size === 0}
-                    onClick={() => handleRevert()}
-                  >
-                    復原
-                  </Button>
+                  <LoginPromptDirective>
+                    {(disabled) => (
+                      <Button
+                        variant="contained"
+                        color="inherit"
+                        disabled={disabled || checked.size === 0}
+                        onClick={() => handleRevert()}
+                      >
+                        復原
+                      </Button>
+                    )}
+                  </LoginPromptDirective>
                 )}
               </Stack>
               <List sx={{ width: "100%" }}>

@@ -4,11 +4,16 @@ package video.v1;
 
 import "google/protobuf/timestamp.proto";
 import "proto/user/v1/user.proto";
+import "proto/auth/v1/auth.proto";
 
 service VideoService {
   rpc ListVideo(ListVideoRequest) returns (ListVideoResponse) {}
-  rpc ChangeVideoStatus(ChangeVideoStatusRequest) returns (ChangeVideoStatusResponse) {}
-  rpc ChangeVideoEditor(ChangeVideoEditorRequest) returns (ChangeVideoEditorResponse) {}
+  rpc ChangeVideoStatus(ChangeVideoStatusRequest) returns (ChangeVideoStatusResponse) {
+    option (auth.v1.auth_enabled) = true;
+  }
+  rpc ChangeVideoEditor(ChangeVideoEditorRequest) returns (ChangeVideoEditorResponse) {
+    option (auth.v1.auth_enabled) = true;
+  }
 }
 
 message ListVideoRequest {

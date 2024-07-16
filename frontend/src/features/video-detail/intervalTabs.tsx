@@ -14,7 +14,6 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
-  Tooltip,
 } from "@mui/material";
 import { IntervalList } from "./intervalList";
 import { IntervalInputForm } from "./intervalInput";
@@ -32,7 +31,8 @@ import {
 import { PlainMessage } from "@bufbuild/protobuf";
 import { NoBigIntMessage } from "../../util/types";
 import { userAvatarProps } from "../user/avatar";
-import { useGetUserQuery, useGetUsersQuery } from "../user/userSlice";
+import { useGetUsersQuery } from "../user/userSlice";
+import { LoginPromptDirective } from "../user/loginPromptDirective";
 
 export const IntervalTabs = (props: {
   video: NoBigIntMessage<PlainMessage<Video>>;
@@ -44,7 +44,6 @@ export const IntervalTabs = (props: {
   const { video, seekTo, duration, currentTime, status } = props;
   const [panel, setPanel] = useState<PanelTypes | null>(null);
   const [changeVideoStatus] = useChangeVideoStatusMutation();
-  const { data: user, isError: userIsError } = useGetUserQuery();
   const [buttonEnabled, setButtonEnabled] = useState(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -74,26 +73,32 @@ export const IntervalTabs = (props: {
         alignItems="center"
         justifyContent="space-between"
       >
-        <ToggleButtonGroup
-          exclusive
-          value={status}
-          size="small"
-          aria-label="text alignment"
-          onChange={(_, value) => onStatusChange(+value)}
-        >
-          {allVideoStatus.map((status) => (
-            <ToggleButton
-              key={status}
-              color={videoStatusToStatusText[status].color}
+        <LoginPromptDirective>
+          {(disabled) => (
+            <ToggleButtonGroup
+              exclusive
               value={status}
-              disabled={!buttonEnabled}
+              size="small"
+              aria-label="text alignment"
+              onChange={(_, value) => onStatusChange(+value)}
+              disabled={disabled}
             >
-              {videoStatusToStatusText[status].text}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-        <Tooltip title={!user || userIsError ? "請先登入" : ""}>
-          <span>
+              {allVideoStatus.map((status) => (
+                <ToggleButton
+                  key={status}
+                  color={videoStatusToStatusText[status].color}
+                  value={status}
+                  disabled={!buttonEnabled}
+                >
+                  {videoStatusToStatusText[status].text}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          )}
+        </LoginPromptDirective>
+
+        <LoginPromptDirective>
+          {(disabled) => (
             <Chip
               avatar={
                 video.editor && <Avatar {...userAvatarProps(video.editor)} />
@@ -102,10 +107,10 @@ export const IntervalTabs = (props: {
               onClick={handleClick}
               deleteIcon={<Icon>arrow_drop_down</Icon>}
               onDelete={handleClick}
-              disabled={!user || userIsError}
+              disabled={disabled}
             />
-          </span>
-        </Tooltip>
+          )}
+        </LoginPromptDirective>
       </Stack>
       <Box
         sx={{

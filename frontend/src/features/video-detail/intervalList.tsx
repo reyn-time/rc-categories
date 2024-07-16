@@ -7,7 +7,7 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemSecondaryAction,
+  ListItemIcon,
   ListItemText,
   Paper,
   Skeleton,
@@ -21,6 +21,7 @@ import { secondToText } from "../../util/time";
 import { useListCategoryQuery } from "../category/categorySlice";
 import { forwardRef, useMemo } from "react";
 import { PanelTypes } from "./intervalTypes";
+import { LoginPromptDirective } from "../user/loginPromptDirective";
 
 export const IntervalList = forwardRef(function X(
   props: {
@@ -85,41 +86,60 @@ export const IntervalList = forwardRef(function X(
                       .filter((name) => name !== "")
                       .join("，")}
                   />
-                  <ListItemSecondaryAction>
+                  <ListItemIcon>
                     <IconButton onClick={() => seekTo(interval.startTime)}>
                       <Icon>play_arrow</Icon>
                     </IconButton>
-                    <IconButton
-                      onClick={() =>
-                        setPanel({
-                          type: "UpdateInterval",
-                          interval,
-                          categoryNames: interval.categoryIds
-                            .map((id) => categoryIdToName.get(id) ?? "")
-                            .filter((name) => name !== ""),
-                        })
-                      }
-                    >
-                      <Icon>edit</Icon>
-                    </IconButton>
-                    <IconButton
-                      onClick={() => {
-                        void deleteInterval(interval.id);
-                      }}
-                    >
-                      <Icon>delete</Icon>
-                    </IconButton>
-                  </ListItemSecondaryAction>
+                  </ListItemIcon>
+                  <ListItemIcon>
+                    <LoginPromptDirective>
+                      {(disabled) => (
+                        <IconButton
+                          onClick={() =>
+                            setPanel({
+                              type: "UpdateInterval",
+                              interval,
+                              categoryNames: interval.categoryIds
+                                .map((id) => categoryIdToName.get(id) ?? "")
+                                .filter((name) => name !== ""),
+                            })
+                          }
+                          disabled={disabled}
+                        >
+                          <Icon>edit</Icon>
+                        </IconButton>
+                      )}
+                    </LoginPromptDirective>
+                  </ListItemIcon>
+                  <ListItemIcon>
+                    <LoginPromptDirective>
+                      {(disabled) => (
+                        <IconButton
+                          onClick={() => {
+                            void deleteInterval(interval.id);
+                          }}
+                          disabled={disabled}
+                        >
+                          <Icon>delete</Icon>
+                        </IconButton>
+                      )}
+                    </LoginPromptDirective>
+                  </ListItemIcon>
                 </ListItem>
               </Box>
             ))}
           </List>
-          <Button
-            variant="contained"
-            onClick={() => setPanel({ type: "CreateInterval" })}
-          >
-            新增時段
-          </Button>
+          <LoginPromptDirective>
+            {(disabled) => (
+              <Button
+                variant="contained"
+                onClick={() => setPanel({ type: "CreateInterval" })}
+                disabled={disabled}
+              >
+                新增時段
+              </Button>
+            )}
+          </LoginPromptDirective>
         </Stack>
       </Paper>
     </Box>

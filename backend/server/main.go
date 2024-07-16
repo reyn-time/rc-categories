@@ -54,6 +54,7 @@ func withCORS(h http.Handler) http.Handler {
 }
 
 func frontendHandler() http.Handler {
+	// TODO: gzip dist files
 	dist, _ := fs.Sub(web, "dist")
 	fs := http.FileServer(http.FS(dist))
 

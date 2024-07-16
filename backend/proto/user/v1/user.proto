@@ -8,12 +8,8 @@ service UserService {
   rpc GetUsers(GetUsersRequest) returns (GetUsersResponse) {
     option (auth.v1.auth_enabled) = true;
   }
-  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse) {
-    option (auth.v1.auth_enabled) = false;
-  } 
-  rpc LogoutUser(LogoutUserRequest) returns (LogoutUserResponse) {
-    option (auth.v1.auth_enabled) = false;
-  }
+  rpc GetCurrentUser(GetCurrentUserRequest) returns (GetCurrentUserResponse) {} 
+  rpc LogoutUser(LogoutUserRequest) returns (LogoutUserResponse) {}
 }
 
 message GetUsersRequest {

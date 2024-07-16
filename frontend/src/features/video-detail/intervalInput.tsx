@@ -25,6 +25,7 @@ import {
 } from "./intervalSlice";
 import { secondToText } from "../../util/time";
 import { PanelTypes } from "./intervalTypes";
+import { LoginPromptDirective } from "../user/loginPromptDirective";
 
 export const IntervalInputForm = forwardRef(function IntervalInputForm(
   props: {
@@ -99,6 +100,7 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
     setPanel(null);
   };
 
+  // TODO: Make the slider a bit more user-friendly. Maybe show the current time in the track? Allow the ends to move to the current time if possible.
   return (
     <Box ref={ref}>
       <Paper sx={{ p: 3 }}>
@@ -201,18 +203,23 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
               </Select>
             </FormControl>
             <Stack width="100%" alignItems="flex-end">
-              <Button
-                onClick={handleFormSubmit}
-                disabled={
-                  selectedCategoryNames.length === 0 ||
-                  isCreatingInterval ||
-                  isUpdatingInterval
-                }
-                variant="contained"
-                size="large"
-              >
-                {intervalId ? "更新" : "儲存"}時段
-              </Button>
+              <LoginPromptDirective>
+                {(disabled) => (
+                  <Button
+                    onClick={handleFormSubmit}
+                    disabled={
+                      disabled ||
+                      selectedCategoryNames.length === 0 ||
+                      isCreatingInterval ||
+                      isUpdatingInterval
+                    }
+                    variant="contained"
+                    size="large"
+                  >
+                    {intervalId ? "更新" : "儲存"}時段
+                  </Button>
+                )}
+              </LoginPromptDirective>
             </Stack>
           </Stack>
         </FormGroup>
