@@ -42,3 +42,21 @@ CREATE TABLE reorder.video_interval_categories (
     video_interval_id INTEGER NOT NULL REFERENCES reorder.video_intervals(id) ON DELETE CASCADE,
     category_id INTEGER NOT NULL REFERENCES reorder.categories(id)
 );
+CREATE TYPE reorder.patient_status AS ENUM (
+    'active',
+    'on_hold',
+    'blacklisted'
+);
+CREATE TYPE reorder.gender AS ENUM ('male', 'female');
+CREATE TABLE reorder.patients (
+    id SERIAL PRIMARY KEY,
+    initials TEXT NOT NULL,
+    gender reorder.gender NOT NULL,
+    status reorder.patient_status NOT NULL DEFAULT 'active',
+    UNIQUE (initials)
+);
+CREATE TABLE reorder.patient_appointments (
+    id SERIAL PRIMARY KEY,
+    start_time TIMESTAMP NOT NULL,
+    patient_id INTEGER NOT NULL REFERENCES reorder.patients(id)
+)

@@ -61,3 +61,23 @@ VALUES ($1, $2, $3) ON CONFLICT (email) DO
 UPDATE
 SET name = $2,
     photo_url = $3;
+-- name: ListCurrentAppointments :many
+SELECT a.*,
+    p.initials,
+    p.gender
+FROM reorder.patient_appointments a
+    INNER JOIN reorder.patients p ON a.patient_id = p.id
+WHERE start_time AT TIME ZONE 'UTC' >= NOW()
+ORDER BY start_time ASC;
+-- name: ListPatients :many
+WITH la as (
+    SELECT patient_id,
+        MAX(start_time) as last_appointment,
+        COUNT(*) as appointments_count
+    FROM reorder.patient_appointments
+    GROUP BY patient_id
+)
+SELECT *
+FROM la
+    INNER JOIN reorder.patients p on la.patient_id = p.id
+ORDER BY patient_id ASC;

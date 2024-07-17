@@ -1,4 +1,4 @@
-h1:enfqeUfovBLjomisjIDCiGNS+3HZEWMQ7InRtE186hE=
+h1:4//BGNDmNz8GxHUxYwolE9rfOyPrXvXFFQOxFxyAm1w=
 20240406144151_initial_schema.sql h1:vqASGddlJZyLj9ImJpovcIX2Nq5NBf1u8tjE+AAgZ6E=
 20240408192054_64to32.sql h1:pwuMCBtulJKxdBSYVfQRtwdTtU/ijD4TxdPQukKnYAI=
 20240413164950_category_rank.sql h1:RXUJQWYOlGwWMS/WVirHVZtl2pn8WY65G0kK4gaHxAs=
@@ -9,3 +9,4 @@ h1:enfqeUfovBLjomisjIDCiGNS+3HZEWMQ7InRtE186hE=
 20240503130835_more_status.sql h1:gou1g3X/DfGKxfrzymQY9/ZB/bfltFcl88hDzhqYhGI=
 20240630144743_user_table.sql h1:XYIhBpnLuXOZhz91lk7yJkFw9pk2QsKwxryqGJZgTs8=
 20240702172822_video_user_reference.sql h1:zCFwZyPVFTK336WVsHSmpRqU7K6bvoy8qetC+DACrDs=
+20240717101821_patient_appointments.sql h1:MvQLFF3KCXQCRAc5dc0W3FDTnmcigihcjJh7cxDucIc=

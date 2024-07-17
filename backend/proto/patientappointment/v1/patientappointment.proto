@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package patientappointment.v1;
+
+import "google/protobuf/timestamp.proto";
+import "proto/patient/v1/patient.proto";
+import "proto/auth/v1/auth.proto";
+
+service PatientAppointmentService {
+    rpc ListCurrentPatientAppointment(ListCurrentPatientAppointmentRequest) returns (ListCurrentPatientAppointmentResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
+    // TODO: Allow users to sign up to, or cancel appointments.
+    // TODO: Allow appointments to be deleted.
+    // TODO: Allow appointments to be created.
+}
+
+message ListCurrentPatientAppointmentRequest {
+}
+
+message ListCurrentPatientAppointmentResponse {
+    repeated PatientAppointment appointments = 1;
+}
+
+message PatientAppointment {
+    google.protobuf.Timestamp start_time = 1;
+    patient.v1.Patient patient = 2;
+}

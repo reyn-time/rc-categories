@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package patient.v1;
+
+import "google/protobuf/timestamp.proto";
+import "proto/auth/v1/auth.proto";
+
+service PatientService {
+    rpc ListPatient(ListPatientRequest) returns (ListPatientResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
+    // TODO: Add rpc to ChangePatientStatus
+    // TODO: Add rpc to GetPatientDetails, e.g. real name, tg alias and records.
+}
+
+message ListPatientRequest {
+}
+
+message ListPatientResponse {
+    repeated PatientWithAppointmentAnalytics patients = 1;
+}
+
+message PatientWithAppointmentAnalytics {
+    Patient patient = 1;
+    AppointmentAnalytics appointment_analytics = 2;
+}
+
+message Patient {
+    int32 id = 1;
+    string initials = 2;
+    Gender gender = 3;
+    PatientStatus status = 4;
+}
+
+message AppointmentAnalytics {
+    google.protobuf.Timestamp last_appointment = 1;
+    int32 appointments_count = 2;
+}
+
+enum Gender {
+    Male = 0;
+    Female = 1;
+}
+
+enum PatientStatus {
+    Active = 0;
+    OnHold = 1;
+    Blacklisted = 2;
+}

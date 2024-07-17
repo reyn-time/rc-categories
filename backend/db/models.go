@@ -11,6 +11,91 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type ReorderGender string
+
+const (
+	ReorderGenderMale   ReorderGender = "male"
+	ReorderGenderFemale ReorderGender = "female"
+)
+
+func (e *ReorderGender) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ReorderGender(s)
+	case string:
+		*e = ReorderGender(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ReorderGender: %T", src)
+	}
+	return nil
+}
+
+type NullReorderGender struct {
+	ReorderGender ReorderGender
+	Valid         bool // Valid is true if ReorderGender is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullReorderGender) Scan(value interface{}) error {
+	if value == nil {
+		ns.ReorderGender, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ReorderGender.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullReorderGender) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ReorderGender), nil
+}
+
+type ReorderPatientStatus string
+
+const (
+	ReorderPatientStatusActive      ReorderPatientStatus = "active"
+	ReorderPatientStatusOnHold      ReorderPatientStatus = "on_hold"
+	ReorderPatientStatusBlacklisted ReorderPatientStatus = "blacklisted"
+)
+
+func (e *ReorderPatientStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ReorderPatientStatus(s)
+	case string:
+		*e = ReorderPatientStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ReorderPatientStatus: %T", src)
+	}
+	return nil
+}
+
+type NullReorderPatientStatus struct {
+	ReorderPatientStatus ReorderPatientStatus
+	Valid                bool // Valid is true if ReorderPatientStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullReorderPatientStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.ReorderPatientStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ReorderPatientStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullReorderPatientStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ReorderPatientStatus), nil
+}
+
 type ReorderVideoStatus string
 
 const (
@@ -62,6 +147,19 @@ type ReorderCategory struct {
 	Description pgtype.Text
 	ParentID    pgtype.Int4
 	Rank        int32
+}
+
+type ReorderPatient struct {
+	ID       int32
+	Initials string
+	Gender   ReorderGender
+	Status   ReorderPatientStatus
+}
+
+type ReorderPatientAppointment struct {
+	ID        int32
+	StartTime pgtype.Timestamp
+	PatientID int32
 }
 
 type ReorderUser struct {

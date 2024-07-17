@@ -80,6 +80,50 @@ func (q *Queries) ListCategories(ctx context.Context) ([]ReorderCategory, error)
 	return items, nil
 }
 
+const listCurrentAppointments = `-- name: ListCurrentAppointments :many
+SELECT a.id, a.start_time, a.patient_id,
+    p.initials,
+    p.gender
+FROM reorder.patient_appointments a
+    INNER JOIN reorder.patients p ON a.patient_id = p.id
+WHERE start_time AT TIME ZONE 'UTC' >= NOW()
+ORDER BY start_time ASC
+`
+
+type ListCurrentAppointmentsRow struct {
+	ID        int32
+	StartTime pgtype.Timestamp
+	PatientID int32
+	Initials  string
+	Gender    ReorderGender
+}
+
+func (q *Queries) ListCurrentAppointments(ctx context.Context) ([]ListCurrentAppointmentsRow, error) {
+	rows, err := q.db.Query(ctx, listCurrentAppointments)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListCurrentAppointmentsRow
+	for rows.Next() {
+		var i ListCurrentAppointmentsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.StartTime,
+			&i.PatientID,
+			&i.Initials,
+			&i.Gender,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listIntervals = `-- name: ListIntervals :many
 SELECT id, video_id, start_time, end_time, description, video_interval_id, array_agg
 FROM reorder.video_intervals v
@@ -120,6 +164,58 @@ func (q *Queries) ListIntervals(ctx context.Context, videoID int32) ([]ListInter
 			&i.Description,
 			&i.VideoIntervalID,
 			&i.ArrayAgg,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listPatients = `-- name: ListPatients :many
+WITH la as (
+    SELECT patient_id,
+        MAX(start_time) as last_appointment,
+        COUNT(*) as appointments_count
+    FROM reorder.patient_appointments
+    GROUP BY patient_id
+)
+SELECT patient_id, last_appointment, appointments_count, id, initials, gender, status
+FROM la
+    INNER JOIN reorder.patients p on la.patient_id = p.id
+ORDER BY patient_id ASC
+`
+
+type ListPatientsRow struct {
+	PatientID         int32
+	LastAppointment   interface{}
+	AppointmentsCount int64
+	ID                int32
+	Initials          string
+	Gender            ReorderGender
+	Status            ReorderPatientStatus
+}
+
+func (q *Queries) ListPatients(ctx context.Context) ([]ListPatientsRow, error) {
+	rows, err := q.db.Query(ctx, listPatients)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListPatientsRow
+	for rows.Next() {
+		var i ListPatientsRow
+		if err := rows.Scan(
+			&i.PatientID,
+			&i.LastAppointment,
+			&i.AppointmentsCount,
+			&i.ID,
+			&i.Initials,
+			&i.Gender,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}
