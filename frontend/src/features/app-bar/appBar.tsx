@@ -32,7 +32,7 @@ export const CustomAppBar = () => {
             navigate("/");
           }}
         >
-          <Icon>home</Icon>
+          <Icon baseClassName="material-symbols-outlined">home</Icon>
         </IconButton>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           HollyHub
@@ -78,7 +78,7 @@ const UserPortal = () => {
           );
         }}
       >
-        <Icon>login</Icon>
+        <Icon baseClassName="material-symbols-outlined">login</Icon>
       </IconButton>
     );
   }
@@ -104,7 +104,9 @@ const UserPortal = () => {
           }}
         >
           <ListItemIcon>
-            <Icon fontSize="small">logout</Icon>
+            <Icon baseClassName="material-symbols-outlined" fontSize="small">
+              logout
+            </Icon>
           </ListItemIcon>
           登出
         </MenuItem>

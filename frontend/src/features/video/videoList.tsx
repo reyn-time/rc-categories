@@ -154,7 +154,9 @@ export const VideoList = () => {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <Icon>search</Icon>
+                        <Icon baseClassName="material-symbols-outlined">
+                          search
+                        </Icon>
                       </InputAdornment>
                     ),
                   }}
@@ -165,12 +167,16 @@ export const VideoList = () => {
                   }}
                 />
                 <IconButton onClick={handleFilterButtonClick}>
-                  <Icon>filter_list</Icon>
+                  <Icon baseClassName="material-symbols-outlined">
+                    filter_list
+                  </Icon>
                 </IconButton>
               </Stack>
               <Stack direction="row" gap={2} alignItems="center">
                 <IconButton onClick={() => setIsEditMode((edit) => !edit)}>
-                  <Icon>{isEditMode ? "toggle_on" : "toggle_off"}</Icon>
+                  <Icon baseClassName="material-symbols-outlined">
+                    {isEditMode ? "toggle_on" : "toggle_off"}
+                  </Icon>
                 </IconButton>
 
                 {isEditMode && (
@@ -246,7 +252,9 @@ export const VideoList = () => {
                               <Avatar {...userAvatarProps(row.editor)} />
                             ) : (
                               <Avatar>
-                                <Icon>person_off</Icon>
+                                <Icon baseClassName="material-symbols-outlined">
+                                  person_off
+                                </Icon>
                               </Avatar>
                             )}
                           </ListItemAvatar>
@@ -288,7 +296,11 @@ export const VideoList = () => {
               key={status}
               onClick={() => toggleSelectedVideoStatus(status)}
             >
-              <ListItemIcon>{selected && <Icon>check</Icon>}</ListItemIcon>
+              <ListItemIcon>
+                {selected && (
+                  <Icon baseClassName="material-symbols-outlined">check</Icon>
+                )}
+              </ListItemIcon>
               <ListItemText>
                 <Chip
                   label={videoStatusToStatusText[status].text}

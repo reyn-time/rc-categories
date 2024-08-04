@@ -37,18 +37,34 @@ const (
 	// PatientAppointmentServiceListCurrentPatientAppointmentProcedure is the fully-qualified name of
 	// the PatientAppointmentService's ListCurrentPatientAppointment RPC.
 	PatientAppointmentServiceListCurrentPatientAppointmentProcedure = "/patientappointment.v1.PatientAppointmentService/ListCurrentPatientAppointment"
+	// PatientAppointmentServiceCreatePatientAppointmentProcedure is the fully-qualified name of the
+	// PatientAppointmentService's CreatePatientAppointment RPC.
+	PatientAppointmentServiceCreatePatientAppointmentProcedure = "/patientappointment.v1.PatientAppointmentService/CreatePatientAppointment"
+	// PatientAppointmentServiceUpdatePatientAppointmentProcedure is the fully-qualified name of the
+	// PatientAppointmentService's UpdatePatientAppointment RPC.
+	PatientAppointmentServiceUpdatePatientAppointmentProcedure = "/patientappointment.v1.PatientAppointmentService/UpdatePatientAppointment"
+	// PatientAppointmentServiceDeletePatientAppointmentProcedure is the fully-qualified name of the
+	// PatientAppointmentService's DeletePatientAppointment RPC.
+	PatientAppointmentServiceDeletePatientAppointmentProcedure = "/patientappointment.v1.PatientAppointmentService/DeletePatientAppointment"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
 	patientAppointmentServiceServiceDescriptor                             = v1.File_proto_patientappointment_v1_patientappointment_proto.Services().ByName("PatientAppointmentService")
 	patientAppointmentServiceListCurrentPatientAppointmentMethodDescriptor = patientAppointmentServiceServiceDescriptor.Methods().ByName("ListCurrentPatientAppointment")
+	patientAppointmentServiceCreatePatientAppointmentMethodDescriptor      = patientAppointmentServiceServiceDescriptor.Methods().ByName("CreatePatientAppointment")
+	patientAppointmentServiceUpdatePatientAppointmentMethodDescriptor      = patientAppointmentServiceServiceDescriptor.Methods().ByName("UpdatePatientAppointment")
+	patientAppointmentServiceDeletePatientAppointmentMethodDescriptor      = patientAppointmentServiceServiceDescriptor.Methods().ByName("DeletePatientAppointment")
 )
 
 // PatientAppointmentServiceClient is a client for the
 // patientappointment.v1.PatientAppointmentService service.
 type PatientAppointmentServiceClient interface {
 	ListCurrentPatientAppointment(context.Context, *connect.Request[v1.ListCurrentPatientAppointmentRequest]) (*connect.Response[v1.ListCurrentPatientAppointmentResponse], error)
+	// TODO: Allow users to sign up to, or cancel appointments.
+	CreatePatientAppointment(context.Context, *connect.Request[v1.CreatePatientAppointmentRequest]) (*connect.Response[v1.CreatePatientAppointmentResponse], error)
+	UpdatePatientAppointment(context.Context, *connect.Request[v1.UpdatePatientAppointmentRequest]) (*connect.Response[v1.UpdatePatientAppointmentResponse], error)
+	DeletePatientAppointment(context.Context, *connect.Request[v1.DeletePatientAppointmentRequest]) (*connect.Response[v1.DeletePatientAppointmentResponse], error)
 }
 
 // NewPatientAppointmentServiceClient constructs a client for the
@@ -68,12 +84,33 @@ func NewPatientAppointmentServiceClient(httpClient connect.HTTPClient, baseURL s
 			connect.WithSchema(patientAppointmentServiceListCurrentPatientAppointmentMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		createPatientAppointment: connect.NewClient[v1.CreatePatientAppointmentRequest, v1.CreatePatientAppointmentResponse](
+			httpClient,
+			baseURL+PatientAppointmentServiceCreatePatientAppointmentProcedure,
+			connect.WithSchema(patientAppointmentServiceCreatePatientAppointmentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		updatePatientAppointment: connect.NewClient[v1.UpdatePatientAppointmentRequest, v1.UpdatePatientAppointmentResponse](
+			httpClient,
+			baseURL+PatientAppointmentServiceUpdatePatientAppointmentProcedure,
+			connect.WithSchema(patientAppointmentServiceUpdatePatientAppointmentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		deletePatientAppointment: connect.NewClient[v1.DeletePatientAppointmentRequest, v1.DeletePatientAppointmentResponse](
+			httpClient,
+			baseURL+PatientAppointmentServiceDeletePatientAppointmentProcedure,
+			connect.WithSchema(patientAppointmentServiceDeletePatientAppointmentMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // patientAppointmentServiceClient implements PatientAppointmentServiceClient.
 type patientAppointmentServiceClient struct {
 	listCurrentPatientAppointment *connect.Client[v1.ListCurrentPatientAppointmentRequest, v1.ListCurrentPatientAppointmentResponse]
+	createPatientAppointment      *connect.Client[v1.CreatePatientAppointmentRequest, v1.CreatePatientAppointmentResponse]
+	updatePatientAppointment      *connect.Client[v1.UpdatePatientAppointmentRequest, v1.UpdatePatientAppointmentResponse]
+	deletePatientAppointment      *connect.Client[v1.DeletePatientAppointmentRequest, v1.DeletePatientAppointmentResponse]
 }
 
 // ListCurrentPatientAppointment calls
@@ -82,10 +119,32 @@ func (c *patientAppointmentServiceClient) ListCurrentPatientAppointment(ctx cont
 	return c.listCurrentPatientAppointment.CallUnary(ctx, req)
 }
 
+// CreatePatientAppointment calls
+// patientappointment.v1.PatientAppointmentService.CreatePatientAppointment.
+func (c *patientAppointmentServiceClient) CreatePatientAppointment(ctx context.Context, req *connect.Request[v1.CreatePatientAppointmentRequest]) (*connect.Response[v1.CreatePatientAppointmentResponse], error) {
+	return c.createPatientAppointment.CallUnary(ctx, req)
+}
+
+// UpdatePatientAppointment calls
+// patientappointment.v1.PatientAppointmentService.UpdatePatientAppointment.
+func (c *patientAppointmentServiceClient) UpdatePatientAppointment(ctx context.Context, req *connect.Request[v1.UpdatePatientAppointmentRequest]) (*connect.Response[v1.UpdatePatientAppointmentResponse], error) {
+	return c.updatePatientAppointment.CallUnary(ctx, req)
+}
+
+// DeletePatientAppointment calls
+// patientappointment.v1.PatientAppointmentService.DeletePatientAppointment.
+func (c *patientAppointmentServiceClient) DeletePatientAppointment(ctx context.Context, req *connect.Request[v1.DeletePatientAppointmentRequest]) (*connect.Response[v1.DeletePatientAppointmentResponse], error) {
+	return c.deletePatientAppointment.CallUnary(ctx, req)
+}
+
 // PatientAppointmentServiceHandler is an implementation of the
 // patientappointment.v1.PatientAppointmentService service.
 type PatientAppointmentServiceHandler interface {
 	ListCurrentPatientAppointment(context.Context, *connect.Request[v1.ListCurrentPatientAppointmentRequest]) (*connect.Response[v1.ListCurrentPatientAppointmentResponse], error)
+	// TODO: Allow users to sign up to, or cancel appointments.
+	CreatePatientAppointment(context.Context, *connect.Request[v1.CreatePatientAppointmentRequest]) (*connect.Response[v1.CreatePatientAppointmentResponse], error)
+	UpdatePatientAppointment(context.Context, *connect.Request[v1.UpdatePatientAppointmentRequest]) (*connect.Response[v1.UpdatePatientAppointmentResponse], error)
+	DeletePatientAppointment(context.Context, *connect.Request[v1.DeletePatientAppointmentRequest]) (*connect.Response[v1.DeletePatientAppointmentResponse], error)
 }
 
 // NewPatientAppointmentServiceHandler builds an HTTP handler from the service implementation. It
@@ -100,10 +159,34 @@ func NewPatientAppointmentServiceHandler(svc PatientAppointmentServiceHandler, o
 		connect.WithSchema(patientAppointmentServiceListCurrentPatientAppointmentMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	patientAppointmentServiceCreatePatientAppointmentHandler := connect.NewUnaryHandler(
+		PatientAppointmentServiceCreatePatientAppointmentProcedure,
+		svc.CreatePatientAppointment,
+		connect.WithSchema(patientAppointmentServiceCreatePatientAppointmentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	patientAppointmentServiceUpdatePatientAppointmentHandler := connect.NewUnaryHandler(
+		PatientAppointmentServiceUpdatePatientAppointmentProcedure,
+		svc.UpdatePatientAppointment,
+		connect.WithSchema(patientAppointmentServiceUpdatePatientAppointmentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	patientAppointmentServiceDeletePatientAppointmentHandler := connect.NewUnaryHandler(
+		PatientAppointmentServiceDeletePatientAppointmentProcedure,
+		svc.DeletePatientAppointment,
+		connect.WithSchema(patientAppointmentServiceDeletePatientAppointmentMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/patientappointment.v1.PatientAppointmentService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case PatientAppointmentServiceListCurrentPatientAppointmentProcedure:
 			patientAppointmentServiceListCurrentPatientAppointmentHandler.ServeHTTP(w, r)
+		case PatientAppointmentServiceCreatePatientAppointmentProcedure:
+			patientAppointmentServiceCreatePatientAppointmentHandler.ServeHTTP(w, r)
+		case PatientAppointmentServiceUpdatePatientAppointmentProcedure:
+			patientAppointmentServiceUpdatePatientAppointmentHandler.ServeHTTP(w, r)
+		case PatientAppointmentServiceDeletePatientAppointmentProcedure:
+			patientAppointmentServiceDeletePatientAppointmentHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -115,4 +198,16 @@ type UnimplementedPatientAppointmentServiceHandler struct{}
 
 func (UnimplementedPatientAppointmentServiceHandler) ListCurrentPatientAppointment(context.Context, *connect.Request[v1.ListCurrentPatientAppointmentRequest]) (*connect.Response[v1.ListCurrentPatientAppointmentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("patientappointment.v1.PatientAppointmentService.ListCurrentPatientAppointment is not implemented"))
+}
+
+func (UnimplementedPatientAppointmentServiceHandler) CreatePatientAppointment(context.Context, *connect.Request[v1.CreatePatientAppointmentRequest]) (*connect.Response[v1.CreatePatientAppointmentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("patientappointment.v1.PatientAppointmentService.CreatePatientAppointment is not implemented"))
+}
+
+func (UnimplementedPatientAppointmentServiceHandler) UpdatePatientAppointment(context.Context, *connect.Request[v1.UpdatePatientAppointmentRequest]) (*connect.Response[v1.UpdatePatientAppointmentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("patientappointment.v1.PatientAppointmentService.UpdatePatientAppointment is not implemented"))
+}
+
+func (UnimplementedPatientAppointmentServiceHandler) DeletePatientAppointment(context.Context, *connect.Request[v1.DeletePatientAppointmentRequest]) (*connect.Response[v1.DeletePatientAppointmentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("patientappointment.v1.PatientAppointmentService.DeletePatientAppointment is not implemented"))
 }

@@ -62,22 +62,35 @@ UPDATE
 SET name = $2,
     photo_url = $3;
 -- name: ListCurrentAppointments :many
-SELECT a.*,
-    p.initials,
-    p.gender
-FROM reorder.patient_appointments a
-    INNER JOIN reorder.patients p ON a.patient_id = p.id
-WHERE start_time AT TIME ZONE 'UTC' >= NOW()
+select s.*
+from (
+        select *,
+            rank() over (
+                partition by patient_id
+                order by start_time asc
+            ) meeting_number
+        from reorder.patient_appointments
+    ) s
+where s.start_time AT TIME ZONE 'UTC' > now() - interval '8 week'
 ORDER BY start_time ASC;
 -- name: ListPatients :many
-WITH la as (
-    SELECT patient_id,
-        MAX(start_time) as last_appointment,
-        COUNT(*) as appointments_count
-    FROM reorder.patient_appointments
-    GROUP BY patient_id
-)
 SELECT *
-FROM la
-    INNER JOIN reorder.patients p on la.patient_id = p.id
-ORDER BY patient_id ASC;
+FROM reorder.patients
+ORDER BY id ASC;
+-- name: CreatePatient :exec
+INSERT INTO reorder.patients (initials, gender)
+VALUES ($1, $2);
+-- name: UpdatePatientStatus :exec
+UPDATE reorder.patients
+SET status = $2
+WHERE id = $1;
+-- name: CreatePatientAppointment :exec
+INSERT INTO reorder.patient_appointments (start_time, patient_id)
+VALUES ($1, $2);
+-- name: UpdatePatientAppointment :exec
+UPDATE reorder.patient_appointments
+SET start_time = $2
+WHERE id = $1;
+-- name: DeletePatientAppointment :exec
+DELETE FROM reorder.patient_appointments
+WHERE id = $1;

@@ -88,7 +88,9 @@ export const IntervalList = forwardRef(function X(
                   />
                   <ListItemIcon>
                     <IconButton onClick={() => seekTo(interval.startTime)}>
-                      <Icon>play_arrow</Icon>
+                      <Icon baseClassName="material-symbols-outlined">
+                        play_arrow
+                      </Icon>
                     </IconButton>
                   </ListItemIcon>
                   <ListItemIcon>
@@ -106,7 +108,9 @@ export const IntervalList = forwardRef(function X(
                           }
                           disabled={disabled}
                         >
-                          <Icon>edit</Icon>
+                          <Icon baseClassName="material-symbols-outlined">
+                            edit
+                          </Icon>
                         </IconButton>
                       )}
                     </LoginPromptDirective>
@@ -120,7 +124,9 @@ export const IntervalList = forwardRef(function X(
                           }}
                           disabled={disabled}
                         >
-                          <Icon>delete</Icon>
+                          <Icon baseClassName="material-symbols-outlined">
+                            delete
+                          </Icon>
                         </IconButton>
                       )}
                     </LoginPromptDirective>

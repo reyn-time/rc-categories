@@ -133,7 +133,9 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
                 );
               }}
             >
-              <Icon fontSize="small">skip_previous</Icon>
+              <Icon baseClassName="material-symbols-outlined" fontSize="small">
+                skip_previous
+              </Icon>
             </IconButton>
           </Tooltip>
           <Typography
@@ -162,7 +164,9 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
                 );
               }}
             >
-              <Icon fontSize="small">skip_next</Icon>
+              <Icon baseClassName="material-symbols-outlined" fontSize="small">
+                skip_next
+              </Icon>
             </IconButton>
           </Tooltip>
         </Stack>
@@ -177,7 +181,10 @@ export const IntervalInputForm = forwardRef(function IntervalInputForm(
         <FormGroup>
           <Stack alignItems="flex-start" gap={2}>
             <Button variant="outlined" onClick={() => setPanel(null)}>
-              <Icon>navigate_before</Icon>返回
+              <Icon baseClassName="material-symbols-outlined">
+                navigate_before
+              </Icon>
+              返回
             </Button>
             <Slider
               min={0}

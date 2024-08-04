@@ -18,11 +18,15 @@ import (
 
 	categoryconn "github.com/reyn-time/rc-categories/backend/gen/proto/category/v1/categoryv1connect"
 	intervalconn "github.com/reyn-time/rc-categories/backend/gen/proto/interval/v1/intervalv1connect"
+	pconn "github.com/reyn-time/rc-categories/backend/gen/proto/patient/v1/patientv1connect"
+	paconn "github.com/reyn-time/rc-categories/backend/gen/proto/patientappointment/v1/patientappointmentv1connect"
 	userconn "github.com/reyn-time/rc-categories/backend/gen/proto/user/v1/userv1connect"
 	videoconn "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1/videov1connect"
 	"github.com/reyn-time/rc-categories/backend/oauth"
 	"github.com/reyn-time/rc-categories/backend/service/category"
 	"github.com/reyn-time/rc-categories/backend/service/interval"
+	"github.com/reyn-time/rc-categories/backend/service/patient"
+	"github.com/reyn-time/rc-categories/backend/service/patientappointment"
 	"github.com/reyn-time/rc-categories/backend/service/user"
 	"github.com/reyn-time/rc-categories/backend/service/video"
 	"github.com/rs/cors"
@@ -110,6 +114,12 @@ func main() {
 		Queries: queries,
 		Config:  c.OauthConfig,
 		SC:      sc,
+	}, interceptors))
+	api.Handle(paconn.NewPatientAppointmentServiceHandler(&patientappointment.PatientAppointmentService{
+		Queries: queries,
+	}, interceptors))
+	api.Handle(pconn.NewPatientServiceHandler(&patient.PatientService{
+		Queries: queries,
 	}, interceptors))
 
 	mux := http.NewServeMux()

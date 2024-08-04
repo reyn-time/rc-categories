@@ -4,6 +4,9 @@ import { lazy, Suspense } from "react";
 
 const VideoList = lazy(() => import("./features/video/videoList"));
 const VideoDetail = lazy(() => import("./features/video-detail/videoDetail"));
+const PatientAppointment = lazy(
+  () => import("./features/patient/patientAppointment")
+);
 
 const router = createBrowserRouter([
   {
@@ -27,6 +30,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense>
             <VideoDetail />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/appointment",
+        element: (
+          <Suspense>
+            <PatientAppointment />
           </Suspense>
         ),
       },

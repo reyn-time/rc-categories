@@ -4,7 +4,7 @@
 // @ts-nocheck
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
-import { Message, Timestamp, proto3 } from "@bufbuild/protobuf";
+import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
  * @generated from enum patient.v1.Gender
@@ -88,9 +88,9 @@ export class ListPatientRequest extends Message<ListPatientRequest> {
  */
 export class ListPatientResponse extends Message<ListPatientResponse> {
   /**
-   * @generated from field: repeated patient.v1.PatientWithAppointmentAnalytics patients = 1;
+   * @generated from field: repeated patient.v1.Patient patients = 1;
    */
-  patients: PatientWithAppointmentAnalytics[] = [];
+  patients: Patient[] = [];
 
   constructor(data?: PartialMessage<ListPatientResponse>) {
     super();
@@ -100,7 +100,7 @@ export class ListPatientResponse extends Message<ListPatientResponse> {
   static readonly runtime: typeof proto3 = proto3;
   static readonly typeName = "patient.v1.ListPatientResponse";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "patients", kind: "message", T: PatientWithAppointmentAnalytics, repeated: true },
+    { no: 1, name: "patients", kind: "message", T: Patient, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListPatientResponse {
@@ -121,45 +121,150 @@ export class ListPatientResponse extends Message<ListPatientResponse> {
 }
 
 /**
- * @generated from message patient.v1.PatientWithAppointmentAnalytics
+ * @generated from message patient.v1.CreatePatientRequest
  */
-export class PatientWithAppointmentAnalytics extends Message<PatientWithAppointmentAnalytics> {
+export class CreatePatientRequest extends Message<CreatePatientRequest> {
   /**
-   * @generated from field: patient.v1.Patient patient = 1;
+   * @generated from field: string initials = 1;
    */
-  patient?: Patient;
+  initials = "";
 
   /**
-   * @generated from field: patient.v1.AppointmentAnalytics appointment_analytics = 2;
+   * @generated from field: patient.v1.Gender gender = 2;
    */
-  appointmentAnalytics?: AppointmentAnalytics;
+  gender = Gender.Male;
 
-  constructor(data?: PartialMessage<PatientWithAppointmentAnalytics>) {
+  constructor(data?: PartialMessage<CreatePatientRequest>) {
     super();
     proto3.util.initPartial(data, this);
   }
 
   static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "patient.v1.PatientWithAppointmentAnalytics";
+  static readonly typeName = "patient.v1.CreatePatientRequest";
   static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "patient", kind: "message", T: Patient },
-    { no: 2, name: "appointment_analytics", kind: "message", T: AppointmentAnalytics },
+    { no: 1, name: "initials", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 2, name: "gender", kind: "enum", T: proto3.getEnumType(Gender) },
   ]);
 
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PatientWithAppointmentAnalytics {
-    return new PatientWithAppointmentAnalytics().fromBinary(bytes, options);
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreatePatientRequest {
+    return new CreatePatientRequest().fromBinary(bytes, options);
   }
 
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): PatientWithAppointmentAnalytics {
-    return new PatientWithAppointmentAnalytics().fromJson(jsonValue, options);
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CreatePatientRequest {
+    return new CreatePatientRequest().fromJson(jsonValue, options);
   }
 
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): PatientWithAppointmentAnalytics {
-    return new PatientWithAppointmentAnalytics().fromJsonString(jsonString, options);
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CreatePatientRequest {
+    return new CreatePatientRequest().fromJsonString(jsonString, options);
   }
 
-  static equals(a: PatientWithAppointmentAnalytics | PlainMessage<PatientWithAppointmentAnalytics> | undefined, b: PatientWithAppointmentAnalytics | PlainMessage<PatientWithAppointmentAnalytics> | undefined): boolean {
-    return proto3.util.equals(PatientWithAppointmentAnalytics, a, b);
+  static equals(a: CreatePatientRequest | PlainMessage<CreatePatientRequest> | undefined, b: CreatePatientRequest | PlainMessage<CreatePatientRequest> | undefined): boolean {
+    return proto3.util.equals(CreatePatientRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message patient.v1.CreatePatientResponse
+ */
+export class CreatePatientResponse extends Message<CreatePatientResponse> {
+  constructor(data?: PartialMessage<CreatePatientResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patient.v1.CreatePatientResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): CreatePatientResponse {
+    return new CreatePatientResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): CreatePatientResponse {
+    return new CreatePatientResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): CreatePatientResponse {
+    return new CreatePatientResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: CreatePatientResponse | PlainMessage<CreatePatientResponse> | undefined, b: CreatePatientResponse | PlainMessage<CreatePatientResponse> | undefined): boolean {
+    return proto3.util.equals(CreatePatientResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message patient.v1.ChangePatientStatusRequest
+ */
+export class ChangePatientStatusRequest extends Message<ChangePatientStatusRequest> {
+  /**
+   * @generated from field: int32 patient_id = 1;
+   */
+  patientId = 0;
+
+  /**
+   * @generated from field: patient.v1.PatientStatus status = 2;
+   */
+  status = PatientStatus.Active;
+
+  constructor(data?: PartialMessage<ChangePatientStatusRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patient.v1.ChangePatientStatusRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "patient_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 2, name: "status", kind: "enum", T: proto3.getEnumType(PatientStatus) },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ChangePatientStatusRequest {
+    return new ChangePatientStatusRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ChangePatientStatusRequest {
+    return new ChangePatientStatusRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ChangePatientStatusRequest {
+    return new ChangePatientStatusRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ChangePatientStatusRequest | PlainMessage<ChangePatientStatusRequest> | undefined, b: ChangePatientStatusRequest | PlainMessage<ChangePatientStatusRequest> | undefined): boolean {
+    return proto3.util.equals(ChangePatientStatusRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message patient.v1.ChangePatientStatusResponse
+ */
+export class ChangePatientStatusResponse extends Message<ChangePatientStatusResponse> {
+  constructor(data?: PartialMessage<ChangePatientStatusResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patient.v1.ChangePatientStatusResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ChangePatientStatusResponse {
+    return new ChangePatientStatusResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ChangePatientStatusResponse {
+    return new ChangePatientStatusResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ChangePatientStatusResponse {
+    return new ChangePatientStatusResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ChangePatientStatusResponse | PlainMessage<ChangePatientStatusResponse> | undefined, b: ChangePatientStatusResponse | PlainMessage<ChangePatientStatusResponse> | undefined): boolean {
+    return proto3.util.equals(ChangePatientStatusResponse, a, b);
   }
 }
 
@@ -215,49 +320,6 @@ export class Patient extends Message<Patient> {
 
   static equals(a: Patient | PlainMessage<Patient> | undefined, b: Patient | PlainMessage<Patient> | undefined): boolean {
     return proto3.util.equals(Patient, a, b);
-  }
-}
-
-/**
- * @generated from message patient.v1.AppointmentAnalytics
- */
-export class AppointmentAnalytics extends Message<AppointmentAnalytics> {
-  /**
-   * @generated from field: google.protobuf.Timestamp last_appointment = 1;
-   */
-  lastAppointment?: Timestamp;
-
-  /**
-   * @generated from field: int32 appointments_count = 2;
-   */
-  appointmentsCount = 0;
-
-  constructor(data?: PartialMessage<AppointmentAnalytics>) {
-    super();
-    proto3.util.initPartial(data, this);
-  }
-
-  static readonly runtime: typeof proto3 = proto3;
-  static readonly typeName = "patient.v1.AppointmentAnalytics";
-  static readonly fields: FieldList = proto3.util.newFieldList(() => [
-    { no: 1, name: "last_appointment", kind: "message", T: Timestamp },
-    { no: 2, name: "appointments_count", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
-  ]);
-
-  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): AppointmentAnalytics {
-    return new AppointmentAnalytics().fromBinary(bytes, options);
-  }
-
-  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): AppointmentAnalytics {
-    return new AppointmentAnalytics().fromJson(jsonValue, options);
-  }
-
-  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): AppointmentAnalytics {
-    return new AppointmentAnalytics().fromJsonString(jsonString, options);
-  }
-
-  static equals(a: AppointmentAnalytics | PlainMessage<AppointmentAnalytics> | undefined, b: AppointmentAnalytics | PlainMessage<AppointmentAnalytics> | undefined): boolean {
-    return proto3.util.equals(AppointmentAnalytics, a, b);
   }
 }
 

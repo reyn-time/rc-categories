@@ -36,17 +36,27 @@ const (
 	// PatientServiceListPatientProcedure is the fully-qualified name of the PatientService's
 	// ListPatient RPC.
 	PatientServiceListPatientProcedure = "/patient.v1.PatientService/ListPatient"
+	// PatientServiceCreatePatientProcedure is the fully-qualified name of the PatientService's
+	// CreatePatient RPC.
+	PatientServiceCreatePatientProcedure = "/patient.v1.PatientService/CreatePatient"
+	// PatientServiceChangePatientStatusProcedure is the fully-qualified name of the PatientService's
+	// ChangePatientStatus RPC.
+	PatientServiceChangePatientStatusProcedure = "/patient.v1.PatientService/ChangePatientStatus"
 )
 
 // These variables are the protoreflect.Descriptor objects for the RPCs defined in this package.
 var (
-	patientServiceServiceDescriptor           = v1.File_proto_patient_v1_patient_proto.Services().ByName("PatientService")
-	patientServiceListPatientMethodDescriptor = patientServiceServiceDescriptor.Methods().ByName("ListPatient")
+	patientServiceServiceDescriptor                   = v1.File_proto_patient_v1_patient_proto.Services().ByName("PatientService")
+	patientServiceListPatientMethodDescriptor         = patientServiceServiceDescriptor.Methods().ByName("ListPatient")
+	patientServiceCreatePatientMethodDescriptor       = patientServiceServiceDescriptor.Methods().ByName("CreatePatient")
+	patientServiceChangePatientStatusMethodDescriptor = patientServiceServiceDescriptor.Methods().ByName("ChangePatientStatus")
 )
 
 // PatientServiceClient is a client for the patient.v1.PatientService service.
 type PatientServiceClient interface {
 	ListPatient(context.Context, *connect.Request[v1.ListPatientRequest]) (*connect.Response[v1.ListPatientResponse], error)
+	CreatePatient(context.Context, *connect.Request[v1.CreatePatientRequest]) (*connect.Response[v1.CreatePatientResponse], error)
+	ChangePatientStatus(context.Context, *connect.Request[v1.ChangePatientStatusRequest]) (*connect.Response[v1.ChangePatientStatusResponse], error)
 }
 
 // NewPatientServiceClient constructs a client for the patient.v1.PatientService service. By
@@ -65,12 +75,26 @@ func NewPatientServiceClient(httpClient connect.HTTPClient, baseURL string, opts
 			connect.WithSchema(patientServiceListPatientMethodDescriptor),
 			connect.WithClientOptions(opts...),
 		),
+		createPatient: connect.NewClient[v1.CreatePatientRequest, v1.CreatePatientResponse](
+			httpClient,
+			baseURL+PatientServiceCreatePatientProcedure,
+			connect.WithSchema(patientServiceCreatePatientMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
+		changePatientStatus: connect.NewClient[v1.ChangePatientStatusRequest, v1.ChangePatientStatusResponse](
+			httpClient,
+			baseURL+PatientServiceChangePatientStatusProcedure,
+			connect.WithSchema(patientServiceChangePatientStatusMethodDescriptor),
+			connect.WithClientOptions(opts...),
+		),
 	}
 }
 
 // patientServiceClient implements PatientServiceClient.
 type patientServiceClient struct {
-	listPatient *connect.Client[v1.ListPatientRequest, v1.ListPatientResponse]
+	listPatient         *connect.Client[v1.ListPatientRequest, v1.ListPatientResponse]
+	createPatient       *connect.Client[v1.CreatePatientRequest, v1.CreatePatientResponse]
+	changePatientStatus *connect.Client[v1.ChangePatientStatusRequest, v1.ChangePatientStatusResponse]
 }
 
 // ListPatient calls patient.v1.PatientService.ListPatient.
@@ -78,9 +102,21 @@ func (c *patientServiceClient) ListPatient(ctx context.Context, req *connect.Req
 	return c.listPatient.CallUnary(ctx, req)
 }
 
+// CreatePatient calls patient.v1.PatientService.CreatePatient.
+func (c *patientServiceClient) CreatePatient(ctx context.Context, req *connect.Request[v1.CreatePatientRequest]) (*connect.Response[v1.CreatePatientResponse], error) {
+	return c.createPatient.CallUnary(ctx, req)
+}
+
+// ChangePatientStatus calls patient.v1.PatientService.ChangePatientStatus.
+func (c *patientServiceClient) ChangePatientStatus(ctx context.Context, req *connect.Request[v1.ChangePatientStatusRequest]) (*connect.Response[v1.ChangePatientStatusResponse], error) {
+	return c.changePatientStatus.CallUnary(ctx, req)
+}
+
 // PatientServiceHandler is an implementation of the patient.v1.PatientService service.
 type PatientServiceHandler interface {
 	ListPatient(context.Context, *connect.Request[v1.ListPatientRequest]) (*connect.Response[v1.ListPatientResponse], error)
+	CreatePatient(context.Context, *connect.Request[v1.CreatePatientRequest]) (*connect.Response[v1.CreatePatientResponse], error)
+	ChangePatientStatus(context.Context, *connect.Request[v1.ChangePatientStatusRequest]) (*connect.Response[v1.ChangePatientStatusResponse], error)
 }
 
 // NewPatientServiceHandler builds an HTTP handler from the service implementation. It returns the
@@ -95,10 +131,26 @@ func NewPatientServiceHandler(svc PatientServiceHandler, opts ...connect.Handler
 		connect.WithSchema(patientServiceListPatientMethodDescriptor),
 		connect.WithHandlerOptions(opts...),
 	)
+	patientServiceCreatePatientHandler := connect.NewUnaryHandler(
+		PatientServiceCreatePatientProcedure,
+		svc.CreatePatient,
+		connect.WithSchema(patientServiceCreatePatientMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
+	patientServiceChangePatientStatusHandler := connect.NewUnaryHandler(
+		PatientServiceChangePatientStatusProcedure,
+		svc.ChangePatientStatus,
+		connect.WithSchema(patientServiceChangePatientStatusMethodDescriptor),
+		connect.WithHandlerOptions(opts...),
+	)
 	return "/patient.v1.PatientService/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case PatientServiceListPatientProcedure:
 			patientServiceListPatientHandler.ServeHTTP(w, r)
+		case PatientServiceCreatePatientProcedure:
+			patientServiceCreatePatientHandler.ServeHTTP(w, r)
+		case PatientServiceChangePatientStatusProcedure:
+			patientServiceChangePatientStatusHandler.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
 		}
@@ -110,4 +162,12 @@ type UnimplementedPatientServiceHandler struct{}
 
 func (UnimplementedPatientServiceHandler) ListPatient(context.Context, *connect.Request[v1.ListPatientRequest]) (*connect.Response[v1.ListPatientResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("patient.v1.PatientService.ListPatient is not implemented"))
+}
+
+func (UnimplementedPatientServiceHandler) CreatePatient(context.Context, *connect.Request[v1.CreatePatientRequest]) (*connect.Response[v1.CreatePatientResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("patient.v1.PatientService.CreatePatient is not implemented"))
+}
+
+func (UnimplementedPatientServiceHandler) ChangePatientStatus(context.Context, *connect.Request[v1.ChangePatientStatusRequest]) (*connect.Response[v1.ChangePatientStatusResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("patient.v1.PatientService.ChangePatientStatus is not implemented"))
 }

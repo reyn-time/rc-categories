@@ -105,7 +105,11 @@ export const IntervalTabs = (props: {
               }
               label={"負責人：" + (video.editor?.name ?? "不明")}
               onClick={handleClick}
-              deleteIcon={<Icon>arrow_drop_down</Icon>}
+              deleteIcon={
+                <Icon baseClassName="material-symbols-outlined">
+                  arrow_drop_down
+                </Icon>
+              }
               onDelete={handleClick}
               disabled={disabled}
             />
@@ -206,7 +210,7 @@ const SelectUserMenu = (props: {
           disabled={selectedUserEmail === ""}
         >
           <ListItemIcon>
-            <Icon>delete</Icon>
+            <Icon baseClassName="material-symbols-outlined">delete</Icon>
           </ListItemIcon>
           <ListItemText primary="刪除" />
         </MenuItem>

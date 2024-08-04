@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ListPatientRequest, ListPatientResponse } from "./patient_pb.js";
+import { ChangePatientStatusRequest, ChangePatientStatusResponse, CreatePatientRequest, CreatePatientResponse, ListPatientRequest, ListPatientResponse } from "./patient_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -19,6 +19,24 @@ export const PatientService = {
       name: "ListPatient",
       I: ListPatientRequest,
       O: ListPatientResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc patient.v1.PatientService.CreatePatient
+     */
+    createPatient: {
+      name: "CreatePatient",
+      I: CreatePatientRequest,
+      O: CreatePatientResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc patient.v1.PatientService.ChangePatientStatus
+     */
+    changePatientStatus: {
+      name: "ChangePatientStatus",
+      I: ChangePatientStatusRequest,
+      O: ChangePatientStatusResponse,
       kind: MethodKind.Unary,
     },
   }

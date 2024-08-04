@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ListCurrentPatientAppointmentRequest, ListCurrentPatientAppointmentResponse } from "./patientappointment_pb.js";
+import { CreatePatientAppointmentRequest, CreatePatientAppointmentResponse, DeletePatientAppointmentRequest, DeletePatientAppointmentResponse, ListCurrentPatientAppointmentRequest, ListCurrentPatientAppointmentResponse, UpdatePatientAppointmentRequest, UpdatePatientAppointmentResponse } from "./patientappointment_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -19,6 +19,35 @@ export const PatientAppointmentService = {
       name: "ListCurrentPatientAppointment",
       I: ListCurrentPatientAppointmentRequest,
       O: ListCurrentPatientAppointmentResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * TODO: Allow users to sign up to, or cancel appointments.
+     *
+     * @generated from rpc patientappointment.v1.PatientAppointmentService.CreatePatientAppointment
+     */
+    createPatientAppointment: {
+      name: "CreatePatientAppointment",
+      I: CreatePatientAppointmentRequest,
+      O: CreatePatientAppointmentResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc patientappointment.v1.PatientAppointmentService.UpdatePatientAppointment
+     */
+    updatePatientAppointment: {
+      name: "UpdatePatientAppointment",
+      I: UpdatePatientAppointmentRequest,
+      O: UpdatePatientAppointmentResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc patientappointment.v1.PatientAppointmentService.DeletePatientAppointment
+     */
+    deletePatientAppointment: {
+      name: "DeletePatientAppointment",
+      I: DeletePatientAppointmentRequest,
+      O: DeletePatientAppointmentResponse,
       kind: MethodKind.Unary,
     },
   }

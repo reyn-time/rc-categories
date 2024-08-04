@@ -11,6 +11,36 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createPatient = `-- name: CreatePatient :exec
+INSERT INTO reorder.patients (initials, gender)
+VALUES ($1, $2)
+`
+
+type CreatePatientParams struct {
+	Initials string
+	Gender   ReorderGender
+}
+
+func (q *Queries) CreatePatient(ctx context.Context, arg CreatePatientParams) error {
+	_, err := q.db.Exec(ctx, createPatient, arg.Initials, arg.Gender)
+	return err
+}
+
+const createPatientAppointment = `-- name: CreatePatientAppointment :exec
+INSERT INTO reorder.patient_appointments (start_time, patient_id)
+VALUES ($1, $2)
+`
+
+type CreatePatientAppointmentParams struct {
+	StartTime pgtype.Timestamp
+	PatientID int32
+}
+
+func (q *Queries) CreatePatientAppointment(ctx context.Context, arg CreatePatientAppointmentParams) error {
+	_, err := q.db.Exec(ctx, createPatientAppointment, arg.StartTime, arg.PatientID)
+	return err
+}
+
 const deleteInterval = `-- name: DeleteInterval :exec
 DELETE FROM reorder.video_intervals
 WHERE id = $1
@@ -28,6 +58,16 @@ WHERE video_interval_id = $1
 
 func (q *Queries) DeleteIntervalCategories(ctx context.Context, videoIntervalID int32) error {
 	_, err := q.db.Exec(ctx, deleteIntervalCategories, videoIntervalID)
+	return err
+}
+
+const deletePatientAppointment = `-- name: DeletePatientAppointment :exec
+DELETE FROM reorder.patient_appointments
+WHERE id = $1
+`
+
+func (q *Queries) DeletePatientAppointment(ctx context.Context, id int32) error {
+	_, err := q.db.Exec(ctx, deletePatientAppointment, id)
 	return err
 }
 
@@ -81,21 +121,24 @@ func (q *Queries) ListCategories(ctx context.Context) ([]ReorderCategory, error)
 }
 
 const listCurrentAppointments = `-- name: ListCurrentAppointments :many
-SELECT a.id, a.start_time, a.patient_id,
-    p.initials,
-    p.gender
-FROM reorder.patient_appointments a
-    INNER JOIN reorder.patients p ON a.patient_id = p.id
-WHERE start_time AT TIME ZONE 'UTC' >= NOW()
+select s.id, s.start_time, s.patient_id, s.meeting_number
+from (
+        select id, start_time, patient_id,
+            rank() over (
+                partition by patient_id
+                order by start_time asc
+            ) meeting_number
+        from reorder.patient_appointments
+    ) s
+where s.start_time AT TIME ZONE 'UTC' > now() - interval '8 week'
 ORDER BY start_time ASC
 `
 
 type ListCurrentAppointmentsRow struct {
-	ID        int32
-	StartTime pgtype.Timestamp
-	PatientID int32
-	Initials  string
-	Gender    ReorderGender
+	ID            int32
+	StartTime     pgtype.Timestamp
+	PatientID     int32
+	MeetingNumber int64
 }
 
 func (q *Queries) ListCurrentAppointments(ctx context.Context) ([]ListCurrentAppointmentsRow, error) {
@@ -111,8 +154,7 @@ func (q *Queries) ListCurrentAppointments(ctx context.Context) ([]ListCurrentApp
 			&i.ID,
 			&i.StartTime,
 			&i.PatientID,
-			&i.Initials,
-			&i.Gender,
+			&i.MeetingNumber,
 		); err != nil {
 			return nil, err
 		}
@@ -176,42 +218,21 @@ func (q *Queries) ListIntervals(ctx context.Context, videoID int32) ([]ListInter
 }
 
 const listPatients = `-- name: ListPatients :many
-WITH la as (
-    SELECT patient_id,
-        MAX(start_time) as last_appointment,
-        COUNT(*) as appointments_count
-    FROM reorder.patient_appointments
-    GROUP BY patient_id
-)
-SELECT patient_id, last_appointment, appointments_count, id, initials, gender, status
-FROM la
-    INNER JOIN reorder.patients p on la.patient_id = p.id
-ORDER BY patient_id ASC
+SELECT id, initials, gender, status
+FROM reorder.patients
+ORDER BY id ASC
 `
 
-type ListPatientsRow struct {
-	PatientID         int32
-	LastAppointment   interface{}
-	AppointmentsCount int64
-	ID                int32
-	Initials          string
-	Gender            ReorderGender
-	Status            ReorderPatientStatus
-}
-
-func (q *Queries) ListPatients(ctx context.Context) ([]ListPatientsRow, error) {
+func (q *Queries) ListPatients(ctx context.Context) ([]ReorderPatient, error) {
 	rows, err := q.db.Query(ctx, listPatients)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListPatientsRow
+	var items []ReorderPatient
 	for rows.Next() {
-		var i ListPatientsRow
+		var i ReorderPatient
 		if err := rows.Scan(
-			&i.PatientID,
-			&i.LastAppointment,
-			&i.AppointmentsCount,
 			&i.ID,
 			&i.Initials,
 			&i.Gender,
@@ -374,6 +395,38 @@ func (q *Queries) UpdateInterval(ctx context.Context, arg UpdateIntervalParams) 
 		arg.EndTime,
 		arg.Description,
 	)
+	return err
+}
+
+const updatePatientAppointment = `-- name: UpdatePatientAppointment :exec
+UPDATE reorder.patient_appointments
+SET start_time = $2
+WHERE id = $1
+`
+
+type UpdatePatientAppointmentParams struct {
+	ID        int32
+	StartTime pgtype.Timestamp
+}
+
+func (q *Queries) UpdatePatientAppointment(ctx context.Context, arg UpdatePatientAppointmentParams) error {
+	_, err := q.db.Exec(ctx, updatePatientAppointment, arg.ID, arg.StartTime)
+	return err
+}
+
+const updatePatientStatus = `-- name: UpdatePatientStatus :exec
+UPDATE reorder.patients
+SET status = $2
+WHERE id = $1
+`
+
+type UpdatePatientStatusParams struct {
+	ID     int32
+	Status ReorderPatientStatus
+}
+
+func (q *Queries) UpdatePatientStatus(ctx context.Context, arg UpdatePatientStatusParams) error {
+	_, err := q.db.Exec(ctx, updatePatientStatus, arg.ID, arg.Status)
 	return err
 }
 

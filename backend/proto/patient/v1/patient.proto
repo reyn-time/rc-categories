@@ -9,7 +9,12 @@ service PatientService {
     rpc ListPatient(ListPatientRequest) returns (ListPatientResponse) {
         option (auth.v1.auth_enabled) = true;
     }
-    // TODO: Add rpc to ChangePatientStatus
+    rpc CreatePatient(CreatePatientRequest) returns (CreatePatientResponse) {
+        option (auth.v1.auth_enabled) = true;
+}
+    rpc ChangePatientStatus(ChangePatientStatusRequest) returns (ChangePatientStatusResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
     // TODO: Add rpc to GetPatientDetails, e.g. real name, tg alias and records.
 }
 
@@ -17,12 +22,23 @@ message ListPatientRequest {
 }
 
 message ListPatientResponse {
-    repeated PatientWithAppointmentAnalytics patients = 1;
+    repeated Patient patients = 1;
 }
 
-message PatientWithAppointmentAnalytics {
-    Patient patient = 1;
-    AppointmentAnalytics appointment_analytics = 2;
+message CreatePatientRequest {
+    string initials = 1;
+    Gender gender = 2;
+}
+
+message CreatePatientResponse {
+}
+
+message ChangePatientStatusRequest {
+    int32 patient_id = 1;
+    PatientStatus status = 2;
+}
+
+message ChangePatientStatusResponse {
 }
 
 message Patient {
@@ -30,11 +46,6 @@ message Patient {
     string initials = 2;
     Gender gender = 3;
     PatientStatus status = 4;
-}
-
-message AppointmentAnalytics {
-    google.protobuf.Timestamp last_appointment = 1;
-    int32 appointments_count = 2;
 }
 
 enum Gender {
