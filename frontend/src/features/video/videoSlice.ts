@@ -1,4 +1,4 @@
-import { Code, ConnectError, createPromiseClient } from "@connectrpc/connect";
+import { createPromiseClient } from "@connectrpc/connect";
 import { VideoService } from "../../gen/proto/video/v1/video_connect";
 import { PlainMessage, toPlainMessage } from "@bufbuild/protobuf";
 import {
@@ -9,7 +9,7 @@ import {
 } from "../../gen/proto/video/v1/video_pb";
 import { NoBigIntMessage } from "../../util/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { transport } from "../../util/connect";
+import { queryFnWrapper, transport } from "../../util/connect";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { allVideoStatus } from "../../util/videoStatus";
 
@@ -21,73 +21,40 @@ export const videoApi = createApi({
   tagTypes: ["Video"],
   endpoints: (builder) => ({
     listVideo: builder.query<NoBigIntMessage<PlainMessage<Video>>[], void>({
-      queryFn: async () => {
-        try {
-          const res = await videoClient.listVideo({});
-          return {
-            data: res.videos.map((video) => ({
-              ...toPlainMessage(video),
-              createdAt: video.createdAt
-                ? {
-                    seconds: "" + (video.createdAt.seconds ?? 0),
-                    nanos: video.createdAt.nanos,
-                  }
-                : undefined,
-            })),
-          };
-        } catch (error) {
-          const connectErr = ConnectError.from(error);
-          return {
-            error: {
-              status: connectErr.code,
-              statusText: Code[connectErr.code],
-              data: connectErr.rawMessage,
-            },
-          };
-        }
-      },
+      queryFn: queryFnWrapper(async () => {
+        const res = await videoClient.listVideo({});
+        return {
+          data: res.videos.map((video) => ({
+            ...toPlainMessage(video),
+            createdAt: video.createdAt
+              ? {
+                  seconds: "" + (video.createdAt.seconds ?? 0),
+                  nanos: video.createdAt.nanos,
+                }
+              : undefined,
+          })),
+        };
+      }),
       providesTags: ["Video"],
     }),
     changeVideoEditor: builder.mutation<
       void,
       PlainMessage<ChangeVideoEditorRequest>
     >({
-      queryFn: async (req) => {
-        try {
-          await videoClient.changeVideoEditor(req);
-          return { data: undefined };
-        } catch (error) {
-          const connectErr = ConnectError.from(error);
-          return {
-            error: {
-              status: connectErr.code,
-              statusText: Code[connectErr.code],
-              data: connectErr.rawMessage,
-            },
-          };
-        }
-      },
+      queryFn: queryFnWrapper(async (req) => {
+        await videoClient.changeVideoEditor(req);
+        return { data: undefined };
+      }),
       invalidatesTags: ["Video"],
     }),
     changeVideoStatus: builder.mutation<
       void,
       PlainMessage<ChangeVideoStatusRequest>
     >({
-      queryFn: async (req) => {
-        try {
-          await videoClient.changeVideoStatus(req);
-          return { data: undefined };
-        } catch (error) {
-          const connectErr = ConnectError.from(error);
-          return {
-            error: {
-              status: connectErr.code,
-              statusText: Code[connectErr.code],
-              data: connectErr.rawMessage,
-            },
-          };
-        }
-      },
+      queryFn: queryFnWrapper(async (req) => {
+        await videoClient.changeVideoStatus(req);
+        return { data: undefined };
+      }),
       invalidatesTags: ["Video"], //TODO: More fine-grained invalidation for videos
     }),
   }),
@@ -101,9 +68,9 @@ interface VideoFilterState {
 
 const initialState = {
   pageNumber: 1,
-  selectedVideoStatus:
-    allVideoStatus.filter((status) => status != VideoStatus.Archived)
-  ,
+  selectedVideoStatus: allVideoStatus.filter(
+    (status) => status != VideoStatus.Archived
+  ),
   searchTerm: "",
 } satisfies VideoFilterState as VideoFilterState;
 

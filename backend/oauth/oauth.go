@@ -166,6 +166,7 @@ func (o *OauthService) OauthGoogleCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// TODO: Encode a timestamp here, so that the user cannot reuse a cookie value forever.
 	encoded, err := o.SC.Encode(o.Config.CookieName, map[string]string{
 		"email": data.Email,
 	})
