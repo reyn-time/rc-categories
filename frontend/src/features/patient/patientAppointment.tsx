@@ -175,13 +175,19 @@ export const PatientAppointmentList = () => {
           />
         </Collapse>
       </Stack>
-      <Fab
-        color="primary"
+      <Stack
+        flexDirection="row"
+        gap={2}
         sx={{ position: "fixed", right: "20px", bottom: "20px" }}
-        onClick={() => setIsOpen(true)}
       >
-        <Icon baseClassName="material-symbols-outlined">calendar_add_on</Icon>
-      </Fab>
+        <Fab color="primary" onClick={() => setIsOpen(true)}>
+          <Icon baseClassName="material-symbols-outlined">calendar_add_on</Icon>
+        </Fab>
+        <Fab color="secondary">
+          <Icon baseClassName="material-symbols-outlined">person_add</Icon>
+        </Fab>
+      </Stack>
+
       {isOpen && (
         <CreateAppointmentModal
           open={isOpen}
