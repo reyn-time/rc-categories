@@ -12,6 +12,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 
 	"connectrpc.com/connect"
 	"github.com/gorilla/securecookie"
@@ -91,6 +92,12 @@ func (o *OauthService) NewAuthInterceptors() []connect.Interceptor {
 			dict := map[string]string{}
 			o.SC.Decode(o.Config.CookieName, encryptedVal, &dict)
 			email := dict["email"]
+			expiryDateString := dict["expiryDate"]
+
+			// Reject user if the cookie expired.
+			if expiryDate, err := time.Parse(time.RFC3339, expiryDateString); err != nil || expiryDate.Before(time.Now()) {
+				return next(ctx, req)
+			}
 
 			// Reads user from DB based on email, and set it in ctx.
 			user, err := o.Queries.GetUser(ctx, email)
@@ -156,7 +163,7 @@ func (o *OauthService) OauthGoogleCallback(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Update user record in database.
-	if err = o.Queries.UpsertUser(r.Context(), db.UpsertUserParams{
+	if _, err := o.Queries.UpdateUser(r.Context(), db.UpdateUserParams{
 		Email:    data.Email,
 		Name:     data.Name,
 		PhotoUrl: data.Picture,
@@ -166,9 +173,10 @@ func (o *OauthService) OauthGoogleCallback(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// TODO: Encode a timestamp here, so that the user cannot reuse a cookie value forever.
+	expiryDate := time.Now().Add(time.Hour * 24 * 7) // One week
 	encoded, err := o.SC.Encode(o.Config.CookieName, map[string]string{
-		"email": data.Email,
+		"email":      data.Email,
+		"expiryDate": expiryDate.UTC().Format(time.RFC3339),
 	})
 	if err != nil {
 		log.Println(err.Error())

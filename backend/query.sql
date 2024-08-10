@@ -55,12 +55,12 @@ FROM reorder.users;
 SELECT *
 FROM reorder.users
 WHERE email = $1;
--- name: UpsertUser :exec
-INSERT INTO reorder.users (email, name, photo_url)
-VALUES ($1, $2, $3) ON CONFLICT (email) DO
-UPDATE
-SET name = $2,
-    photo_url = $3;
+-- name: UpdateUser :one
+UPDATE reorder.users
+SET name = $1,
+    photo_url = $2
+WHERE email = $3
+RETURNING *;
 -- name: ListCurrentAppointments :many
 select s.*
 from (

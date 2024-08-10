@@ -430,6 +430,32 @@ func (q *Queries) UpdatePatientStatus(ctx context.Context, arg UpdatePatientStat
 	return err
 }
 
+const updateUser = `-- name: UpdateUser :one
+UPDATE reorder.users
+SET name = $1,
+    photo_url = $2
+WHERE email = $3
+RETURNING id, email, name, photo_url
+`
+
+type UpdateUserParams struct {
+	Name     string
+	PhotoUrl string
+	Email    string
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (ReorderUser, error) {
+	row := q.db.QueryRow(ctx, updateUser, arg.Name, arg.PhotoUrl, arg.Email)
+	var i ReorderUser
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Name,
+		&i.PhotoUrl,
+	)
+	return i, err
+}
+
 const updateVideoEditor = `-- name: UpdateVideoEditor :exec
 UPDATE reorder.videos
 SET editor = $2
@@ -459,24 +485,5 @@ type UpdateVideoStatusParams struct {
 
 func (q *Queries) UpdateVideoStatus(ctx context.Context, arg UpdateVideoStatusParams) error {
 	_, err := q.db.Exec(ctx, updateVideoStatus, arg.Column1, arg.Status)
-	return err
-}
-
-const upsertUser = `-- name: UpsertUser :exec
-INSERT INTO reorder.users (email, name, photo_url)
-VALUES ($1, $2, $3) ON CONFLICT (email) DO
-UPDATE
-SET name = $2,
-    photo_url = $3
-`
-
-type UpsertUserParams struct {
-	Email    string
-	Name     string
-	PhotoUrl string
-}
-
-func (q *Queries) UpsertUser(ctx context.Context, arg UpsertUserParams) error {
-	_, err := q.db.Exec(ctx, upsertUser, arg.Email, arg.Name, arg.PhotoUrl)
 	return err
 }
