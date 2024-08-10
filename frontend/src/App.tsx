@@ -8,42 +8,45 @@ const PatientAppointment = lazy(
   () => import("./features/patient/patientAppointment")
 );
 
-const router = createBrowserRouter([
-  {
-    element: (
-      <>
-        <CustomAppBar />
-        <Outlet />
-      </>
-    ),
-    children: [
-      {
-        path: "/",
-        element: (
-          <Suspense>
-            <VideoList />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/video/:id",
-        element: (
-          <Suspense>
-            <VideoDetail />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/appointment",
-        element: (
-          <Suspense>
-            <PatientAppointment />
-          </Suspense>
-        ),
-      },
-    ],
-  },
-]);
+const router = createBrowserRouter(
+  [
+    {
+      element: (
+        <>
+          <CustomAppBar />
+          <Outlet />
+        </>
+      ),
+      children: [
+        {
+          path: "/",
+          element: (
+            <Suspense>
+              <VideoList />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/video/:id",
+          element: (
+            <Suspense>
+              <VideoDetail />
+            </Suspense>
+          ),
+        },
+        {
+          path: "/appointment",
+          element: (
+            <Suspense>
+              <PatientAppointment />
+            </Suspense>
+          ),
+        },
+      ],
+    },
+  ],
+  { basename: import.meta.env.VITA_FRONTEND_BASENAME }
+);
 
 export const App = () => {
   return (
