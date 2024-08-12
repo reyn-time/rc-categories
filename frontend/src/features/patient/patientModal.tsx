@@ -2,6 +2,8 @@ import {
   Box,
   Button,
   Chip,
+  FormControlLabel,
+  FormLabel,
   Icon,
   List,
   ListItem,
@@ -9,13 +11,15 @@ import {
   ListItemText,
   Modal,
   Paper,
+  Radio,
+  RadioGroup,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { useState } from "react";
 import { Gender, Patient } from "../../gen/proto/patient/v1/patient_pb";
-import { useListPatientQuery } from "./patientSlice";
+import { useCreatePatientMutation, useListPatientQuery } from "./patientSlice";
 import { dayjsToString, getTimeFromString } from "../../util/time";
 import { PlainMessage } from "@bufbuild/protobuf";
 import { Dayjs } from "dayjs";
@@ -26,6 +30,98 @@ interface ValidationError {
   message: string;
   value: number;
 }
+
+export const CreatePatientModal = (props: {
+  open: boolean;
+  handleClose: () => void;
+}) => {
+  const { open, handleClose } = props;
+  const [gender, setGender] = useState<"male" | "female">("male");
+  const [initials, setInitials] = useState("");
+  const { data: patients } = useListPatientQuery();
+  const [addPatient] = useCreatePatientMutation();
+
+  const re = /^[A-Z0-9]{1,3}$/;
+  const duplicatedPatient = !!(patients ?? []).find(
+    (patient) => patient.initials == initials
+  );
+  const stringTooLong = initials.length > 3;
+  const regexNotFulfilled = !re.test(initials);
+  const error = regexNotFulfilled || duplicatedPatient;
+  const errorMessage = stringTooLong
+    ? "太長了"
+    : regexNotFulfilled
+    ? "請只使用以下文字：A-Z, 0-9"
+    : duplicatedPatient
+    ? "簡稱已被使用"
+    : "";
+
+  return (
+    <Modal open={open} onClose={handleClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 500,
+        }}
+      >
+        <Paper sx={{ p: 3 }}>
+          <Stack gap={3} alignItems="flex-start">
+            <Typography variant="h4">新增事主</Typography>
+
+            <Stack>
+              <FormLabel>性別</FormLabel>
+              <RadioGroup
+                row
+                value={gender}
+                onChange={(e) => setGender(e.target.value as "female" | "male")}
+              >
+                <FormControlLabel value="male" control={<Radio />} label="男" />
+                <FormControlLabel
+                  value="female"
+                  control={<Radio />}
+                  label="女"
+                />
+              </RadioGroup>
+            </Stack>
+
+            <TextField
+              label="簡稱"
+              variant="standard"
+              value={initials}
+              onChange={(e) => setInitials(e.target.value)}
+              error={!!errorMessage}
+              helperText={errorMessage}
+            />
+
+            <Button
+              variant="contained"
+              sx={{ alignSelf: "flex-end" }}
+              disabled={error}
+              onClick={() => {
+                addPatient({
+                  initials,
+                  gender: gender === "male" ? Gender.Male : Gender.Female,
+                }).then(() => {
+                  handleClose();
+                });
+              }}
+            >
+              <Stack flexDirection="row" gap={1} alignItems="center">
+                <Icon baseClassName="material-symbols-outlined">
+                  person_add
+                </Icon>
+                <Typography variant="button">新增</Typography>
+              </Stack>
+            </Button>
+          </Stack>
+        </Paper>
+      </Box>
+    </Modal>
+  );
+};
 
 export const CreateAppointmentModal = (props: {
   open: boolean;

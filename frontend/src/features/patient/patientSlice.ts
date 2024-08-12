@@ -46,5 +46,8 @@ export const patientApi = createApi({
   }),
 });
 
-export const { useListPatientQuery, useChangePatientStatusMutation } =
-  patientApi;
+export const {
+  useListPatientQuery,
+  useCreatePatientMutation,
+  useChangePatientStatusMutation,
+} = patientApi;

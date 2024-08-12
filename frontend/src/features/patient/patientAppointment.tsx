@@ -42,8 +42,10 @@ import {
 import { NoBigIntMessage } from "../../util/types";
 import { patientAvatarProps } from "../user/avatar";
 import { useState } from "react";
-import { CreateAppointmentModal } from "./patientModal";
+import { CreateAppointmentModal, CreatePatientModal } from "./patientModal";
 import { patientToName } from "./util";
+
+type ModalType = "CreatePatient" | "CreateAppointment" | null;
 
 export const PatientAppointmentList = () => {
   const { data: appointments = [], isLoading: appointmentIsLoading } =
@@ -55,7 +57,7 @@ export const PatientAppointmentList = () => {
   const [isInactiveExpanded, setIsInactiveExpanded] = useState(false);
   const [isSortByDate, setIsSortByDate] = useState(true);
   const [isShowHistory, setIsShowHistory] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpenModalType, setIsOpenModalType] = useState<ModalType>(null);
 
   if (appointmentIsLoading || patientIsLoading) {
     return (
@@ -114,11 +116,10 @@ export const PatientAppointmentList = () => {
   });
 
   // TODO:
-  // 1. Add a new patient.
-  // 2. Edit an appointment.
-  // 3. Sign up to an appointment.
-  // 4. Opt out of an appointment (for someone else too).
-  // 5. List all users that signed up to an appointment.
+  // 1. Edit an appointment.
+  // 2. Sign up to an appointment.
+  // 3. Opt out of an appointment (for someone else too).
+  // 4. List all users that signed up to an appointment.
   return (
     <Box>
       <Stack sx={{ p: 3 }} gap={2}>
@@ -180,19 +181,31 @@ export const PatientAppointmentList = () => {
         gap={2}
         sx={{ position: "fixed", right: "20px", bottom: "20px" }}
       >
-        <Fab color="primary" onClick={() => setIsOpen(true)}>
+        <Fab
+          color="primary"
+          onClick={() => setIsOpenModalType("CreateAppointment")}
+        >
           <Icon baseClassName="material-symbols-outlined">calendar_add_on</Icon>
         </Fab>
-        <Fab color="secondary">
+        <Fab
+          color="secondary"
+          onClick={() => setIsOpenModalType("CreatePatient")}
+        >
           <Icon baseClassName="material-symbols-outlined">person_add</Icon>
         </Fab>
       </Stack>
 
-      {isOpen && (
+      {isOpenModalType === "CreateAppointment" && (
         <CreateAppointmentModal
-          open={isOpen}
-          handleClose={() => setIsOpen(false)}
+          open={!!isOpenModalType}
+          handleClose={() => setIsOpenModalType(null)}
         />
+      )}
+      {isOpenModalType === "CreatePatient" && (
+        <CreatePatientModal
+          open={!!isOpenModalType}
+          handleClose={() => setIsOpenModalType(null)}
+        ></CreatePatientModal>
       )}
     </Box>
   );
