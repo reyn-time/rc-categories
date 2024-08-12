@@ -42,10 +42,21 @@ import {
 import { NoBigIntMessage } from "../../util/types";
 import { patientAvatarProps } from "../user/avatar";
 import { useState } from "react";
-import { CreateAppointmentModal, CreatePatientModal } from "./patientModal";
+import {
+  CreateAppointmentModal,
+  CreatePatientModal,
+  EditAppointmentModal,
+} from "./patientModal";
 import { patientToName } from "./util";
 
-type ModalType = "CreatePatient" | "CreateAppointment" | null;
+type Modal =
+  | { type: "CreatePatient" }
+  | { type: "CreateAppointment" }
+  | {
+      type: "EditAppointment";
+      payload: NoBigIntMessage<PlainMessage<PatientAppointment>>;
+    }
+  | null;
 
 export const PatientAppointmentList = () => {
   const { data: appointments = [], isLoading: appointmentIsLoading } =
@@ -57,7 +68,7 @@ export const PatientAppointmentList = () => {
   const [isInactiveExpanded, setIsInactiveExpanded] = useState(false);
   const [isSortByDate, setIsSortByDate] = useState(true);
   const [isShowHistory, setIsShowHistory] = useState(false);
-  const [isOpenModalType, setIsOpenModalType] = useState<ModalType>(null);
+  const [isOpenModal, setIsOpenModal] = useState<Modal>(null);
 
   if (appointmentIsLoading || patientIsLoading) {
     return (
@@ -116,10 +127,9 @@ export const PatientAppointmentList = () => {
   });
 
   // TODO:
-  // 1. Edit an appointment.
-  // 2. Sign up to an appointment.
-  // 3. Opt out of an appointment (for someone else too).
-  // 4. List all users that signed up to an appointment.
+  // 1. Sign up to an appointment.
+  // 2. Opt out of an appointment (for someone else too).
+  // 3. List all users that signed up to an appointment.
   return (
     <Box>
       <Stack sx={{ p: 3 }} gap={2}>
@@ -151,6 +161,7 @@ export const PatientAppointmentList = () => {
           changePatientStatus={changePatientStatus}
           deleteAppointment={deleteAppointment}
           patientIdToPatient={patientIdToPatient}
+          setIsOpenModalType={setIsOpenModal}
         />
         <Stack flexDirection="row" gap={2} alignItems="baseline">
           <Typography variant="h4">已死</Typography>
@@ -173,6 +184,7 @@ export const PatientAppointmentList = () => {
             changePatientStatus={changePatientStatus}
             deleteAppointment={deleteAppointment}
             patientIdToPatient={patientIdToPatient}
+            setIsOpenModalType={setIsOpenModal}
           />
         </Collapse>
       </Stack>
@@ -183,29 +195,36 @@ export const PatientAppointmentList = () => {
       >
         <Fab
           color="primary"
-          onClick={() => setIsOpenModalType("CreateAppointment")}
+          onClick={() => setIsOpenModal({ type: "CreateAppointment" })}
         >
           <Icon baseClassName="material-symbols-outlined">calendar_add_on</Icon>
         </Fab>
         <Fab
           color="secondary"
-          onClick={() => setIsOpenModalType("CreatePatient")}
+          onClick={() => setIsOpenModal({ type: "CreatePatient" })}
         >
           <Icon baseClassName="material-symbols-outlined">person_add</Icon>
         </Fab>
       </Stack>
 
-      {isOpenModalType === "CreateAppointment" && (
+      {isOpenModal?.type === "CreateAppointment" && (
         <CreateAppointmentModal
-          open={!!isOpenModalType}
-          handleClose={() => setIsOpenModalType(null)}
+          open={!!isOpenModal}
+          handleClose={() => setIsOpenModal(null)}
         />
       )}
-      {isOpenModalType === "CreatePatient" && (
+      {isOpenModal?.type === "CreatePatient" && (
         <CreatePatientModal
-          open={!!isOpenModalType}
-          handleClose={() => setIsOpenModalType(null)}
+          open={!!isOpenModal}
+          handleClose={() => setIsOpenModal(null)}
         ></CreatePatientModal>
+      )}
+      {isOpenModal?.type === "EditAppointment" && (
+        <EditAppointmentModal
+          appointment={isOpenModal.payload}
+          open={!!isOpenModal}
+          handleClose={() => setIsOpenModal(null)}
+        ></EditAppointmentModal>
       )}
     </Box>
   );
@@ -218,12 +237,14 @@ const AppointmentList = (props: {
   deleteAppointment: (
     args: PlainMessage<DeletePatientAppointmentRequest>
   ) => void;
+  setIsOpenModalType: (arg: Modal) => void;
 }) => {
   const {
     appointments,
     patientIdToPatient,
     changePatientStatus,
     deleteAppointment,
+    setIsOpenModalType,
   } = props;
   return (
     <Paper sx={{ maxWidth: "700px" }}>
@@ -273,7 +294,14 @@ const AppointmentList = (props: {
                     </IconButton>
                   )}
                   {!isEmpty && (
-                    <IconButton>
+                    <IconButton
+                      onClick={() =>
+                        setIsOpenModalType({
+                          type: "EditAppointment",
+                          payload: appointment,
+                        })
+                      }
+                    >
                       <Icon baseClassName="material-symbols-outlined">
                         edit
                       </Icon>

@@ -22,9 +22,15 @@ import { Gender, Patient } from "../../gen/proto/patient/v1/patient_pb";
 import { useCreatePatientMutation, useListPatientQuery } from "./patientSlice";
 import { dayjsToString, getTimeFromString } from "../../util/time";
 import { PlainMessage } from "@bufbuild/protobuf";
-import { Dayjs } from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { patientToName } from "./util";
-import { useCreateAppointmentMutation } from "./patientAppointmentSlice";
+import {
+  useCreateAppointmentMutation,
+  useUpdateAppointmentMutation,
+} from "./patientAppointmentSlice";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { PatientAppointment } from "../../gen/proto/patientappointment/v1/patientappointment_pb";
+import { NoBigIntMessage } from "../../util/types";
 
 interface ValidationError {
   message: string;
@@ -348,6 +354,66 @@ export const CreateAppointmentModal = (props: {
                 </Button>
               </Stack>
             )}
+          </Stack>
+        </Paper>
+      </Box>
+    </Modal>
+  );
+};
+
+export const EditAppointmentModal = (props: {
+  appointment: NoBigIntMessage<PlainMessage<PatientAppointment>>;
+  open: boolean;
+  handleClose: () => void;
+}) => {
+  const { open, handleClose, appointment } = props;
+  const [value, setValue] = useState<Dayjs | null>(
+    dayjs(BigInt(appointment.startTime!.seconds) * BigInt(1000))
+  );
+  const [updateAppointment] = useUpdateAppointmentMutation();
+
+  return (
+    <Modal open={open} onClose={handleClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 500,
+        }}
+      >
+        <Paper sx={{ p: 3 }}>
+          <Stack gap={3} alignItems="flex-start">
+            <Typography variant="h4">修改見面日期</Typography>
+            <DateTimePicker
+              label="英國時間"
+              value={value}
+              timezone="Europe/London"
+              onChange={(newValue) => setValue(newValue)}
+            />
+            <DateTimePicker
+              label="香港時間"
+              value={value}
+              timezone="Asia/Hong_Kong"
+              onChange={(newValue) => setValue(newValue)}
+            />
+            <Button
+              variant="contained"
+              disabled={value === null}
+              sx={{ alignSelf: "flex-end" }}
+              onClick={() => {
+                updateAppointment({
+                  id: appointment.id,
+                  startTime: { seconds: BigInt(value!.unix()), nanos: 0 },
+                }).then(() => handleClose());
+              }}
+            >
+              <Stack flexDirection="row" gap={1} alignItems="center">
+                <Icon baseClassName="material-symbols-outlined">edit</Icon>
+                <Typography variant="button">修改</Typography>
+              </Stack>
+            </Button>
           </Stack>
         </Paper>
       </Box>
