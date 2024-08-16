@@ -6,7 +6,9 @@ import { PlainMessage, toPlainMessage } from "@bufbuild/protobuf";
 import {
   CreatePatientAppointmentRequest,
   DeletePatientAppointmentRequest,
+  JoinPatientAppointmentRequest,
   PatientAppointment,
+  QuitPatientAppointmentRequest,
   UpdatePatientAppointmentRequest,
 } from "../../gen/proto/patientappointment/v1/patientappointment_pb";
 import { NoBigIntMessage } from "../../util/types";
@@ -68,6 +70,26 @@ export const patientAppointmentApi = createApi({
         return { data: undefined };
       }),
     }),
+    joinAppointment: builder.mutation<
+      void,
+      PlainMessage<JoinPatientAppointmentRequest>
+    >({
+      invalidatesTags: ["Appointment"],
+      queryFn: queryFnWrapper(async (req) => {
+        await client.joinPatientAppointment(req);
+        return { data: undefined };
+      }),
+    }),
+    quitAppointment: builder.mutation<
+      void,
+      PlainMessage<QuitPatientAppointmentRequest>
+    >({
+      invalidatesTags: ["Appointment"],
+      queryFn: queryFnWrapper(async (req) => {
+        await client.quitPatientAppointment(req);
+        return { data: undefined };
+      }),
+    }),
   }),
 });
 
@@ -76,4 +98,6 @@ export const {
   useCreateAppointmentMutation,
   useUpdateAppointmentMutation,
   useDeleteAppointmentMutation,
+  useJoinAppointmentMutation,
+  useQuitAppointmentMutation,
 } = patientAppointmentApi;

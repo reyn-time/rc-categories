@@ -75,6 +75,160 @@ export class ListCurrentPatientAppointmentResponse extends Message<ListCurrentPa
 }
 
 /**
+ * @generated from message patientappointment.v1.JoinPatientAppointmentRequest
+ */
+export class JoinPatientAppointmentRequest extends Message<JoinPatientAppointmentRequest> {
+  /**
+   * @generated from field: int32 appointment_id = 1;
+   */
+  appointmentId = 0;
+
+  /**
+   * @generated from field: int32 user_id = 2;
+   */
+  userId = 0;
+
+  /**
+   * @generated from field: string message = 3;
+   */
+  message = "";
+
+  constructor(data?: PartialMessage<JoinPatientAppointmentRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patientappointment.v1.JoinPatientAppointmentRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "appointment_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 2, name: "user_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 3, name: "message", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): JoinPatientAppointmentRequest {
+    return new JoinPatientAppointmentRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): JoinPatientAppointmentRequest {
+    return new JoinPatientAppointmentRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): JoinPatientAppointmentRequest {
+    return new JoinPatientAppointmentRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: JoinPatientAppointmentRequest | PlainMessage<JoinPatientAppointmentRequest> | undefined, b: JoinPatientAppointmentRequest | PlainMessage<JoinPatientAppointmentRequest> | undefined): boolean {
+    return proto3.util.equals(JoinPatientAppointmentRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message patientappointment.v1.JoinPatientAppointmentResponse
+ */
+export class JoinPatientAppointmentResponse extends Message<JoinPatientAppointmentResponse> {
+  constructor(data?: PartialMessage<JoinPatientAppointmentResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patientappointment.v1.JoinPatientAppointmentResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): JoinPatientAppointmentResponse {
+    return new JoinPatientAppointmentResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): JoinPatientAppointmentResponse {
+    return new JoinPatientAppointmentResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): JoinPatientAppointmentResponse {
+    return new JoinPatientAppointmentResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: JoinPatientAppointmentResponse | PlainMessage<JoinPatientAppointmentResponse> | undefined, b: JoinPatientAppointmentResponse | PlainMessage<JoinPatientAppointmentResponse> | undefined): boolean {
+    return proto3.util.equals(JoinPatientAppointmentResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message patientappointment.v1.QuitPatientAppointmentRequest
+ */
+export class QuitPatientAppointmentRequest extends Message<QuitPatientAppointmentRequest> {
+  /**
+   * @generated from field: int32 appointment_id = 1;
+   */
+  appointmentId = 0;
+
+  /**
+   * @generated from field: int32 user_id = 2;
+   */
+  userId = 0;
+
+  constructor(data?: PartialMessage<QuitPatientAppointmentRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patientappointment.v1.QuitPatientAppointmentRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "appointment_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 2, name: "user_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): QuitPatientAppointmentRequest {
+    return new QuitPatientAppointmentRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): QuitPatientAppointmentRequest {
+    return new QuitPatientAppointmentRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): QuitPatientAppointmentRequest {
+    return new QuitPatientAppointmentRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: QuitPatientAppointmentRequest | PlainMessage<QuitPatientAppointmentRequest> | undefined, b: QuitPatientAppointmentRequest | PlainMessage<QuitPatientAppointmentRequest> | undefined): boolean {
+    return proto3.util.equals(QuitPatientAppointmentRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message patientappointment.v1.QuitPatientAppointmentResponse
+ */
+export class QuitPatientAppointmentResponse extends Message<QuitPatientAppointmentResponse> {
+  constructor(data?: PartialMessage<QuitPatientAppointmentResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patientappointment.v1.QuitPatientAppointmentResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): QuitPatientAppointmentResponse {
+    return new QuitPatientAppointmentResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): QuitPatientAppointmentResponse {
+    return new QuitPatientAppointmentResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): QuitPatientAppointmentResponse {
+    return new QuitPatientAppointmentResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: QuitPatientAppointmentResponse | PlainMessage<QuitPatientAppointmentResponse> | undefined, b: QuitPatientAppointmentResponse | PlainMessage<QuitPatientAppointmentResponse> | undefined): boolean {
+    return proto3.util.equals(QuitPatientAppointmentResponse, a, b);
+  }
+}
+
+/**
  * @generated from message patientappointment.v1.CreatePatientAppointmentRequest
  */
 export class CreatePatientAppointmentRequest extends Message<CreatePatientAppointmentRequest> {
@@ -314,6 +468,11 @@ export class PatientAppointment extends Message<PatientAppointment> {
    */
   patientId = 0;
 
+  /**
+   * @generated from field: bool is_user_signed_up = 5;
+   */
+  isUserSignedUp = false;
+
   constructor(data?: PartialMessage<PatientAppointment>) {
     super();
     proto3.util.initPartial(data, this);
@@ -326,6 +485,7 @@ export class PatientAppointment extends Message<PatientAppointment> {
     { no: 1, name: "start_time", kind: "message", T: Timestamp },
     { no: 4, name: "meeting_number", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 2, name: "patient_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+    { no: 5, name: "is_user_signed_up", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PatientAppointment {

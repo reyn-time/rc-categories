@@ -41,6 +41,21 @@ func (q *Queries) CreatePatientAppointment(ctx context.Context, arg CreatePatien
 	return err
 }
 
+const createPatientAppointmentSignUp = `-- name: CreatePatientAppointmentSignUp :exec
+INSERT INTO reorder.patient_appointment_sign_ups (appointment_id, user_id)
+VALUES ($1, $2)
+`
+
+type CreatePatientAppointmentSignUpParams struct {
+	AppointmentID int32
+	UserID        int32
+}
+
+func (q *Queries) CreatePatientAppointmentSignUp(ctx context.Context, arg CreatePatientAppointmentSignUpParams) error {
+	_, err := q.db.Exec(ctx, createPatientAppointmentSignUp, arg.AppointmentID, arg.UserID)
+	return err
+}
+
 const deleteInterval = `-- name: DeleteInterval :exec
 DELETE FROM reorder.video_intervals
 WHERE id = $1
@@ -69,6 +84,30 @@ WHERE id = $1
 func (q *Queries) DeletePatientAppointment(ctx context.Context, id int32) error {
 	_, err := q.db.Exec(ctx, deletePatientAppointment, id)
 	return err
+}
+
+const deletePatientAppointmentSignUp = `-- name: DeletePatientAppointmentSignUp :one
+DELETE FROM reorder.patient_appointment_sign_ups
+WHERE appointment_id = $1
+    and user_id = $2
+RETURNING id, appointment_id, user_id, comment
+`
+
+type DeletePatientAppointmentSignUpParams struct {
+	AppointmentID int32
+	UserID        int32
+}
+
+func (q *Queries) DeletePatientAppointmentSignUp(ctx context.Context, arg DeletePatientAppointmentSignUpParams) (ReorderPatientAppointmentSignUp, error) {
+	row := q.db.QueryRow(ctx, deletePatientAppointmentSignUp, arg.AppointmentID, arg.UserID)
+	var i ReorderPatientAppointmentSignUp
+	err := row.Scan(
+		&i.ID,
+		&i.AppointmentID,
+		&i.UserID,
+		&i.Comment,
+	)
+	return i, err
 }
 
 const getUser = `-- name: GetUser :one
@@ -121,7 +160,8 @@ func (q *Queries) ListCategories(ctx context.Context) ([]ReorderCategory, error)
 }
 
 const listCurrentAppointments = `-- name: ListCurrentAppointments :many
-select s.id, s.start_time, s.patient_id, s.meeting_number
+select s.id, s.start_time, s.patient_id, s.meeting_number,
+    p.id is not null as joined
 from (
         select id, start_time, patient_id,
             rank() over (
@@ -130,6 +170,11 @@ from (
             ) meeting_number
         from reorder.patient_appointments
     ) s
+    left outer join (
+        select id, appointment_id, user_id, comment
+        from reorder.patient_appointment_sign_ups u
+        where u.user_id = $1
+    ) p on s.id = p.appointment_id
 where s.start_time AT TIME ZONE 'UTC' > now() - interval '8 week'
 ORDER BY start_time ASC
 `
@@ -139,10 +184,11 @@ type ListCurrentAppointmentsRow struct {
 	StartTime     pgtype.Timestamp
 	PatientID     int32
 	MeetingNumber int64
+	Joined        interface{}
 }
 
-func (q *Queries) ListCurrentAppointments(ctx context.Context) ([]ListCurrentAppointmentsRow, error) {
-	rows, err := q.db.Query(ctx, listCurrentAppointments)
+func (q *Queries) ListCurrentAppointments(ctx context.Context, userID int32) ([]ListCurrentAppointmentsRow, error) {
+	rows, err := q.db.Query(ctx, listCurrentAppointments, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -155,6 +201,7 @@ func (q *Queries) ListCurrentAppointments(ctx context.Context) ([]ListCurrentApp
 			&i.StartTime,
 			&i.PatientID,
 			&i.MeetingNumber,
+			&i.Joined,
 		); err != nil {
 			return nil, err
 		}

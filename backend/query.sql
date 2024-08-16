@@ -62,7 +62,8 @@ SET name = $1,
 WHERE email = $3
 RETURNING *;
 -- name: ListCurrentAppointments :many
-select s.*
+select s.*,
+    p.id is not null as joined
 from (
         select *,
             rank() over (
@@ -71,6 +72,11 @@ from (
             ) meeting_number
         from reorder.patient_appointments
     ) s
+    left outer join (
+        select *
+        from reorder.patient_appointment_sign_ups u
+        where u.user_id = $1
+    ) p on s.id = p.appointment_id
 where s.start_time AT TIME ZONE 'UTC' > now() - interval '8 week'
 ORDER BY start_time ASC;
 -- name: ListPatients :many
@@ -94,3 +100,11 @@ WHERE id = $1;
 -- name: DeletePatientAppointment :exec
 DELETE FROM reorder.patient_appointments
 WHERE id = $1;
+-- name: CreatePatientAppointmentSignUp :exec
+INSERT INTO reorder.patient_appointment_sign_ups (appointment_id, user_id)
+VALUES ($1, $2);
+-- name: DeletePatientAppointmentSignUp :one
+DELETE FROM reorder.patient_appointment_sign_ups
+WHERE appointment_id = $1
+    and user_id = $2
+RETURNING *;

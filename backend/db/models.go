@@ -162,6 +162,13 @@ type ReorderPatientAppointment struct {
 	PatientID int32
 }
 
+type ReorderPatientAppointmentSignUp struct {
+	ID            int32
+	AppointmentID int32
+	UserID        int32
+	Comment       pgtype.Text
+}
+
 type ReorderUser struct {
 	ID       int32
 	Email    string

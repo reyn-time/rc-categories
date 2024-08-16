@@ -59,4 +59,11 @@ CREATE TABLE reorder.patient_appointments (
     id SERIAL PRIMARY KEY,
     start_time TIMESTAMP NOT NULL,
     patient_id INTEGER NOT NULL REFERENCES reorder.patients(id)
-)
+);
+CREATE TABLE reorder.patient_appointment_sign_ups (
+    id SERIAL PRIMARY KEY,
+    appointment_id INTEGER NOT NULL REFERENCES reorder.patient_appointments(id),
+    user_id INTEGER NOT NULL REFERENCES reorder.users(id),
+    comment TEXT,
+    UNIQUE (appointment_id, user_id)
+);

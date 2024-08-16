@@ -10,7 +10,12 @@ service PatientAppointmentService {
     rpc ListCurrentPatientAppointment(ListCurrentPatientAppointmentRequest) returns (ListCurrentPatientAppointmentResponse) {
         option (auth.v1.auth_enabled) = true;
     }
-    // TODO: Allow users to sign up to, or cancel appointments.
+    rpc JoinPatientAppointment(JoinPatientAppointmentRequest) returns (JoinPatientAppointmentResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
+    rpc QuitPatientAppointment(QuitPatientAppointmentRequest) returns (QuitPatientAppointmentResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
     rpc CreatePatientAppointment(CreatePatientAppointmentRequest) returns (CreatePatientAppointmentResponse) {
         option (auth.v1.auth_enabled) = true;
     }
@@ -27,6 +32,23 @@ message ListCurrentPatientAppointmentRequest {
 
 message ListCurrentPatientAppointmentResponse {
     repeated PatientAppointment appointments = 1;
+}
+
+message JoinPatientAppointmentRequest {
+    int32 appointment_id = 1;
+    int32 user_id = 2;
+    string message = 3;
+}
+
+message JoinPatientAppointmentResponse {
+}
+
+message QuitPatientAppointmentRequest {
+    int32 appointment_id = 1;
+    int32 user_id = 2;
+}
+
+message QuitPatientAppointmentResponse {
 }
 
 message CreatePatientAppointmentRequest {
@@ -57,4 +79,5 @@ message PatientAppointment {
     google.protobuf.Timestamp start_time = 1;
     int32 meeting_number = 4;
     int32 patient_id = 2;
+    bool is_user_signed_up = 5;
 }

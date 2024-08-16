@@ -6,16 +6,22 @@ import {
 } from "../../gen/proto/patient/v1/patient_pb";
 import {
   DeletePatientAppointmentRequest,
+  JoinPatientAppointmentRequest,
   PatientAppointment,
+  QuitPatientAppointmentRequest,
 } from "../../gen/proto/patientappointment/v1/patientappointment_pb";
 import {
   useDeleteAppointmentMutation,
+  useJoinAppointmentMutation,
   useListAppointmentQuery,
+  useQuitAppointmentMutation,
 } from "./patientAppointmentSlice";
 import { dateTimeToString, timeFromNow } from "../../util/time";
 import {
+  Alert,
   Avatar,
   Box,
+  Chip,
   Collapse,
   Divider,
   Fab,
@@ -48,6 +54,8 @@ import {
   EditAppointmentModal,
 } from "./patientModal";
 import { patientToName } from "./util";
+import { useGetUserQuery } from "../user/userSlice";
+import { User } from "../../gen/proto/user/v1/user_pb";
 
 type Modal =
   | { type: "CreatePatient" }
@@ -59,16 +67,30 @@ type Modal =
   | null;
 
 export const PatientAppointmentList = () => {
+  // TODO: Align page to center.
+  // TODO: Make page views easier to understand: Timeline mode and patient mode.
+  // Timeline mode should show all records in reverse chronological order, paginated.
+  // Patient mode should show the last record for each patient. None of the modes should separate patient of different states.
+  // TODO: Make a patient's state clear with badges.
   const { data: appointments = [], isLoading: appointmentIsLoading } =
     useListAppointmentQuery();
   const { data: patients = [], isLoading: patientIsLoading } =
     useListPatientQuery();
+  const { data: user, isError: userIsError } = useGetUserQuery();
   const [changePatientStatus] = useChangePatientStatusMutation();
   const [deleteAppointment] = useDeleteAppointmentMutation();
+  const [joinAppointment] = useJoinAppointmentMutation();
+  const [quitAppointment] = useQuitAppointmentMutation();
   const [isInactiveExpanded, setIsInactiveExpanded] = useState(false);
   const [isSortByDate, setIsSortByDate] = useState(true);
   const [isShowHistory, setIsShowHistory] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState<Modal>(null);
+
+  const isAuthenticated = !!user && !userIsError;
+
+  if (!isAuthenticated) {
+    return <Alert severity="error">請先登入</Alert>;
+  }
 
   if (appointmentIsLoading || patientIsLoading) {
     return (
@@ -116,6 +138,7 @@ export const PatientAppointmentList = () => {
         id: -patientId,
         meetingNumber: 0,
         patientId: patientId,
+        isUserSignedUp: false,
       });
     }
   });
@@ -127,9 +150,9 @@ export const PatientAppointmentList = () => {
   });
 
   // TODO:
-  // 1. Sign up to an appointment.
-  // 2. Opt out of an appointment (for someone else too).
-  // 3. List all users that signed up to an appointment.
+  // 1. On event click, show all users that signed up to an appointment.
+  // 2. Sign up and opt out of an appointment for other users.
+  // 3. Group less often used buttons into submenu.
   return (
     <Box>
       <Stack sx={{ p: 3 }} gap={2}>
@@ -159,9 +182,12 @@ export const PatientAppointmentList = () => {
             activePatientIds.has(appointment.patientId)
           )}
           changePatientStatus={changePatientStatus}
+          joinAppointment={joinAppointment}
+          quitAppointment={quitAppointment}
           deleteAppointment={deleteAppointment}
           patientIdToPatient={patientIdToPatient}
           setIsOpenModalType={setIsOpenModal}
+          user={user}
         />
         <Stack flexDirection="row" gap={2} alignItems="baseline">
           <Typography variant="h4">已死</Typography>
@@ -182,9 +208,12 @@ export const PatientAppointmentList = () => {
               (appointment) => !activePatientIds.has(appointment.patientId)
             )}
             changePatientStatus={changePatientStatus}
+            joinAppointment={joinAppointment}
+            quitAppointment={quitAppointment}
             deleteAppointment={deleteAppointment}
             patientIdToPatient={patientIdToPatient}
             setIsOpenModalType={setIsOpenModal}
+            user={user}
           />
         </Collapse>
       </Stack>
@@ -235,16 +264,22 @@ const AppointmentList = (props: {
   patientIdToPatient: Record<number, PlainMessage<Patient>>;
   changePatientStatus: (arg: PlainMessage<ChangePatientStatusRequest>) => void;
   deleteAppointment: (
-    args: PlainMessage<DeletePatientAppointmentRequest>
+    arg: PlainMessage<DeletePatientAppointmentRequest>
   ) => void;
+  joinAppointment: (arg: PlainMessage<JoinPatientAppointmentRequest>) => void;
+  quitAppointment: (arg: PlainMessage<QuitPatientAppointmentRequest>) => void;
   setIsOpenModalType: (arg: Modal) => void;
+  user: PlainMessage<User>;
 }) => {
   const {
     appointments,
     patientIdToPatient,
     changePatientStatus,
     deleteAppointment,
+    joinAppointment,
+    quitAppointment,
     setIsOpenModalType,
+    user,
   } = props;
   return (
     <Paper sx={{ maxWidth: "700px" }}>
@@ -270,11 +305,21 @@ const AppointmentList = (props: {
                         沒有預約
                       </Typography>
                     ) : (
-                      <Typography
-                        sx={isCurrent ? {} : { color: "text.secondary" }}
-                      >{`${patientToName(patient)} 的第 ${
-                        appointment.meetingNumber
-                      } 次見面`}</Typography>
+                      <Stack flexDirection="row" gap={1}>
+                        <Typography
+                          sx={isCurrent ? {} : { color: "text.secondary" }}
+                        >{`${patientToName(patient)} 的第 ${
+                          appointment.meetingNumber
+                        } 次見面`}</Typography>
+                        {appointment.isUserSignedUp && (
+                          <Chip
+                            label="已報名"
+                            color="success"
+                            variant="outlined"
+                            size="small"
+                          />
+                        )}
+                      </Stack>
                     )
                   }
                   secondary={
@@ -287,9 +332,29 @@ const AppointmentList = (props: {
                 ></ListItemText>
                 <ListItemSecondaryAction>
                   {isCurrent && (
-                    <IconButton>
-                      <Icon baseClassName="material-symbols-outlined">
-                        event_available
+                    <IconButton
+                      onClick={() => {
+                        if (appointment.isUserSignedUp) {
+                          quitAppointment({
+                            appointmentId: appointment.id,
+                            userId: user.id,
+                          });
+                        } else {
+                          joinAppointment({
+                            appointmentId: appointment.id,
+                            userId: user.id,
+                            message: "",
+                          });
+                        }
+                      }}
+                    >
+                      <Icon
+                        color={appointment.isUserSignedUp ? "error" : "success"}
+                        baseClassName="material-symbols-outlined"
+                      >
+                        {appointment.isUserSignedUp
+                          ? "event_busy"
+                          : "event_available"}
                       </Icon>
                     </IconButton>
                   )}
