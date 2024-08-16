@@ -21,6 +21,7 @@ import {
   Alert,
   Avatar,
   Badge,
+  BadgeProps,
   Box,
   Chip,
   Divider,
@@ -36,6 +37,7 @@ import {
   Paper,
   Skeleton,
   Stack,
+  styled,
   Switch,
   ToggleButton,
   ToggleButtonGroup,
@@ -67,8 +69,9 @@ type Modal =
   | null;
 
 export const PatientAppointmentList = () => {
-  // TODO: Align page to center.
   // TODO: Both timeline and patient mode should show paginated lists.
+  // TODO: Remove history toggle.
+  // TODO: Remember filter toggles in this page.
   const { data: appointments = [], isLoading: appointmentIsLoading } =
     useListAppointmentQuery();
   const { data: patients = [], isLoading: patientIsLoading } =
@@ -253,7 +256,7 @@ const AppointmentList = (props: {
     user,
   } = props;
   return (
-    <Paper sx={{ maxWidth: "700px" }}>
+    <Paper sx={{ maxWidth: "700px", minWidth: "600px", margin: "auto" }}>
       <List>
         {appointments.map((appointment, i) => {
           const isEmpty = appointment.startTime === undefined;
@@ -267,14 +270,14 @@ const AppointmentList = (props: {
               {i > 0 && <Divider />}
               <ListItem>
                 <ListItemAvatar>
-                  <Badge
+                  <StyledBadge
                     color="warning"
                     badgeContent={
                       patient.status === PatientStatus.Active ? undefined : "死"
                     }
                   >
                     <Avatar {...patientAvatarProps(patient)} />
-                  </Badge>
+                  </StyledBadge>
                 </ListItemAvatar>
                 <ListItemText
                   primary={
@@ -386,5 +389,11 @@ const AppointmentList = (props: {
     </Paper>
   );
 };
+
+const StyledBadge = styled(Badge)<BadgeProps>(({ theme }) => ({
+  "& .MuiBadge-badge": {
+    border: `2px solid ${theme.palette.background.paper}`,
+  },
+}));
 
 export default PatientAppointmentList;
