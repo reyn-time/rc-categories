@@ -26,7 +26,6 @@ import {
   Chip,
   Divider,
   Fab,
-  FormControlLabel,
   Icon,
   IconButton,
   List,
@@ -34,11 +33,11 @@ import {
   ListItemAvatar,
   ListItemSecondaryAction,
   ListItemText,
+  Pagination,
   Paper,
   Skeleton,
   Stack,
   styled,
-  Switch,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -69,9 +68,6 @@ type Modal =
   | null;
 
 export const PatientAppointmentList = () => {
-  // TODO: Both timeline and patient mode should show paginated lists.
-  // TODO: Remove history toggle.
-  // TODO: Remember filter toggles in this page.
   const { data: appointments = [], isLoading: appointmentIsLoading } =
     useListAppointmentQuery();
   const { data: patients = [], isLoading: patientIsLoading } =
@@ -82,8 +78,8 @@ export const PatientAppointmentList = () => {
   const [joinAppointment] = useJoinAppointmentMutation();
   const [quitAppointment] = useQuitAppointmentMutation();
   const [isSortByDate, setIsSortByDate] = useState(true);
-  const [isShowHistory, setIsShowHistory] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState<Modal>(null);
+  const [pageNumber, setPageNumber] = useState(1);
 
   const isAuthenticated = !!user && !userIsError;
 
@@ -95,7 +91,7 @@ export const PatientAppointmentList = () => {
     return (
       <Skeleton
         variant="rectangular"
-        sx={{ maxWidth: "700px", m: 3 }}
+        sx={{ maxWidth: "700px", my: 3, mx: "auto" }}
         height="700px"
       ></Skeleton>
     );
@@ -120,7 +116,7 @@ export const PatientAppointmentList = () => {
   const remainingPatientIds = new Set(patients.map((patient) => patient.id));
   const filteredAppointments = appointments.filter(
     (appointment) =>
-      isShowHistory ||
+      isSortByDate ||
       (appointment.startTime &&
         BigInt(appointment.startTime?.seconds ?? 0) >=
           new Date().getTime() / 1000)
@@ -153,44 +149,51 @@ export const PatientAppointmentList = () => {
     return isSortByDate ? byTime || byId : byStatus || byId || byTime;
   });
 
+  const pageSize = 15;
+  const pageCount = Math.ceil(filteredAppointments.length / pageSize);
+
   // TODO:
   // 1. On event click, show all users that signed up to an appointment.
   // 2. Sign up and opt out of an appointment for other users.
   // 3. Group less often used buttons into submenu.
   return (
     <Box>
-      <Stack sx={{ p: 3 }} gap={2}>
-        <Stack flexDirection="row" gap={2}>
+      <Paper sx={{ maxWidth: "700px", minWidth: "600px", my: 3, mx: "auto" }}>
+        <Stack sx={{ p: 3 }} gap={3}>
           <ToggleButtonGroup
             value={isSortByDate.toString()}
             exclusive
-            onChange={(_, value) => setIsSortByDate(value === "true")}
+            onChange={(_, value) => {
+              setIsSortByDate(value === "true");
+              setPageNumber(1);
+            }}
           >
             <ToggleButton value="true">時間排序</ToggleButton>
             <ToggleButton value="false">事主排序</ToggleButton>
           </ToggleButtonGroup>
-          <FormControlLabel
-            control={
-              <Switch
-                checked={isShowHistory}
-                onChange={(_, value) => setIsShowHistory(value)}
-              />
-            }
-            label="顯示八週歷史"
+
+          <Pagination
+            count={pageCount}
+            size="large"
+            page={pageNumber}
+            onChange={(_, v) => setPageNumber(v)}
+          />
+
+          <AppointmentList
+            appointments={filteredAppointments.slice(
+              pageSize * (pageNumber - 1),
+              pageSize * pageNumber
+            )}
+            changePatientStatus={changePatientStatus}
+            joinAppointment={joinAppointment}
+            quitAppointment={quitAppointment}
+            deleteAppointment={deleteAppointment}
+            patientIdToPatient={patientIdToPatient}
+            setIsOpenModalType={setIsOpenModal}
+            user={user}
           />
         </Stack>
-
-        <AppointmentList
-          appointments={filteredAppointments}
-          changePatientStatus={changePatientStatus}
-          joinAppointment={joinAppointment}
-          quitAppointment={quitAppointment}
-          deleteAppointment={deleteAppointment}
-          patientIdToPatient={patientIdToPatient}
-          setIsOpenModalType={setIsOpenModal}
-          user={user}
-        />
-      </Stack>
+      </Paper>
       <Stack
         flexDirection="row"
         gap={2}
@@ -256,137 +259,133 @@ const AppointmentList = (props: {
     user,
   } = props;
   return (
-    <Paper sx={{ maxWidth: "700px", minWidth: "600px", margin: "auto" }}>
-      <List>
-        {appointments.map((appointment, i) => {
-          const isEmpty = appointment.startTime === undefined;
-          const isCurrent =
-            !isEmpty &&
-            BigInt(appointment.startTime?.seconds ?? 0) >=
-              new Date().getTime() / 1000;
-          const patient = patientIdToPatient[appointment.patientId];
-          return (
-            <Box key={appointment.id}>
-              {i > 0 && <Divider />}
-              <ListItem>
-                <ListItemAvatar>
-                  <StyledBadge
-                    color="warning"
-                    badgeContent={
-                      patient.status === PatientStatus.Active ? undefined : "死"
-                    }
-                  >
-                    <Avatar {...patientAvatarProps(patient)} />
-                  </StyledBadge>
-                </ListItemAvatar>
-                <ListItemText
-                  primary={
-                    isEmpty ? (
-                      <Typography sx={{ color: "text.secondary" }}>
-                        沒有預約
-                      </Typography>
-                    ) : (
-                      <Stack flexDirection="row" gap={1}>
-                        <Typography
-                          sx={isCurrent ? {} : { color: "text.secondary" }}
-                        >{`${patientToName(patient)} 的第 ${
-                          appointment.meetingNumber
-                        } 次見面`}</Typography>
-                        {appointment.isUserSignedUp && (
-                          <Chip
-                            label="已報名"
-                            color="success"
-                            variant="outlined"
-                            size="small"
-                          />
-                        )}
-                      </Stack>
-                    )
+    <List>
+      {appointments.map((appointment, i) => {
+        const isEmpty = appointment.startTime === undefined;
+        const isCurrent =
+          !isEmpty &&
+          BigInt(appointment.startTime?.seconds ?? 0) >=
+            new Date().getTime() / 1000;
+        const patient = patientIdToPatient[appointment.patientId];
+        return (
+          <Box key={appointment.id}>
+            {i > 0 && <Divider />}
+            <ListItem>
+              <ListItemAvatar>
+                <StyledBadge
+                  color="warning"
+                  badgeContent={
+                    patient.status === PatientStatus.Active ? undefined : "死"
                   }
-                  secondary={
-                    isEmpty
-                      ? "兩個月前見面"
-                      : isCurrent
-                      ? dateTimeToString(appointment.startTime)
-                      : timeFromNow(appointment.startTime)
-                  }
-                ></ListItemText>
-                <ListItemSecondaryAction>
-                  {isCurrent && (
-                    <IconButton
-                      onClick={() => {
-                        if (appointment.isUserSignedUp) {
-                          quitAppointment({
-                            appointmentId: appointment.id,
-                            userId: user.id,
-                          });
-                        } else {
-                          joinAppointment({
-                            appointmentId: appointment.id,
-                            userId: user.id,
-                            message: "",
-                          });
-                        }
-                      }}
-                    >
-                      <Icon
-                        color={appointment.isUserSignedUp ? "error" : "success"}
-                        baseClassName="material-symbols-outlined"
-                      >
-                        {appointment.isUserSignedUp
-                          ? "event_busy"
-                          : "event_available"}
-                      </Icon>
-                    </IconButton>
-                  )}
-                  {!isEmpty && (
-                    <IconButton
-                      onClick={() =>
-                        setIsOpenModalType({
-                          type: "EditAppointment",
-                          payload: appointment,
-                        })
-                      }
-                    >
-                      <Icon baseClassName="material-symbols-outlined">
-                        edit
-                      </Icon>
-                    </IconButton>
-                  )}
-                  {!isEmpty && (
-                    <IconButton
-                      onClick={() => deleteAppointment({ id: appointment.id })}
-                    >
-                      <Icon baseClassName="material-symbols-outlined">
-                        delete
-                      </Icon>
-                    </IconButton>
-                  )}
+                >
+                  <Avatar {...patientAvatarProps(patient)} />
+                </StyledBadge>
+              </ListItemAvatar>
+              <ListItemText
+                primary={
+                  isEmpty ? (
+                    <Typography sx={{ color: "text.secondary" }}>
+                      沒有預約
+                    </Typography>
+                  ) : (
+                    <Stack flexDirection="row" gap={1}>
+                      <Typography
+                        sx={isCurrent ? {} : { color: "text.secondary" }}
+                      >{`${patientToName(patient)} 的第 ${
+                        appointment.meetingNumber
+                      } 次見面`}</Typography>
+                      {appointment.isUserSignedUp && (
+                        <Chip
+                          label="已報名"
+                          color="success"
+                          variant="outlined"
+                          size="small"
+                        />
+                      )}
+                    </Stack>
+                  )
+                }
+                secondary={
+                  isEmpty
+                    ? "兩個月前見面"
+                    : isCurrent
+                    ? dateTimeToString(appointment.startTime)
+                    : timeFromNow(appointment.startTime)
+                }
+              ></ListItemText>
+              <ListItemSecondaryAction>
+                {isCurrent && (
                   <IconButton
-                    size="small"
                     onClick={() => {
-                      void changePatientStatus({
-                        patientId: appointment.patientId,
-                        status:
-                          patient.status === PatientStatus.Active
-                            ? PatientStatus.OnHold
-                            : PatientStatus.Active,
-                      });
+                      if (appointment.isUserSignedUp) {
+                        quitAppointment({
+                          appointmentId: appointment.id,
+                          userId: user.id,
+                        });
+                      } else {
+                        joinAppointment({
+                          appointmentId: appointment.id,
+                          userId: user.id,
+                          message: "",
+                        });
+                      }
                     }}
                   >
-                    <Icon baseClassName="material-symbols-outlined">
-                      {patient.status === PatientStatus.Active
-                        ? "move_down"
-                        : "move_up"}
+                    <Icon
+                      color={appointment.isUserSignedUp ? "error" : "success"}
+                      baseClassName="material-symbols-outlined"
+                    >
+                      {appointment.isUserSignedUp
+                        ? "event_busy"
+                        : "event_available"}
                     </Icon>
                   </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            </Box>
-          );
-        })}
-      </List>
-    </Paper>
+                )}
+                {!isEmpty && (
+                  <IconButton
+                    onClick={() =>
+                      setIsOpenModalType({
+                        type: "EditAppointment",
+                        payload: appointment,
+                      })
+                    }
+                  >
+                    <Icon baseClassName="material-symbols-outlined">edit</Icon>
+                  </IconButton>
+                )}
+                {!isEmpty && (
+                  <IconButton
+                    onClick={() => deleteAppointment({ id: appointment.id })}
+                  >
+                    <Icon baseClassName="material-symbols-outlined">
+                      delete
+                    </Icon>
+                  </IconButton>
+                )}
+                <IconButton
+                  size="small"
+                  onClick={() => {
+                    void changePatientStatus({
+                      patientId: appointment.patientId,
+                      status:
+                        patient.status === PatientStatus.Active
+                          ? PatientStatus.OnHold
+                          : PatientStatus.Active,
+                    });
+                  }}
+                >
+                  <Icon baseClassName="material-symbols-outlined">
+                    {patient.status === PatientStatus.Active
+                      ? "move_down"
+                      : "move_up"}
+                  </Icon>
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          </Box>
+        );
+      })}
+    </List>
   );
 };
 
