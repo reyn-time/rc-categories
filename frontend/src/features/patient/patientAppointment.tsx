@@ -20,9 +20,9 @@ import { dateTimeToString, timeFromNow } from "../../util/time";
 import {
   Alert,
   Avatar,
+  Badge,
   Box,
   Chip,
-  Collapse,
   Divider,
   Fab,
   FormControlLabel,
@@ -68,10 +68,7 @@ type Modal =
 
 export const PatientAppointmentList = () => {
   // TODO: Align page to center.
-  // TODO: Make page views easier to understand: Timeline mode and patient mode.
-  // Timeline mode should show all records in reverse chronological order, paginated.
-  // Patient mode should show the last record for each patient. None of the modes should separate patient of different states.
-  // TODO: Make a patient's state clear with badges.
+  // TODO: Both timeline and patient mode should show paginated lists.
   const { data: appointments = [], isLoading: appointmentIsLoading } =
     useListAppointmentQuery();
   const { data: patients = [], isLoading: patientIsLoading } =
@@ -81,7 +78,6 @@ export const PatientAppointmentList = () => {
   const [deleteAppointment] = useDeleteAppointmentMutation();
   const [joinAppointment] = useJoinAppointmentMutation();
   const [quitAppointment] = useQuitAppointmentMutation();
-  const [isInactiveExpanded, setIsInactiveExpanded] = useState(false);
   const [isSortByDate, setIsSortByDate] = useState(true);
   const [isShowHistory, setIsShowHistory] = useState(false);
   const [isOpenModal, setIsOpenModal] = useState<Modal>(null);
@@ -144,9 +140,14 @@ export const PatientAppointmentList = () => {
   });
 
   filteredAppointments.sort((a, b) => {
+    const byStatus =
+      (patientIdToPatient[a.patientId].status === PatientStatus.Active
+        ? 0
+        : 1) -
+      (patientIdToPatient[b.patientId].status === PatientStatus.Active ? 0 : 1);
     const byId = a.patientId - b.patientId;
-    const byTime = +(a.startTime?.seconds ?? 0) - +(b.startTime?.seconds ?? 0);
-    return isSortByDate ? byTime || byId : byId || byTime;
+    const byTime = +(b.startTime?.seconds ?? 0) - +(a.startTime?.seconds ?? 0);
+    return isSortByDate ? byTime || byId : byStatus || byId || byTime;
   });
 
   // TODO:
@@ -176,11 +177,8 @@ export const PatientAppointmentList = () => {
           />
         </Stack>
 
-        <Typography variant="h4">未死</Typography>
         <AppointmentList
-          appointments={filteredAppointments.filter((appointment) =>
-            activePatientIds.has(appointment.patientId)
-          )}
+          appointments={filteredAppointments}
           changePatientStatus={changePatientStatus}
           joinAppointment={joinAppointment}
           quitAppointment={quitAppointment}
@@ -189,33 +187,6 @@ export const PatientAppointmentList = () => {
           setIsOpenModalType={setIsOpenModal}
           user={user}
         />
-        <Stack flexDirection="row" gap={2} alignItems="baseline">
-          <Typography variant="h4">已死</Typography>
-          <IconButton
-            onClick={() => {
-              setIsInactiveExpanded((t) => !t);
-            }}
-          >
-            <Icon baseClassName="material-symbols-outlined">
-              {isInactiveExpanded ? "collapse_all" : "expand_all"}
-            </Icon>
-          </IconButton>
-        </Stack>
-
-        <Collapse in={isInactiveExpanded} unmountOnExit>
-          <AppointmentList
-            appointments={filteredAppointments.filter(
-              (appointment) => !activePatientIds.has(appointment.patientId)
-            )}
-            changePatientStatus={changePatientStatus}
-            joinAppointment={joinAppointment}
-            quitAppointment={quitAppointment}
-            deleteAppointment={deleteAppointment}
-            patientIdToPatient={patientIdToPatient}
-            setIsOpenModalType={setIsOpenModal}
-            user={user}
-          />
-        </Collapse>
       </Stack>
       <Stack
         flexDirection="row"
@@ -296,7 +267,14 @@ const AppointmentList = (props: {
               {i > 0 && <Divider />}
               <ListItem>
                 <ListItemAvatar>
-                  <Avatar {...patientAvatarProps(patient)} />
+                  <Badge
+                    color="warning"
+                    badgeContent={
+                      patient.status === PatientStatus.Active ? undefined : "死"
+                    }
+                  >
+                    <Avatar {...patientAvatarProps(patient)} />
+                  </Badge>
                 </ListItemAvatar>
                 <ListItemText
                   primary={
