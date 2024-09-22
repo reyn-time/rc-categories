@@ -107,7 +107,7 @@ export const CreatePatientModal = (props: {
               sx={{ alignSelf: "flex-end" }}
               disabled={error}
               onClick={() => {
-                addPatient({
+                void addPatient({
                   initials,
                   gender: gender === "male" ? Gender.Male : Gender.Female,
                 }).then(() => {
@@ -124,6 +124,31 @@ export const CreatePatientModal = (props: {
             </Button>
           </Stack>
         </Paper>
+      </Box>
+    </Modal>
+  );
+};
+
+export const AppointmentDetailsModal = (props: {
+  patient: PlainMessage<Patient>;
+  appointment: NoBigIntMessage<PlainMessage<PatientAppointment>>;
+  open: boolean;
+  handleClose: () => void;
+}) => {
+  const { open, handleClose, appointment } = props;
+
+  return (
+    <Modal open={open} onClose={handleClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 500,
+        }}
+      >
+        <Paper sx={{ p: 3 }}>{appointment.id}</Paper>
       </Box>
     </Modal>
   );
@@ -156,7 +181,6 @@ export const CreateAppointmentModal = (props: {
       return;
     }
     const [
-      _,
       genderPrefix,
       initials,
       dayString,
@@ -256,9 +280,9 @@ export const CreateAppointmentModal = (props: {
                   /100
                 </Typography>
                 <List dense>
-                  {validationErrors.map((error) => {
+                  {validationErrors.map((error, i) => {
                     return (
-                      <ListItem>
+                      <ListItem key={i}>
                         <ListItemIcon>
                           <Icon
                             fontSize="small"
@@ -299,8 +323,8 @@ export const CreateAppointmentModal = (props: {
                         time: selectedTime.tz("Asia/Hong_Kong"),
                         location: "香港",
                       },
-                    ].map(({ time, location }) => (
-                      <ListItem>
+                    ].map(({ time, location }, i) => (
+                      <ListItem key={i}>
                         <ListItemIcon>
                           <Icon
                             fontSize="small"
@@ -403,7 +427,7 @@ export const EditAppointmentModal = (props: {
               disabled={value === null}
               sx={{ alignSelf: "flex-end" }}
               onClick={() => {
-                updateAppointment({
+                void updateAppointment({
                   id: appointment.id,
                   startTime: { seconds: BigInt(value!.unix()), nanos: 0 },
                 }).then(() => handleClose());

@@ -31,7 +31,7 @@ import {
   List,
   ListItem,
   ListItemAvatar,
-  ListItemSecondaryAction,
+  ListItemButton,
   ListItemText,
   Pagination,
   Paper,
@@ -50,6 +50,7 @@ import { NoBigIntMessage } from "../../util/types";
 import { patientAvatarProps } from "../user/avatar";
 import { useState } from "react";
 import {
+  AppointmentDetailsModal,
   CreateAppointmentModal,
   CreatePatientModal,
   EditAppointmentModal,
@@ -64,6 +65,13 @@ type Modal =
   | {
       type: "EditAppointment";
       payload: NoBigIntMessage<PlainMessage<PatientAppointment>>;
+    }
+  | {
+      type: "AppointmentDetails";
+      payload: {
+        patient: PlainMessage<Patient>;
+        appointment: NoBigIntMessage<PlainMessage<PatientAppointment>>;
+      };
     }
   | null;
 
@@ -163,8 +171,9 @@ export const PatientAppointmentList = () => {
   return (
     <Box>
       <Paper sx={{ maxWidth: "700px", minWidth: "600px", my: 3, mx: "auto" }}>
-        <Stack sx={{ p: 3 }} gap={3}>
+        <Stack sx={{ p: 0 }} gap={3}>
           <ToggleButtonGroup
+            sx={{ pt: 3, px: 3 }}
             value={isSortByDate.toString()}
             exclusive
             onChange={(_, value) => {
@@ -236,6 +245,14 @@ export const PatientAppointmentList = () => {
           handleClose={() => setIsOpenModal(null)}
         ></EditAppointmentModal>
       )}
+      {isOpenModal?.type === "AppointmentDetails" && (
+        <AppointmentDetailsModal
+          appointment={isOpenModal.payload.appointment}
+          patient={isOpenModal.payload.patient}
+          open={!!isOpenModal}
+          handleClose={() => setIsOpenModal(null)}
+        ></AppointmentDetailsModal>
+      )}
     </Box>
   );
 };
@@ -280,119 +297,138 @@ const AppointmentList = (props: {
         return (
           <Box key={appointment.id}>
             {i > 0 && <Divider />}
-            <ListItem>
-              <ListItemAvatar>
-                <StyledBadge
-                  color="warning"
-                  badgeContent={
-                    patient.status === PatientStatus.Active ? undefined : "死"
-                  }
-                >
-                  <Avatar {...patientAvatarProps(patient)} />
-                </StyledBadge>
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  isEmpty ? (
-                    <Typography sx={{ color: "text.secondary" }}>
-                      沒有預約
-                    </Typography>
-                  ) : (
-                    <Stack flexDirection="row" gap={1}>
-                      <Typography
-                        sx={isCurrent ? {} : { color: "text.secondary" }}
-                      >{`${patientToName(patient)} 的第 ${
-                        appointment.meetingNumber
-                      } 次見面`}</Typography>
-                      {appointment.isUserSignedUp && (
-                        <Chip
-                          label="已報名"
-                          color="success"
-                          variant="outlined"
-                          size="small"
-                        />
-                      )}
-                    </Stack>
-                  )
-                }
-                secondary={
-                  isEmpty
-                    ? "兩個月前見面"
-                    : isCurrent
-                    ? dateTimeToString(appointment.startTime)
-                    : timeFromNow(appointment.startTime)
-                }
-              ></ListItemText>
-              <ListItemSecondaryAction>
-                {isCurrent && (
+            <ListItem
+              disablePadding
+              secondaryAction={
+                <>
+                  {isCurrent && (
+                    <IconButton
+                      onClick={() => {
+                        if (appointment.isUserSignedUp) {
+                          void quitAppointment({
+                            appointmentId: appointment.id,
+                            userId: user.id,
+                          });
+                        } else {
+                          void joinAppointment({
+                            appointmentId: appointment.id,
+                            userId: user.id,
+                            message: "",
+                          });
+                        }
+                      }}
+                    >
+                      <Icon
+                        color={appointment.isUserSignedUp ? "error" : "success"}
+                        baseClassName="material-symbols-outlined"
+                      >
+                        {appointment.isUserSignedUp
+                          ? "event_busy"
+                          : "event_available"}
+                      </Icon>
+                    </IconButton>
+                  )}
+                  {!isEmpty && (
+                    <IconButton
+                      onClick={() => {
+                        setIsOpenModalType({
+                          type: "EditAppointment",
+                          payload: appointment,
+                        });
+                      }}
+                    >
+                      <Icon baseClassName="material-symbols-outlined">
+                        edit
+                      </Icon>
+                    </IconButton>
+                  )}
+                  {!isEmpty && (
+                    <IconButton
+                      onClick={() => {
+                        void deleteAppointment({ id: appointment.id });
+                      }}
+                    >
+                      <Icon baseClassName="material-symbols-outlined">
+                        delete
+                      </Icon>
+                    </IconButton>
+                  )}
                   <IconButton
+                    size="small"
                     onClick={() => {
-                      if (appointment.isUserSignedUp) {
-                        void quitAppointment({
-                          appointmentId: appointment.id,
-                          userId: user.id,
-                        });
-                      } else {
-                        void joinAppointment({
-                          appointmentId: appointment.id,
-                          userId: user.id,
-                          message: "",
-                        });
-                      }
+                      void changePatientStatus({
+                        patientId: appointment.patientId,
+                        status:
+                          patient.status === PatientStatus.Active
+                            ? PatientStatus.OnHold
+                            : PatientStatus.Active,
+                      });
                     }}
                   >
-                    <Icon
-                      color={appointment.isUserSignedUp ? "error" : "success"}
-                      baseClassName="material-symbols-outlined"
-                    >
-                      {appointment.isUserSignedUp
-                        ? "event_busy"
-                        : "event_available"}
-                    </Icon>
-                  </IconButton>
-                )}
-                {!isEmpty && (
-                  <IconButton
-                    onClick={() =>
-                      setIsOpenModalType({
-                        type: "EditAppointment",
-                        payload: appointment,
-                      })
-                    }
-                  >
-                    <Icon baseClassName="material-symbols-outlined">edit</Icon>
-                  </IconButton>
-                )}
-                {!isEmpty && (
-                  <IconButton
-                    onClick={() =>
-                      void deleteAppointment({ id: appointment.id })
-                    }
-                  >
                     <Icon baseClassName="material-symbols-outlined">
-                      delete
+                      {patient.status === PatientStatus.Active
+                        ? "move_down"
+                        : "move_up"}
                     </Icon>
                   </IconButton>
-                )}
-                <IconButton
-                  size="small"
-                  onClick={() => {
-                    void changePatientStatus({
-                      patientId: appointment.patientId,
-                      status:
-                        patient.status === PatientStatus.Active
-                          ? PatientStatus.OnHold
-                          : PatientStatus.Active,
-                    });
-                  }}
-                >
-                  <Icon baseClassName="material-symbols-outlined">
-                    {patient.status === PatientStatus.Active
-                      ? "move_down"
-                      : "move_up"}
-                  </Icon>
-                </IconButton>
-              </ListItemSecondaryAction>
+                </>
+              }
+            >
+              <ListItemButton
+                onClick={() => {
+                  setIsOpenModalType({
+                    type: "AppointmentDetails",
+                    payload: {
+                      patient,
+                      appointment,
+                    },
+                  });
+                }}
+                disabled={isEmpty}
+              >
+                <ListItemAvatar>
+                  <StyledBadge
+                    color="warning"
+                    badgeContent={
+                      patient.status === PatientStatus.Active ? undefined : "死"
+                    }
+                  >
+                    <Avatar {...patientAvatarProps(patient)} />
+                  </StyledBadge>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={
+                    isEmpty ? (
+                      <Typography sx={{ color: "text.secondary" }}>
+                        沒有預約
+                      </Typography>
+                    ) : (
+                      <Stack flexDirection="row" gap={1}>
+                        <Typography
+                          sx={isCurrent ? {} : { color: "text.secondary" }}
+                        >{`${patientToName(patient)} 的第 ${
+                          appointment.meetingNumber
+                        } 次見面`}</Typography>
+                        {appointment.isUserSignedUp && (
+                          <Chip
+                            label="已報名"
+                            color="success"
+                            variant="outlined"
+                            size="small"
+                          />
+                        )}
+                      </Stack>
+                    )
+                  }
+                  secondary={
+                    isEmpty
+                      ? "兩個月前見面"
+                      : isCurrent
+                      ? dateTimeToString(appointment.startTime)
+                      : timeFromNow(appointment.startTime)
+                  }
+                ></ListItemText>
+              </ListItemButton>
             </ListItem>
           </Box>
         );
