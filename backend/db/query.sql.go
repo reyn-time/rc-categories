@@ -295,6 +295,51 @@ func (q *Queries) ListPatients(ctx context.Context) ([]ReorderPatient, error) {
 	return items, nil
 }
 
+const listSignedUpPatientAppointmentForUser = `-- name: ListSignedUpPatientAppointmentForUser :many
+SELECT a.id,
+    a.start_time,
+    p.initials,
+    p.gender
+from reorder.patient_appointment_sign_ups s
+    JOIN reorder.patient_appointments a ON s.appointment_id = a.id
+    JOIN reorder.patients p on a.patient_id = p.id
+WHERE s.user_id = $1
+ORDER BY a.start_time DESC
+LIMIT 100
+`
+
+type ListSignedUpPatientAppointmentForUserRow struct {
+	ID        int32
+	StartTime pgtype.Timestamp
+	Initials  string
+	Gender    ReorderGender
+}
+
+func (q *Queries) ListSignedUpPatientAppointmentForUser(ctx context.Context, userID int32) ([]ListSignedUpPatientAppointmentForUserRow, error) {
+	rows, err := q.db.Query(ctx, listSignedUpPatientAppointmentForUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListSignedUpPatientAppointmentForUserRow
+	for rows.Next() {
+		var i ListSignedUpPatientAppointmentForUserRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.StartTime,
+			&i.Initials,
+			&i.Gender,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT id, email, name, photo_url
 FROM reorder.users

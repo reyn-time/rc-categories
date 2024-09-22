@@ -15,6 +15,8 @@ require (
 
 require github.com/gorilla/securecookie v1.1.2
 
+require github.com/arran4/golang-ical v0.3.1
+
 require (
 	cloud.google.com/go/compute/metadata v0.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

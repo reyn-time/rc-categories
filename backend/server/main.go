@@ -127,6 +127,7 @@ func main() {
 	mux.Handle("/", frontendHandler())
 	mux.Handle("/grpc/", http.StripPrefix("/grpc", api))
 	mux.Handle(oauth.NewOauthServiceHandler(oauthService))
+	mux.Handle("/calendar/", http.StripPrefix("/calendar", patientappointment.CalendarHandler(queries)))
 
 	log.Printf("Server started! Lovely jubbly.")
 

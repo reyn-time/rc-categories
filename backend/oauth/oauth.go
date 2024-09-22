@@ -194,6 +194,7 @@ func (o *OauthService) OauthGoogleCallback(w http.ResponseWriter, r *http.Reques
 		SameSite: http.SameSite(o.Config.CookieSameSite),
 	}
 	http.SetCookie(w, &cookie)
+	// TODO: Redirect users to a better place.
 	http.Redirect(w, r, o.Config.RedirectURL, http.StatusTemporaryRedirect)
 }
 

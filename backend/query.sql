@@ -108,3 +108,14 @@ DELETE FROM reorder.patient_appointment_sign_ups
 WHERE appointment_id = $1
     and user_id = $2
 RETURNING *;
+-- name: ListSignedUpPatientAppointmentForUser :many
+SELECT a.id,
+    a.start_time,
+    p.initials,
+    p.gender
+from reorder.patient_appointment_sign_ups s
+    JOIN reorder.patient_appointments a ON s.appointment_id = a.id
+    JOIN reorder.patients p on a.patient_id = p.id
+WHERE s.user_id = $1
+ORDER BY a.start_time DESC
+LIMIT 100;
