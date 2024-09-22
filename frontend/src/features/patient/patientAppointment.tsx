@@ -84,7 +84,11 @@ export const PatientAppointmentList = () => {
   const isAuthenticated = !!user && !userIsError;
 
   if (!isAuthenticated) {
-    return <Alert severity="error">請先登入</Alert>;
+    return (
+      <Alert severity="error" sx={{ maxWidth: "700px", my: 3, mx: "auto" }}>
+        請先登入
+      </Alert>
+    );
   }
 
   if (appointmentIsLoading || patientIsLoading) {
