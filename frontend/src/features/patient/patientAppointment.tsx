@@ -239,12 +239,18 @@ export const PatientAppointmentList = () => {
 const AppointmentList = (props: {
   appointments: NoBigIntMessage<PlainMessage<PatientAppointment>>[];
   patientIdToPatient: Record<number, PlainMessage<Patient>>;
-  changePatientStatus: (arg: PlainMessage<ChangePatientStatusRequest>) => void;
+  changePatientStatus: (
+    arg: PlainMessage<ChangePatientStatusRequest>
+  ) => Promise<unknown>;
   deleteAppointment: (
     arg: PlainMessage<DeletePatientAppointmentRequest>
-  ) => void;
-  joinAppointment: (arg: PlainMessage<JoinPatientAppointmentRequest>) => void;
-  quitAppointment: (arg: PlainMessage<QuitPatientAppointmentRequest>) => void;
+  ) => Promise<unknown>;
+  joinAppointment: (
+    arg: PlainMessage<JoinPatientAppointmentRequest>
+  ) => Promise<unknown>;
+  quitAppointment: (
+    arg: PlainMessage<QuitPatientAppointmentRequest>
+  ) => Promise<unknown>;
   setIsOpenModalType: (arg: Modal) => void;
   user: PlainMessage<User>;
 }) => {
@@ -318,12 +324,12 @@ const AppointmentList = (props: {
                   <IconButton
                     onClick={() => {
                       if (appointment.isUserSignedUp) {
-                        quitAppointment({
+                        void quitAppointment({
                           appointmentId: appointment.id,
                           userId: user.id,
                         });
                       } else {
-                        joinAppointment({
+                        void joinAppointment({
                           appointmentId: appointment.id,
                           userId: user.id,
                           message: "",
@@ -355,7 +361,9 @@ const AppointmentList = (props: {
                 )}
                 {!isEmpty && (
                   <IconButton
-                    onClick={() => deleteAppointment({ id: appointment.id })}
+                    onClick={() =>
+                      void deleteAppointment({ id: appointment.id })
+                    }
                   >
                     <Icon baseClassName="material-symbols-outlined">
                       delete
