@@ -5,6 +5,7 @@
 
 import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialMessage, PlainMessage } from "@bufbuild/protobuf";
 import { Message, Timestamp, proto3 } from "@bufbuild/protobuf";
+import { User } from "../../user/v1/user_pb.js";
 
 /**
  * @generated from message patientappointment.v1.ListCurrentPatientAppointmentRequest
@@ -441,6 +442,80 @@ export class DeletePatientAppointmentResponse extends Message<DeletePatientAppoi
 
   static equals(a: DeletePatientAppointmentResponse | PlainMessage<DeletePatientAppointmentResponse> | undefined, b: DeletePatientAppointmentResponse | PlainMessage<DeletePatientAppointmentResponse> | undefined): boolean {
     return proto3.util.equals(DeletePatientAppointmentResponse, a, b);
+  }
+}
+
+/**
+ * @generated from message patientappointment.v1.ListSignedUpUsersForAppointmentRequest
+ */
+export class ListSignedUpUsersForAppointmentRequest extends Message<ListSignedUpUsersForAppointmentRequest> {
+  /**
+   * @generated from field: int32 appointment_id = 1;
+   */
+  appointmentId = 0;
+
+  constructor(data?: PartialMessage<ListSignedUpUsersForAppointmentRequest>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patientappointment.v1.ListSignedUpUsersForAppointmentRequest";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "appointment_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListSignedUpUsersForAppointmentRequest {
+    return new ListSignedUpUsersForAppointmentRequest().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListSignedUpUsersForAppointmentRequest {
+    return new ListSignedUpUsersForAppointmentRequest().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListSignedUpUsersForAppointmentRequest {
+    return new ListSignedUpUsersForAppointmentRequest().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ListSignedUpUsersForAppointmentRequest | PlainMessage<ListSignedUpUsersForAppointmentRequest> | undefined, b: ListSignedUpUsersForAppointmentRequest | PlainMessage<ListSignedUpUsersForAppointmentRequest> | undefined): boolean {
+    return proto3.util.equals(ListSignedUpUsersForAppointmentRequest, a, b);
+  }
+}
+
+/**
+ * @generated from message patientappointment.v1.ListSignedUpUsersForAppointmentResponse
+ */
+export class ListSignedUpUsersForAppointmentResponse extends Message<ListSignedUpUsersForAppointmentResponse> {
+  /**
+   * @generated from field: repeated user.v1.User user = 1;
+   */
+  user: User[] = [];
+
+  constructor(data?: PartialMessage<ListSignedUpUsersForAppointmentResponse>) {
+    super();
+    proto3.util.initPartial(data, this);
+  }
+
+  static readonly runtime: typeof proto3 = proto3;
+  static readonly typeName = "patientappointment.v1.ListSignedUpUsersForAppointmentResponse";
+  static readonly fields: FieldList = proto3.util.newFieldList(() => [
+    { no: 1, name: "user", kind: "message", T: User, repeated: true },
+  ]);
+
+  static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): ListSignedUpUsersForAppointmentResponse {
+    return new ListSignedUpUsersForAppointmentResponse().fromBinary(bytes, options);
+  }
+
+  static fromJson(jsonValue: JsonValue, options?: Partial<JsonReadOptions>): ListSignedUpUsersForAppointmentResponse {
+    return new ListSignedUpUsersForAppointmentResponse().fromJson(jsonValue, options);
+  }
+
+  static fromJsonString(jsonString: string, options?: Partial<JsonReadOptions>): ListSignedUpUsersForAppointmentResponse {
+    return new ListSignedUpUsersForAppointmentResponse().fromJsonString(jsonString, options);
+  }
+
+  static equals(a: ListSignedUpUsersForAppointmentResponse | PlainMessage<ListSignedUpUsersForAppointmentResponse> | undefined, b: ListSignedUpUsersForAppointmentResponse | PlainMessage<ListSignedUpUsersForAppointmentResponse> | undefined): boolean {
+    return proto3.util.equals(ListSignedUpUsersForAppointmentResponse, a, b);
   }
 }
 

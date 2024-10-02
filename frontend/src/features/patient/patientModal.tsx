@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   Chip,
@@ -7,12 +8,14 @@ import {
   Icon,
   List,
   ListItem,
+  ListItemAvatar,
   ListItemIcon,
   ListItemText,
   Modal,
   Paper,
   Radio,
   RadioGroup,
+  Skeleton,
   Stack,
   TextField,
   Typography,
@@ -26,11 +29,13 @@ import dayjs, { Dayjs } from "dayjs";
 import { patientToName } from "./util";
 import {
   useCreateAppointmentMutation,
+  useListAppointmentSignedUpUsersQuery,
   useUpdateAppointmentMutation,
 } from "./patientAppointmentSlice";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { PatientAppointment } from "../../gen/proto/patientappointment/v1/patientappointment_pb";
 import { NoBigIntMessage } from "../../util/types";
+import { userAvatarProps } from "../user/avatar";
 
 interface ValidationError {
   message: string;
@@ -135,8 +140,14 @@ export const AppointmentDetailsModal = (props: {
   open: boolean;
   handleClose: () => void;
 }) => {
-  const { open, handleClose, appointment } = props;
+  const { open, handleClose, patient, appointment } = props;
 
+  const { data: signedUpUsers = [], isLoading } =
+    useListAppointmentSignedUpUsersQuery({
+      appointmentId: appointment.id,
+    });
+
+  // TODO: Refactor the modal part a bit.
   return (
     <Modal open={open} onClose={handleClose}>
       <Box
@@ -148,7 +159,25 @@ export const AppointmentDetailsModal = (props: {
           width: 500,
         }}
       >
-        <Paper sx={{ p: 3 }}>{appointment.id}</Paper>
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h4" sx={{ mb: 3 }}>
+            {patientToName(patient)}
+          </Typography>
+          <Typography variant="h5">參與者</Typography>
+          {isLoading && (
+            <Skeleton variant="rectangular" height="500px"></Skeleton>
+          )}
+          <List>
+            {signedUpUsers.map((user) => (
+              <ListItem key={user.id}>
+                <ListItemAvatar>
+                  <Avatar {...userAvatarProps(user)} />
+                </ListItemAvatar>
+                <ListItemText>{user.name}</ListItemText>
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
       </Box>
     </Modal>
   );

@@ -340,6 +340,38 @@ func (q *Queries) ListSignedUpPatientAppointmentForUser(ctx context.Context, use
 	return items, nil
 }
 
+const listSignedUpUsersForAppointment = `-- name: ListSignedUpUsersForAppointment :many
+SELECT u.id, u.email, u.name, u.photo_url
+FROM reorder.patient_appointment_sign_ups s
+    join reorder.users u on s.user_id = u.id
+where appointment_id = $1
+`
+
+func (q *Queries) ListSignedUpUsersForAppointment(ctx context.Context, appointmentID int32) ([]ReorderUser, error) {
+	rows, err := q.db.Query(ctx, listSignedUpUsersForAppointment, appointmentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ReorderUser
+	for rows.Next() {
+		var i ReorderUser
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Name,
+			&i.PhotoUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT id, email, name, photo_url
 FROM reorder.users

@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/reyn-time/rc-categories/backend/db"
 	paproto "github.com/reyn-time/rc-categories/backend/gen/proto/patientappointment/v1"
+	uproto "github.com/reyn-time/rc-categories/backend/gen/proto/user/v1"
 	"github.com/reyn-time/rc-categories/backend/oauth"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -90,4 +91,26 @@ func (s *PatientAppointmentService) QuitPatientAppointment(ctx context.Context, 
 	}
 
 	return connect.NewResponse(&paproto.QuitPatientAppointmentResponse{}), nil
+}
+
+func (s *PatientAppointmentService) ListSignedUpUsersForAppointment(ctx context.Context, req *connect.Request[paproto.ListSignedUpUsersForAppointmentRequest]) (*connect.Response[paproto.ListSignedUpUsersForAppointmentResponse], error) {
+	dbUsers, err := s.Queries.ListSignedUpUsersForAppointment(ctx, req.Msg.AppointmentId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	protoUsers := make([]*uproto.User, len(dbUsers))
+	for i, dbUser := range dbUsers {
+		protoUsers[i] = &uproto.User{
+			Id:       dbUser.ID,
+			Email:    dbUser.Email,
+			Name:     dbUser.Name,
+			PhotoUrl: dbUser.PhotoUrl,
+		}
+	}
+
+	return connect.NewResponse(&paproto.ListSignedUpUsersForAppointmentResponse{
+		User: protoUsers,
+	}), nil
 }

@@ -3,7 +3,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { CreatePatientAppointmentRequest, CreatePatientAppointmentResponse, DeletePatientAppointmentRequest, DeletePatientAppointmentResponse, JoinPatientAppointmentRequest, JoinPatientAppointmentResponse, ListCurrentPatientAppointmentRequest, ListCurrentPatientAppointmentResponse, QuitPatientAppointmentRequest, QuitPatientAppointmentResponse, UpdatePatientAppointmentRequest, UpdatePatientAppointmentResponse } from "./patientappointment_pb.js";
+import { CreatePatientAppointmentRequest, CreatePatientAppointmentResponse, DeletePatientAppointmentRequest, DeletePatientAppointmentResponse, JoinPatientAppointmentRequest, JoinPatientAppointmentResponse, ListCurrentPatientAppointmentRequest, ListCurrentPatientAppointmentResponse, ListSignedUpUsersForAppointmentRequest, ListSignedUpUsersForAppointmentResponse, QuitPatientAppointmentRequest, QuitPatientAppointmentResponse, UpdatePatientAppointmentRequest, UpdatePatientAppointmentResponse } from "./patientappointment_pb.js";
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
@@ -64,6 +64,15 @@ export const PatientAppointmentService = {
       name: "DeletePatientAppointment",
       I: DeletePatientAppointmentRequest,
       O: DeletePatientAppointmentResponse,
+      kind: MethodKind.Unary,
+    },
+    /**
+     * @generated from rpc patientappointment.v1.PatientAppointmentService.ListSignedUpUsersForAppointment
+     */
+    listSignedUpUsersForAppointment: {
+      name: "ListSignedUpUsersForAppointment",
+      I: ListSignedUpUsersForAppointmentRequest,
+      O: ListSignedUpUsersForAppointmentResponse,
       kind: MethodKind.Unary,
     },
   }

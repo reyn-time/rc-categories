@@ -7,11 +7,13 @@ import {
   CreatePatientAppointmentRequest,
   DeletePatientAppointmentRequest,
   JoinPatientAppointmentRequest,
+  ListSignedUpUsersForAppointmentRequest,
   PatientAppointment,
   QuitPatientAppointmentRequest,
   UpdatePatientAppointmentRequest,
 } from "../../gen/proto/patientappointment/v1/patientappointment_pb";
 import { NoBigIntMessage } from "../../util/types";
+import { User } from "../../gen/proto/user/v1/user_pb";
 
 const client = createPromiseClient(PatientAppointmentService, transport);
 
@@ -90,6 +92,16 @@ export const patientAppointmentApi = createApi({
         return { data: undefined };
       }),
     }),
+    listAppointmentSignedUpUsers: builder.query<
+      PlainMessage<User>[],
+      PlainMessage<ListSignedUpUsersForAppointmentRequest>
+    >({
+      queryFn: queryFnWrapper(async (req) => {
+        const res = await client.listSignedUpUsersForAppointment(req);
+        return { data: res.user };
+      }),
+      keepUnusedDataFor: 5,
+    }),
   }),
 });
 
@@ -100,4 +112,5 @@ export const {
   useDeleteAppointmentMutation,
   useJoinAppointmentMutation,
   useQuitAppointmentMutation,
+  useListAppointmentSignedUpUsersQuery,
 } = patientAppointmentApi;

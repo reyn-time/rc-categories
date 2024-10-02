@@ -5,6 +5,7 @@ package patientappointment.v1;
 import "google/protobuf/timestamp.proto";
 import "proto/patient/v1/patient.proto";
 import "proto/auth/v1/auth.proto";
+import "proto/user/v1/user.proto";
 
 service PatientAppointmentService {
     rpc ListCurrentPatientAppointment(ListCurrentPatientAppointmentRequest) returns (ListCurrentPatientAppointmentResponse) {
@@ -23,6 +24,9 @@ service PatientAppointmentService {
         option (auth.v1.auth_enabled) = true;
     }
     rpc DeletePatientAppointment(DeletePatientAppointmentRequest) returns (DeletePatientAppointmentResponse) {
+        option (auth.v1.auth_enabled) = true;
+    }
+    rpc ListSignedUpUsersForAppointment(ListSignedUpUsersForAppointmentRequest) returns (ListSignedUpUsersForAppointmentResponse) {
         option (auth.v1.auth_enabled) = true;
     }
 }
@@ -72,6 +76,14 @@ message DeletePatientAppointmentRequest {
 }
 
 message DeletePatientAppointmentResponse {
+}
+
+message ListSignedUpUsersForAppointmentRequest {
+    int32 appointment_id = 1;
+}
+
+message ListSignedUpUsersForAppointmentResponse {
+    repeated user.v1.User user = 1;
 }
 
 message PatientAppointment {

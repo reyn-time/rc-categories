@@ -119,3 +119,8 @@ from reorder.patient_appointment_sign_ups s
 WHERE s.user_id = $1
 ORDER BY a.start_time DESC
 LIMIT 100;
+-- name: ListSignedUpUsersForAppointment :many
+SELECT u.*
+FROM reorder.patient_appointment_sign_ups s
+    join reorder.users u on s.user_id = u.id
+where appointment_id = $1;
