@@ -505,9 +505,8 @@ export const SyncCalendarModal = ({
   const httpURL = new URL(
     `../calendar/${user!.userUuid}.ics`,
     import.meta.env.VITE_API_BASE_URL as string
-  );
-  const webcalURL = new URL(httpURL);
-  webcalURL.protocol = "webcal";
+  ).toString();
+  const webcalURL = "webcal" + httpURL.slice(httpURL.indexOf("://"));
 
   return (
     <Modal open={open} onClose={handleClose}>
@@ -529,23 +528,19 @@ export const SyncCalendarModal = ({
               <Button
                 href={
                   "https://www.google.com/calendar/render?cid=" +
-                  encodeURIComponent(webcalURL.toString())
+                  encodeURIComponent(webcalURL)
                 }
                 target="_blank"
                 variant="contained"
               >
                 同步 Google 日曆
               </Button>
-              <Button
-                href={webcalURL.toString()}
-                target="_blank"
-                variant="contained"
-              >
+              <Button href={webcalURL} target="_blank" variant="contained">
                 同步桌面／Android／Apple 日曆
               </Button>
               <Button
                 href={`https://outlook.office.com/owa?path=%2Fcalendar%2Faction%2Fcompose&rru=addsubscription&url=${encodeURIComponent(
-                  webcalURL.toString()
+                  webcalURL
                 )}&name=RC_Meetings`}
                 target="_blank"
                 variant="contained"
@@ -554,7 +549,7 @@ export const SyncCalendarModal = ({
               </Button>
               <Button
                 href={`https://outlook.live.com/owa?path=%2Fcalendar%2Faction%2Fcompose&rru=addsubscription&url=${encodeURIComponent(
-                  webcalURL.toString()
+                  webcalURL
                 )}&name=RC_Meetings`}
                 target="_blank"
                 variant="contained"
@@ -567,11 +562,9 @@ export const SyncCalendarModal = ({
                 value={httpURL}
                 sx={{ width: "100%", input: { cursor: "pointer" } }}
                 onClick={() => {
-                  void navigator.clipboard
-                    .writeText(httpURL.toString())
-                    .then(() => {
-                      setAlertOpen(true);
-                    });
+                  void navigator.clipboard.writeText(httpURL).then(() => {
+                    setAlertOpen(true);
+                  });
                 }}
                 onFocus={(e) => e.target.select()}
               />
