@@ -18,6 +18,12 @@ import { userAvatarProps } from "../user/avatar";
 
 export const CustomAppBar = () => {
   const navigate = useNavigate();
+  const {
+    data: user,
+    isLoading: isUserLoading,
+    isFetching: isUserFetching,
+    isError: isUserError,
+  } = useGetUserQuery();
 
   return (
     <AppBar position="static">
@@ -34,6 +40,20 @@ export const CustomAppBar = () => {
         >
           <Icon baseClassName="material-symbols-outlined">home</Icon>
         </IconButton>
+        {!isUserLoading && !isUserFetching && !isUserError && user && (
+          <IconButton
+            size="large"
+            color="inherit"
+            sx={{ mr: 2 }}
+            onClick={() => {
+              navigate("/appointment");
+            }}
+          >
+            <Icon baseClassName="material-symbols-outlined">
+              calendar_month
+            </Icon>
+          </IconButton>
+        )}
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           HollyHub
         </Typography>
