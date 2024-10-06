@@ -50,7 +50,7 @@ func CalendarHandler(Queries *db.Queries) http.Handler {
 		cal := ics.NewCalendar()
 		for _, dbAppointment := range dbAppointments {
 			event := cal.AddEvent(strconv.Itoa(int(dbAppointment.ID)))
-			event.SetStartAt(dbAppointment.StartTime.Time)
+			event.SetStartAt(dbAppointment.StartTime.Time.Add(-15 * time.Minute)) // 15 minutes of preparation
 			event.SetEndAt(dbAppointment.StartTime.Time.Add(1 * time.Hour))
 
 			patientName := dbAppointment.Initials
@@ -60,6 +60,17 @@ func CalendarHandler(Queries *db.Queries) http.Handler {
 				patientName = "Ms " + patientName
 			}
 			event.SetSummary("Holly with " + patientName)
+
+			// Alert people 15/5 minutes before the real action.
+			alarm := event.AddAlarm()
+			alarm.SetAction(ics.ActionDisplay)
+			alarm.SetDescription("距離驅趕還有 15 分鐘")
+			alarm.SetTrigger("-PT15M")
+
+			alarm2 := event.AddAlarm()
+			alarm2.SetAction(ics.ActionDisplay)
+			alarm2.SetDescription("距離驅趕還有 5 分鐘")
+			alarm2.SetTrigger("-PT5M")
 		}
 
 		fmt.Fprint(w, cal.Serialize())
