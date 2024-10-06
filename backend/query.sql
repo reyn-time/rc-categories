@@ -116,7 +116,8 @@ SELECT a.id,
 from reorder.patient_appointment_sign_ups s
     JOIN reorder.patient_appointments a ON s.appointment_id = a.id
     JOIN reorder.patients p on a.patient_id = p.id
-WHERE s.user_id = $1
+    JOIN reorder.users u on s.user_id = u.id
+WHERE u.user_uuid = $1
 ORDER BY a.start_time DESC
 LIMIT 100;
 -- name: ListSignedUpUsersForAppointment :many

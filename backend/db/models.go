@@ -174,6 +174,7 @@ type ReorderUser struct {
 	Email    string
 	Name     string
 	PhotoUrl string
+	UserUuid pgtype.UUID
 }
 
 type ReorderVideo struct {

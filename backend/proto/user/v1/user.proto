@@ -37,4 +37,5 @@ message User {
   string email = 2;
   string name = 3;
   string photo_url = 4;
+  string user_uuid = 5;
 }

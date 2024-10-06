@@ -43,12 +43,22 @@ func (s *UserService) GetCurrentUser(ctx context.Context, req *connect.Request[u
 		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("unauthenticated user"))
 	}
 
+	uuid_s, err := user.UserUuid.Value()
+	if err != nil {
+		return nil, err
+	}
+	uuid_ss, ok := uuid_s.(string)
+	if !ok {
+		return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("invalid uuid"))
+	}
+
 	res := connect.NewResponse(&userpb.GetCurrentUserResponse{
 		User: &userpb.User{
 			Id:       user.ID,
 			Email:    user.Email,
 			Name:     user.Name,
 			PhotoUrl: user.PhotoUrl,
+			UserUuid: uuid_ss,
 		},
 	})
 	return res, nil

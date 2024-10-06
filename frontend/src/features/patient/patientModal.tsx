@@ -1,4 +1,5 @@
 import {
+  Alert,
   Avatar,
   Box,
   Button,
@@ -16,6 +17,8 @@ import {
   Radio,
   RadioGroup,
   Skeleton,
+  Snackbar,
+  SnackbarCloseReason,
   Stack,
   TextField,
   Typography,
@@ -36,12 +39,14 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { PatientAppointment } from "../../gen/proto/patientappointment/v1/patientappointment_pb";
 import { NoBigIntMessage } from "../../util/types";
 import { userAvatarProps } from "../user/avatar";
+import { useGetUserQuery } from "../user/userSlice";
 
 interface ValidationError {
   message: string;
   value: number;
 }
 
+// TODO: Make these modals more attractive for phone settings.
 export const CreatePatientModal = (props: {
   open: boolean;
   handleClose: () => void;
@@ -210,6 +215,8 @@ export const CreateAppointmentModal = (props: {
       return;
     }
     const [
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      _,
       genderPrefix,
       initials,
       dayString,
@@ -470,6 +477,122 @@ export const EditAppointmentModal = (props: {
           </Stack>
         </Paper>
       </Box>
+    </Modal>
+  );
+};
+
+export const SyncCalendarModal = ({
+  open,
+  handleClose,
+}: {
+  open: boolean;
+  handleClose: () => void;
+}) => {
+  const { data: user } = useGetUserQuery();
+
+  const [alertOpen, setAlertOpen] = useState(false);
+  const handleAlertClose = (
+    _event?: React.SyntheticEvent | Event,
+    reason?: SnackbarCloseReason
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    setAlertOpen(false);
+  };
+
+  const httpURL = new URL(
+    `../calendar/${user!.userUuid}.ics`,
+    import.meta.env.VITE_API_BASE_URL as string
+  );
+  const webcalURL = new URL(httpURL);
+  webcalURL.protocol = "webcal";
+
+  return (
+    <Modal open={open} onClose={handleClose}>
+      <>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 500,
+          }}
+        >
+          <Paper sx={{ p: 3 }}>
+            <Typography variant="h4" sx={{ mb: 3 }}>
+              與日曆同步
+            </Typography>
+            <Stack gap={2} alignItems="flex-start">
+              <Button
+                href={
+                  "https://www.google.com/calendar/render?cid=" +
+                  encodeURIComponent(webcalURL.toString())
+                }
+                target="_blank"
+                variant="contained"
+              >
+                同步 Google 日曆
+              </Button>
+              <Button
+                href={webcalURL.toString()}
+                target="_blank"
+                variant="contained"
+              >
+                同步桌面／Android／Apple 日曆
+              </Button>
+              <Button
+                href={`https://outlook.office.com/owa?path=%2Fcalendar%2Faction%2Fcompose&rru=addsubscription&url=${encodeURIComponent(
+                  webcalURL.toString()
+                )}&name=RC_Meetings`}
+                target="_blank"
+                variant="contained"
+              >
+                同步 Outlook 365 日曆
+              </Button>
+              <Button
+                href={`https://outlook.live.com/owa?path=%2Fcalendar%2Faction%2Fcompose&rru=addsubscription&url=${encodeURIComponent(
+                  webcalURL.toString()
+                )}&name=RC_Meetings`}
+                target="_blank"
+                variant="contained"
+              >
+                同步 Outlook Live 日曆
+              </Button>
+              <TextField
+                label="訂閱連結"
+                variant="filled"
+                value={httpURL}
+                sx={{ width: "100%", input: { cursor: "pointer" } }}
+                onClick={() => {
+                  void navigator.clipboard
+                    .writeText(httpURL.toString())
+                    .then(() => {
+                      setAlertOpen(true);
+                    });
+                }}
+                onFocus={(e) => e.target.select()}
+              />
+            </Stack>
+          </Paper>
+        </Box>
+        <Snackbar
+          open={alertOpen}
+          autoHideDuration={6000}
+          onClose={handleAlertClose}
+        >
+          <Alert
+            onClose={handleAlertClose}
+            severity="info"
+            variant="filled"
+            sx={{ width: "100%" }}
+          >
+            已複製訂閱連結
+          </Alert>
+        </Snackbar>
+      </>
     </Modal>
   );
 };

@@ -19,6 +19,7 @@ CREATE TABLE reorder.users (
     email TEXT NOT NULL,
     name TEXT NOT NULL,
     photo_url TEXT NOT NULL,
+    user_uuid uuid NOT NULL DEFAULT gen_random_uuid(),
     UNIQUE (email)
 );
 CREATE TABLE reorder.videos (

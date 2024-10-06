@@ -8,6 +8,7 @@ import (
 	"time"
 
 	ics "github.com/arran4/golang-ical"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/reyn-time/rc-categories/backend/db"
 )
 
@@ -31,17 +32,17 @@ func CalendarHandler(Queries *db.Queries) http.Handler {
 			return
 		}
 
-		// Check if filename without .ics is valid.
-		uid_s := strings.TrimSuffix(filename, ".ics")
-		uid, err := strconv.ParseInt(uid_s, 10, 32)
-		uid32 := int32(uid)
-		if err != nil {
-			http.Error(w, uid_s+" is not a valid user ID", http.StatusBadRequest)
+		// Check if filename without .ics is valid UUID.
+		uuid_s := strings.TrimSuffix(filename, ".ics")
+		uuid := pgtype.UUID{}
+		if err := uuid.Scan(uuid_s); err != nil || !uuid.Valid {
+			http.Error(w, "UUID is not valid", http.StatusBadRequest)
+			return
 		}
 
 		// Read all appointments relevant to the user.
 		ctx := r.Context()
-		dbAppointments, err := Queries.ListSignedUpPatientAppointmentForUser(ctx, uid32)
+		dbAppointments, err := Queries.ListSignedUpPatientAppointmentForUser(ctx, uuid)
 		if err != nil {
 			http.Error(w, "Failed to retrieve database appointments", http.StatusInternalServerError)
 		}

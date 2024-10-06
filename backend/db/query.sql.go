@@ -111,7 +111,7 @@ func (q *Queries) DeletePatientAppointmentSignUp(ctx context.Context, arg Delete
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, name, photo_url
+SELECT id, email, name, photo_url, user_uuid
 FROM reorder.users
 WHERE email = $1
 `
@@ -124,6 +124,7 @@ func (q *Queries) GetUser(ctx context.Context, email string) (ReorderUser, error
 		&i.Email,
 		&i.Name,
 		&i.PhotoUrl,
+		&i.UserUuid,
 	)
 	return i, err
 }
@@ -303,7 +304,8 @@ SELECT a.id,
 from reorder.patient_appointment_sign_ups s
     JOIN reorder.patient_appointments a ON s.appointment_id = a.id
     JOIN reorder.patients p on a.patient_id = p.id
-WHERE s.user_id = $1
+    JOIN reorder.users u on s.user_id = u.id
+WHERE u.user_uuid = $1
 ORDER BY a.start_time DESC
 LIMIT 100
 `
@@ -315,8 +317,8 @@ type ListSignedUpPatientAppointmentForUserRow struct {
 	Gender    ReorderGender
 }
 
-func (q *Queries) ListSignedUpPatientAppointmentForUser(ctx context.Context, userID int32) ([]ListSignedUpPatientAppointmentForUserRow, error) {
-	rows, err := q.db.Query(ctx, listSignedUpPatientAppointmentForUser, userID)
+func (q *Queries) ListSignedUpPatientAppointmentForUser(ctx context.Context, userUuid pgtype.UUID) ([]ListSignedUpPatientAppointmentForUserRow, error) {
+	rows, err := q.db.Query(ctx, listSignedUpPatientAppointmentForUser, userUuid)
 	if err != nil {
 		return nil, err
 	}
@@ -341,7 +343,7 @@ func (q *Queries) ListSignedUpPatientAppointmentForUser(ctx context.Context, use
 }
 
 const listSignedUpUsersForAppointment = `-- name: ListSignedUpUsersForAppointment :many
-SELECT u.id, u.email, u.name, u.photo_url
+SELECT u.id, u.email, u.name, u.photo_url, u.user_uuid
 FROM reorder.patient_appointment_sign_ups s
     join reorder.users u on s.user_id = u.id
 where appointment_id = $1
@@ -361,6 +363,7 @@ func (q *Queries) ListSignedUpUsersForAppointment(ctx context.Context, appointme
 			&i.Email,
 			&i.Name,
 			&i.PhotoUrl,
+			&i.UserUuid,
 		); err != nil {
 			return nil, err
 		}
@@ -373,7 +376,7 @@ func (q *Queries) ListSignedUpUsersForAppointment(ctx context.Context, appointme
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, email, name, photo_url
+SELECT id, email, name, photo_url, user_uuid
 FROM reorder.users
 `
 
@@ -391,6 +394,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]ReorderUser, error) {
 			&i.Email,
 			&i.Name,
 			&i.PhotoUrl,
+			&i.UserUuid,
 		); err != nil {
 			return nil, err
 		}
@@ -559,7 +563,7 @@ UPDATE reorder.users
 SET name = $1,
     photo_url = $2
 WHERE email = $3
-RETURNING id, email, name, photo_url
+RETURNING id, email, name, photo_url, user_uuid
 `
 
 type UpdateUserParams struct {
@@ -576,6 +580,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (Reorder
 		&i.Email,
 		&i.Name,
 		&i.PhotoUrl,
+		&i.UserUuid,
 	)
 	return i, err
 }

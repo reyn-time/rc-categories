@@ -228,6 +228,11 @@ export class User extends Message<User> {
    */
   photoUrl = "";
 
+  /**
+   * @generated from field: string user_uuid = 5;
+   */
+  userUuid = "";
+
   constructor(data?: PartialMessage<User>) {
     super();
     proto3.util.initPartial(data, this);
@@ -240,6 +245,7 @@ export class User extends Message<User> {
     { no: 2, name: "email", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 3, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "photo_url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 5, name: "user_uuid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): User {

@@ -23,6 +23,7 @@ import {
   Badge,
   BadgeProps,
   Box,
+  Button,
   Chip,
   Divider,
   Fab,
@@ -54,6 +55,7 @@ import {
   CreateAppointmentModal,
   CreatePatientModal,
   EditAppointmentModal,
+  SyncCalendarModal,
 } from "./patientModal";
 import { patientToName } from "./util";
 import { useGetUserQuery } from "../user/userSlice";
@@ -72,6 +74,9 @@ type Modal =
         patient: PlainMessage<Patient>;
         appointment: NoBigIntMessage<PlainMessage<PatientAppointment>>;
       };
+    }
+  | {
+      type: "SyncCalendar";
     }
   | null;
 
@@ -172,18 +177,33 @@ export const PatientAppointmentList = () => {
     <Box>
       <Paper sx={{ maxWidth: "700px", minWidth: "600px", my: 3, mx: "auto" }}>
         <Stack sx={{ p: 0 }} gap={3}>
-          <ToggleButtonGroup
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
             sx={{ pt: 3, px: 3 }}
-            value={isSortByDate.toString()}
-            exclusive
-            onChange={(_, value) => {
-              setIsSortByDate(value === "true");
-              setPageNumber(1);
-            }}
           >
-            <ToggleButton value="true">時間排序</ToggleButton>
-            <ToggleButton value="false">事主排序</ToggleButton>
-          </ToggleButtonGroup>
+            <ToggleButtonGroup
+              value={isSortByDate.toString()}
+              exclusive
+              onChange={(_, value) => {
+                setIsSortByDate(value === "true");
+                setPageNumber(1);
+              }}
+            >
+              <ToggleButton value="true">時間排序</ToggleButton>
+              <ToggleButton value="false">事主排序</ToggleButton>
+            </ToggleButtonGroup>
+            <Button
+              variant="contained"
+              onClick={() => setIsOpenModal({ type: "SyncCalendar" })}
+            >
+              <Icon baseClassName="material-symbols-outlined" sx={{ mr: 1 }}>
+                calendar_month
+              </Icon>
+              與日曆同步
+            </Button>
+          </Stack>
 
           <Pagination
             count={pageCount}
@@ -252,6 +272,12 @@ export const PatientAppointmentList = () => {
           open={!!isOpenModal}
           handleClose={() => setIsOpenModal(null)}
         ></AppointmentDetailsModal>
+      )}
+      {isOpenModal?.type === "SyncCalendar" && (
+        <SyncCalendarModal
+          open={!!isOpenModal}
+          handleClose={() => setIsOpenModal(null)}
+        ></SyncCalendarModal>
       )}
     </Box>
   );
