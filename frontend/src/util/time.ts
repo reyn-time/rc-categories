@@ -40,11 +40,11 @@ export const dateTimeToString = (
   const { seconds } = createdAt;
   const milliseconds = BigInt(seconds) * BigInt(1000);
   const date = dayjs(milliseconds);
-  return date.format(`YYYY年MM月DD日 (星期${dayOfMonth[date.day()]}) h:mm a`);
+  return date.format(`YY年MM月DD日 (${dayOfMonth[date.day()]}) h:mm a`);
 };
 
 export const dayjsToString = (d: Dayjs): string => {
-  return d.format(`YYYY年MM月DD日 (星期${dayOfMonth[d.day()]}) h:mm a`);
+  return d.format(`YY年MM月DD日 (${dayOfMonth[d.day()]}) h:mm a`);
 };
 
 export const timeFromNow = (

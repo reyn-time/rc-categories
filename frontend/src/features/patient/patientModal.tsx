@@ -80,7 +80,8 @@ export const CreatePatientModal = (props: {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 500,
+          width: "80%",
+          maxWidth: 500,
         }}
       >
         <Paper sx={{ p: 3 }}>
@@ -161,7 +162,8 @@ export const AppointmentDetailsModal = (props: {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 500,
+          width: "80%",
+          maxWidth: 500,
         }}
       >
         <Paper sx={{ p: 3 }}>
@@ -280,7 +282,8 @@ export const CreateAppointmentModal = (props: {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 500,
+          width: "80%",
+          maxWidth: 500,
         }}
       >
         <Paper sx={{ p: 3 }}>
@@ -334,6 +337,7 @@ export const CreateAppointmentModal = (props: {
                             <Stack
                               flexDirection="row"
                               justifyContent="space-between"
+                              alignItems="center"
                             >
                               <Typography>{error.message}</Typography>
                               <Chip
@@ -440,7 +444,8 @@ export const EditAppointmentModal = (props: {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: 500,
+          width: "80%",
+          maxWidth: 500,
         }}
       >
         <Paper sx={{ p: 3 }}>
@@ -517,7 +522,8 @@ export const SyncCalendarModal = ({
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 500,
+            width: "80%",
+            maxWidth: 500,
           }}
         >
           <Paper sx={{ p: 3 }}>
