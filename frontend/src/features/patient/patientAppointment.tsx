@@ -184,6 +184,8 @@ export const PatientAppointmentList = () => {
             direction="row"
             justifyContent="space-between"
             alignItems="center"
+            flexWrap="wrap"
+            gap={2}
             sx={{ pt: 3, px: 3 }}
           >
             <ToggleButtonGroup
