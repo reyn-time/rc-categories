@@ -166,7 +166,7 @@ export const PatientAppointmentList = () => {
       (patientIdToPatient[b.patientId].status === PatientStatus.Active ? 0 : 1);
     const byId = a.patientId - b.patientId;
     const byTime = +(b.startTime?.seconds ?? 0) - +(a.startTime?.seconds ?? 0);
-    return isSortByDate ? byTime || byId : byStatus || byId || byTime;
+    return isSortByDate ? byTime || byId : byStatus || byTime;
   });
 
   const pageSize = 15;
@@ -174,6 +174,9 @@ export const PatientAppointmentList = () => {
 
   // TODO:
   // 1. Sign up and opt out of an appointment for other users.
+  // 2. Merge the AddUser/AddAppointment icons into a speed dial.
+  // 3. Allow tentative join (add comments?)
+  // 4. Allow cancel event
   return (
     <Box>
       <Paper
@@ -434,11 +437,17 @@ const AppointmentListItem = ({
             )
           }
           secondary={
-            isEmpty
-              ? "兩個月前見面"
-              : isCurrent
-              ? dateTimeToString(appointment.startTime)
-              : timeFromNow(appointment.startTime)
+            isEmpty ? (
+              "兩個月前見面"
+            ) : isCurrent ? (
+              dateTimeToString(appointment.startTime)
+            ) : (
+              <Typography variant="body2" sx={{ color: "warning.main" }}>
+                {`${dateTimeToString(appointment.startTime)} (${timeFromNow(
+                  appointment.startTime
+                )})`}
+              </Typography>
+            )
           }
         ></ListItemText>
       </ListItemButton>
