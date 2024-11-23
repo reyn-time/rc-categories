@@ -3,7 +3,8 @@ SELECT v.*,
     u.id as user_id,
     u.email,
     u.name as user_name,
-    u.photo_url
+    u.photo_url,
+    u.role
 FROM reorder.videos v
     LEFT JOIN reorder.users u ON v.editor = u.id
 ORDER BY created_at DESC;

@@ -7,6 +7,32 @@ import type { BinaryReadOptions, FieldList, JsonReadOptions, JsonValue, PartialM
 import { Message, proto3 } from "@bufbuild/protobuf";
 
 /**
+ * @generated from enum user.v1.UserRole
+ */
+export enum UserRole {
+  /**
+   * @generated from enum value: USER_ROLE_UNSPECIFIED = 0;
+   */
+  UNSPECIFIED = 0,
+
+  /**
+   * @generated from enum value: USER_ROLE_ADMIN = 1;
+   */
+  ADMIN = 1,
+
+  /**
+   * @generated from enum value: USER_ROLE_NOBODY = 2;
+   */
+  NOBODY = 2,
+}
+// Retrieve enum metadata with: proto3.getEnumType(UserRole)
+proto3.util.setEnumType(UserRole, "user.v1.UserRole", [
+  { no: 0, name: "USER_ROLE_UNSPECIFIED" },
+  { no: 1, name: "USER_ROLE_ADMIN" },
+  { no: 2, name: "USER_ROLE_NOBODY" },
+]);
+
+/**
  * @generated from message user.v1.GetUsersRequest
  */
 export class GetUsersRequest extends Message<GetUsersRequest> {
@@ -233,6 +259,11 @@ export class User extends Message<User> {
    */
   userUuid = "";
 
+  /**
+   * @generated from field: user.v1.UserRole role = 6;
+   */
+  role = UserRole.UNSPECIFIED;
+
   constructor(data?: PartialMessage<User>) {
     super();
     proto3.util.initPartial(data, this);
@@ -246,6 +277,7 @@ export class User extends Message<User> {
     { no: 3, name: "name", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 4, name: "photo_url", kind: "scalar", T: 9 /* ScalarType.STRING */ },
     { no: 5, name: "user_uuid", kind: "scalar", T: 9 /* ScalarType.STRING */ },
+    { no: 6, name: "role", kind: "enum", T: proto3.getEnumType(UserRole) },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): User {

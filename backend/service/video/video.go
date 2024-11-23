@@ -8,6 +8,7 @@ import (
 	"github.com/reyn-time/rc-categories/backend/db"
 	userpb "github.com/reyn-time/rc-categories/backend/gen/proto/user/v1"
 	videopb "github.com/reyn-time/rc-categories/backend/gen/proto/video/v1"
+	"github.com/reyn-time/rc-categories/backend/service/user"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
@@ -45,6 +46,7 @@ func (s *VideoService) ListVideo(ctx context.Context, req *connect.Request[video
 				Email:    v.Email.String,
 				PhotoUrl: v.PhotoUrl.String,
 				Name:     v.UserName.String,
+				Role:     user.DbRoleToPbRole[v.Role.ReorderUserRole],
 			}
 		}
 	}

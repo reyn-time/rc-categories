@@ -19,6 +19,11 @@ type UserService struct {
 	Queries *db.Queries
 }
 
+var DbRoleToPbRole = map[db.ReorderUserRole]userpb.UserRole{
+	db.ReorderUserRoleAdmin:  userpb.UserRole_USER_ROLE_ADMIN,
+	db.ReorderUserRoleNobody: userpb.UserRole_USER_ROLE_NOBODY,
+}
+
 func (s *UserService) GetUsers(ctx context.Context, req *connect.Request[userpb.GetUsersRequest]) (*connect.Response[userpb.GetUsersResponse], error) {
 	users, err := s.Queries.ListUsers(ctx)
 	if err != nil {
@@ -31,6 +36,7 @@ func (s *UserService) GetUsers(ctx context.Context, req *connect.Request[userpb.
 			Email:    user.Email,
 			Name:     user.Name,
 			PhotoUrl: user.PhotoUrl,
+			Role:     DbRoleToPbRole[user.Role],
 		}
 	}
 	res := connect.NewResponse(&userpb.GetUsersResponse{Users: usersPb})
@@ -59,6 +65,7 @@ func (s *UserService) GetCurrentUser(ctx context.Context, req *connect.Request[u
 			Name:     user.Name,
 			PhotoUrl: user.PhotoUrl,
 			UserUuid: uuid_ss,
+			Role:     DbRoleToPbRole[user.Role],
 		},
 	})
 	return res, nil

@@ -104,6 +104,9 @@ func (o *OauthService) NewAuthInterceptors() []connect.Interceptor {
 			if err != nil {
 				return next(ctx, req)
 			}
+			if user.Role == db.ReorderUserRoleNobody {
+				return nil, connect.NewError(connect.CodeUnauthenticated, errors.New("unauthenticated user"))
+			}
 			newCtx := context.WithValue(ctx, UserCtxKey{}, user)
 			return next(newCtx, req)
 		})

@@ -38,4 +38,11 @@ message User {
   string name = 3;
   string photo_url = 4;
   string user_uuid = 5;
+  UserRole role = 6;
+}
+
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_ADMIN = 1;
+  USER_ROLE_NOBODY = 2;
 }

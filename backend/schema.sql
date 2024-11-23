@@ -6,6 +6,7 @@ CREATE TYPE reorder.video_status AS ENUM (
     'in_progress',
     'in_review'
 );
+CREATE TYPE reorder.user_role AS ENUM ('admin', 'nobody');
 CREATE TABLE reorder.categories (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE reorder.users (
     name TEXT NOT NULL,
     photo_url TEXT NOT NULL,
     user_uuid uuid NOT NULL DEFAULT gen_random_uuid(),
+    role reorder.user_role NOT NULL DEFAULT 'admin',
     UNIQUE (email)
 );
 CREATE TABLE reorder.videos (

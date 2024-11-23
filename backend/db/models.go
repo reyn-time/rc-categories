@@ -96,6 +96,48 @@ func (ns NullReorderPatientStatus) Value() (driver.Value, error) {
 	return string(ns.ReorderPatientStatus), nil
 }
 
+type ReorderUserRole string
+
+const (
+	ReorderUserRoleAdmin  ReorderUserRole = "admin"
+	ReorderUserRoleNobody ReorderUserRole = "nobody"
+)
+
+func (e *ReorderUserRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ReorderUserRole(s)
+	case string:
+		*e = ReorderUserRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ReorderUserRole: %T", src)
+	}
+	return nil
+}
+
+type NullReorderUserRole struct {
+	ReorderUserRole ReorderUserRole
+	Valid           bool // Valid is true if ReorderUserRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullReorderUserRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.ReorderUserRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ReorderUserRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullReorderUserRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ReorderUserRole), nil
+}
+
 type ReorderVideoStatus string
 
 const (
@@ -175,6 +217,7 @@ type ReorderUser struct {
 	Name     string
 	PhotoUrl string
 	UserUuid pgtype.UUID
+	Role     ReorderUserRole
 }
 
 type ReorderVideo struct {

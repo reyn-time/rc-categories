@@ -111,7 +111,7 @@ func (q *Queries) DeletePatientAppointmentSignUp(ctx context.Context, arg Delete
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, email, name, photo_url, user_uuid
+SELECT id, email, name, photo_url, user_uuid, role
 FROM reorder.users
 WHERE email = $1
 `
@@ -125,6 +125,7 @@ func (q *Queries) GetUser(ctx context.Context, email string) (ReorderUser, error
 		&i.Name,
 		&i.PhotoUrl,
 		&i.UserUuid,
+		&i.Role,
 	)
 	return i, err
 }
@@ -349,7 +350,7 @@ func (q *Queries) ListSignedUpPatientAppointmentForUser(ctx context.Context, use
 }
 
 const listSignedUpUsersForAppointment = `-- name: ListSignedUpUsersForAppointment :many
-SELECT u.id, u.email, u.name, u.photo_url, u.user_uuid
+SELECT u.id, u.email, u.name, u.photo_url, u.user_uuid, u.role
 FROM reorder.patient_appointment_sign_ups s
     join reorder.users u on s.user_id = u.id
 where appointment_id = $1
@@ -370,6 +371,7 @@ func (q *Queries) ListSignedUpUsersForAppointment(ctx context.Context, appointme
 			&i.Name,
 			&i.PhotoUrl,
 			&i.UserUuid,
+			&i.Role,
 		); err != nil {
 			return nil, err
 		}
@@ -382,7 +384,7 @@ func (q *Queries) ListSignedUpUsersForAppointment(ctx context.Context, appointme
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, email, name, photo_url, user_uuid
+SELECT id, email, name, photo_url, user_uuid, role
 FROM reorder.users
 `
 
@@ -401,6 +403,7 @@ func (q *Queries) ListUsers(ctx context.Context) ([]ReorderUser, error) {
 			&i.Name,
 			&i.PhotoUrl,
 			&i.UserUuid,
+			&i.Role,
 		); err != nil {
 			return nil, err
 		}
@@ -417,7 +420,8 @@ SELECT v.id, v.name, v.youtube_id, v.created_at, v.status, v.editor,
     u.id as user_id,
     u.email,
     u.name as user_name,
-    u.photo_url
+    u.photo_url,
+    u.role
 FROM reorder.videos v
     LEFT JOIN reorder.users u ON v.editor = u.id
 ORDER BY created_at DESC
@@ -434,6 +438,7 @@ type ListVideosRow struct {
 	Email     pgtype.Text
 	UserName  pgtype.Text
 	PhotoUrl  pgtype.Text
+	Role      NullReorderUserRole
 }
 
 func (q *Queries) ListVideos(ctx context.Context) ([]ListVideosRow, error) {
@@ -456,6 +461,7 @@ func (q *Queries) ListVideos(ctx context.Context) ([]ListVideosRow, error) {
 			&i.Email,
 			&i.UserName,
 			&i.PhotoUrl,
+			&i.Role,
 		); err != nil {
 			return nil, err
 		}
@@ -569,7 +575,7 @@ UPDATE reorder.users
 SET name = $1,
     photo_url = $2
 WHERE email = $3
-RETURNING id, email, name, photo_url, user_uuid
+RETURNING id, email, name, photo_url, user_uuid, role
 `
 
 type UpdateUserParams struct {
@@ -587,6 +593,7 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (Reorder
 		&i.Name,
 		&i.PhotoUrl,
 		&i.UserUuid,
+		&i.Role,
 	)
 	return i, err
 }
