@@ -92,4 +92,5 @@ message PatientAppointment {
     int32 meeting_number = 4;
     int32 patient_id = 2;
     bool is_user_signed_up = 5;
+    repeated int32 signed_up_user_ids = 6;
 }

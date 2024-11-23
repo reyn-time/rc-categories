@@ -26,12 +26,19 @@ func (s *PatientAppointmentService) ListCurrentPatientAppointment(ctx context.Co
 	protoAppointments := make([]*paproto.PatientAppointment, len(dbAppointments))
 
 	for i, dbAppointment := range dbAppointments {
+		signedUpUserIds := dbAppointment.SignedUpUserIds.([]interface{})
+		protoSignedUpUserIds := make([]int32, len(signedUpUserIds))
+		for j, signedUpUserId := range signedUpUserIds {
+			protoSignedUpUserIds[j] = signedUpUserId.(int32)
+		}
+
 		protoAppointments[i] = &paproto.PatientAppointment{
-			Id:             dbAppointment.ID,
-			StartTime:      timestamppb.New(dbAppointment.StartTime.Time),
-			PatientId:      dbAppointment.PatientID,
-			MeetingNumber:  int32(dbAppointment.MeetingNumber),
-			IsUserSignedUp: dbAppointment.Joined.(bool),
+			Id:              dbAppointment.ID,
+			StartTime:       timestamppb.New(dbAppointment.StartTime.Time),
+			PatientId:       dbAppointment.PatientID,
+			MeetingNumber:   int32(dbAppointment.MeetingNumber),
+			IsUserSignedUp:  dbAppointment.Joined.(bool),
+			SignedUpUserIds: protoSignedUpUserIds,
 		}
 	}
 

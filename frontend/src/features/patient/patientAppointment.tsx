@@ -95,6 +95,7 @@ export const PatientAppointmentList = () => {
         meetingNumber: 0,
         patientId: patientId,
         isUserSignedUp: false,
+        signedUpUserIds: [],
       });
     }
   });

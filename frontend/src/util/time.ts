@@ -27,7 +27,7 @@ export const dateToString = (
   const { seconds } = createdAt;
   const milliseconds = BigInt(seconds) * BigInt(1000);
   const date = dayjs(milliseconds);
-  return date.format("YYYY年MM月DD日");
+  return date.format("DD/MM/YYYY");
 };
 
 const dayOfMonth = "日一二三四五六";
@@ -40,11 +40,11 @@ export const dateTimeToString = (
   const { seconds } = createdAt;
   const milliseconds = BigInt(seconds) * BigInt(1000);
   const date = dayjs(milliseconds);
-  return date.format(`YY年MM月DD日 (${dayOfMonth[date.day()]}) h:mm a`);
+  return date.format(`DD/MM/YYYY (${dayOfMonth[date.day()]}) HH:mm`);
 };
 
 export const dayjsToString = (d: Dayjs): string => {
-  return d.format(`YY年MM月DD日 (${dayOfMonth[d.day()]}) h:mm a`);
+  return d.format(`DD/MM/YYYY (${dayOfMonth[d.day()]}) ha`);
 };
 
 export const timeFromNow = (

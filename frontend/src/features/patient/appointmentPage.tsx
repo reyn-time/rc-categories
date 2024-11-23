@@ -10,7 +10,6 @@ import {
   ListItem,
   IconButton,
   Icon,
-  ListItemButton,
   ListItemAvatar,
   Avatar,
   ListItemText,
@@ -26,7 +25,7 @@ import {
 } from "@mui/material";
 import { Patient, PatientStatus } from "../../gen/proto/patient/v1/patient_pb";
 import { User } from "../../gen/proto/user/v1/user_pb";
-import { dateTimeToString, timeFromNow } from "../../util/time";
+import { dateTimeToString } from "../../util/time";
 import { patientAvatarProps } from "../user/avatar";
 import { patientToName } from "./util";
 import {
@@ -36,6 +35,7 @@ import {
 } from "./patientAppointmentSlice";
 import { useChangePatientStatusMutation } from "./patientSlice";
 import { Modal } from "./patientModal";
+import { useGetUsersQuery } from "../user/userSlice";
 
 export const AppointmentPage = ({
   appointments,
@@ -49,6 +49,11 @@ export const AppointmentPage = ({
   user: PlainMessage<User>;
 }) => {
   const [pageNumber, setPageNumber] = useState(1);
+  const { data: users } = useGetUsersQuery();
+  const userMap = users?.reduce((acc, user) => {
+    acc[user.id] = user;
+    return acc;
+  }, {} as Record<number, PlainMessage<User>>);
 
   const pageSize = 15;
   const pageCount = Math.ceil(appointments.length / pageSize);
@@ -70,6 +75,7 @@ export const AppointmentPage = ({
         patientIdToPatient={patientIdToPatient}
         setIsOpenModalType={setIsOpenModalType}
         user={user}
+        userMap={userMap}
       />
     </>
   );
@@ -80,8 +86,15 @@ const AppointmentList = (props: {
   patientIdToPatient: Record<number, PlainMessage<Patient>>;
   setIsOpenModalType: (arg: Modal) => void;
   user: PlainMessage<User>;
+  userMap: Record<number, PlainMessage<User>>;
 }) => {
-  const { appointments, patientIdToPatient, setIsOpenModalType, user } = props;
+  const {
+    appointments,
+    patientIdToPatient,
+    setIsOpenModalType,
+    user,
+    userMap,
+  } = props;
 
   return (
     <List>
@@ -95,6 +108,7 @@ const AppointmentList = (props: {
               user={user}
               patient={patient}
               setIsOpenModalType={setIsOpenModalType}
+              userMap={userMap}
             ></AppointmentListItem>
           </Box>
         );
@@ -108,11 +122,13 @@ const AppointmentListItem = ({
   user,
   patient,
   setIsOpenModalType,
+  userMap,
 }: {
   appointment: NoBigIntMessage<PlainMessage<PatientAppointment>>;
   user: PlainMessage<User>;
   patient: PlainMessage<Patient>;
   setIsOpenModalType: (arg: Modal) => void;
+  userMap: Record<number, PlainMessage<User>>;
 }) => {
   const [changePatientStatus] = useChangePatientStatusMutation();
   const [joinAppointment] = useJoinAppointmentMutation();
@@ -134,72 +150,67 @@ const AppointmentListItem = ({
 
   return (
     <ListItem
-      disablePadding
       secondaryAction={
         <IconButton onClick={handleClick}>
           <Icon baseClassName="material-symbols-outlined">more_vert</Icon>
         </IconButton>
       }
     >
-      <ListItemButton
-        onClick={() => {
-          setIsOpenModalType({
-            type: "AppointmentDetails",
-            payload: {
-              patient,
-              appointment,
-            },
-          });
-        }}
-        disabled={isEmpty}
-      >
-        <ListItemAvatar>
-          <StyledBadge
-            color="warning"
-            badgeContent={
-              patient.status === PatientStatus.Active ? undefined : "死"
-            }
-          >
-            <Avatar {...patientAvatarProps(patient)} />
-          </StyledBadge>
-        </ListItemAvatar>
-        <ListItemText
-          primary={
-            isEmpty ? (
-              <Typography sx={{ color: "text.secondary" }}>沒有預約</Typography>
-            ) : (
-              <Stack flexDirection="row" gap={1} alignItems="center">
-                <Typography
-                  sx={isCurrent ? {} : { color: "text.secondary" }}
-                >{`${patientToName(patient)} (第 ${
-                  appointment.meetingNumber
-                } 次)`}</Typography>
-                {appointment.isUserSignedUp && (
-                  <Chip
-                    label="已報名"
-                    color="success"
-                    variant="outlined"
-                    size="small"
-                  />
-                )}
-              </Stack>
-            )
+      <ListItemAvatar>
+        <StyledBadge
+          color="warning"
+          badgeContent={
+            patient.status === PatientStatus.Active ? undefined : "死"
           }
-          secondary={
-            isEmpty ? (
+        >
+          <Avatar {...patientAvatarProps(patient)} />
+        </StyledBadge>
+      </ListItemAvatar>
+      <ListItemText
+        disableTypography
+        primary={
+          isEmpty ? (
+            <Typography sx={{ color: "text.secondary" }}>沒有預約</Typography>
+          ) : (
+            <Stack flexDirection="row" gap={1} alignItems="center">
+              <Typography
+                sx={isCurrent ? {} : { color: "text.secondary" }}
+              >{`${patientToName(patient)} #${
+                appointment.meetingNumber
+              }`}</Typography>
+            </Stack>
+          )
+        }
+        secondary={
+          <Stack flexDirection="column" gap={1} flexWrap="wrap">
+            {isEmpty ? (
               "兩個月前見面"
-            ) : isCurrent ? (
-              dateTimeToString(appointment.startTime)
             ) : (
-              <Typography variant="body2" sx={{ color: "warning.main" }}>
-                {`${dateTimeToString(appointment.startTime)} (${timeFromNow(
-                  appointment.startTime
-                )})`}
+              <Typography
+                variant="body2"
+                sx={{ color: isCurrent ? "default" : "warning.main" }}
+              >
+                {dateTimeToString(appointment.startTime)}
               </Typography>
-            )
-          }
-        ></ListItemText>
-      </ListItemButton>
+            )}
+            {appointment.signedUpUserIds.length > 0 && (
+              <Stack flexDirection="row" gap={1} flexWrap="wrap">
+                {appointment.signedUpUserIds.map((id) => {
+                  return (
+                    <Chip
+                      size="small"
+                      key={id}
+                      label={userMap?.[id]?.name ?? "未知"}
+                      color={id === user.id ? "success" : "default"}
+                    />
+                  );
+                })}
+              </Stack>
+            )}
+          </Stack>
+        }
+      ></ListItemText>
+
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}

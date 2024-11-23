@@ -548,6 +548,11 @@ export class PatientAppointment extends Message<PatientAppointment> {
    */
   isUserSignedUp = false;
 
+  /**
+   * @generated from field: repeated int32 signed_up_user_ids = 6;
+   */
+  signedUpUserIds: number[] = [];
+
   constructor(data?: PartialMessage<PatientAppointment>) {
     super();
     proto3.util.initPartial(data, this);
@@ -561,6 +566,7 @@ export class PatientAppointment extends Message<PatientAppointment> {
     { no: 4, name: "meeting_number", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 2, name: "patient_id", kind: "scalar", T: 5 /* ScalarType.INT32 */ },
     { no: 5, name: "is_user_signed_up", kind: "scalar", T: 8 /* ScalarType.BOOL */ },
+    { no: 6, name: "signed_up_user_ids", kind: "scalar", T: 5 /* ScalarType.INT32 */, repeated: true },
   ]);
 
   static fromBinary(bytes: Uint8Array, options?: Partial<BinaryReadOptions>): PatientAppointment {

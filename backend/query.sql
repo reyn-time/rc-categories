@@ -61,24 +61,28 @@ SET name = $1,
     photo_url = $2
 WHERE email = $3
 RETURNING *;
--- name: ListCurrentAppointments :many
-select s.*,
-    p.id is not null as joined
-from (
-        select *,
-            rank() over (
-                partition by patient_id
-                order by start_time asc
-            ) meeting_number
-        from reorder.patient_appointments
-    ) s
-    left outer join (
-        select *
-        from reorder.patient_appointment_sign_ups u
-        where u.user_id = $1
-    ) p on s.id = p.appointment_id
-where s.start_time AT TIME ZONE 'UTC' > now() - interval '8 week'
-ORDER BY start_time ASC;
+-- name: ListCurrentAppointments :many 
+with su as (
+    select s.appointment_id,
+        array_agg(s.user_id) as signed_up_user_ids
+    from reorder.patient_appointment_sign_ups s
+    group by s.appointment_id
+),
+pa as (
+    select *,
+        rank() over (
+            partition by patient_id
+            order by start_time asc
+        ) meeting_number
+    from reorder.patient_appointments
+)
+select pa.*,
+    COALESCE(su.signed_up_user_ids, '{}') as signed_up_user_ids,
+    COALESCE($1::integer = ANY(su.signed_up_user_ids), false) as joined
+from pa
+    left join su on su.appointment_id = pa.id
+where pa.start_time AT TIME ZONE 'UTC' > now() - interval '1 year'
+order by start_time asc;
 -- name: ListPatients :many
 SELECT *
 FROM reorder.patients

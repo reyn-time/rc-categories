@@ -161,35 +161,40 @@ func (q *Queries) ListCategories(ctx context.Context) ([]ReorderCategory, error)
 }
 
 const listCurrentAppointments = `-- name: ListCurrentAppointments :many
-select s.id, s.start_time, s.patient_id, s.meeting_number,
-    p.id is not null as joined
-from (
-        select id, start_time, patient_id,
-            rank() over (
-                partition by patient_id
-                order by start_time asc
-            ) meeting_number
-        from reorder.patient_appointments
-    ) s
-    left outer join (
-        select id, appointment_id, user_id, comment
-        from reorder.patient_appointment_sign_ups u
-        where u.user_id = $1
-    ) p on s.id = p.appointment_id
-where s.start_time AT TIME ZONE 'UTC' > now() - interval '8 week'
-ORDER BY start_time ASC
+with su as (
+    select s.appointment_id,
+        array_agg(s.user_id) as signed_up_user_ids
+    from reorder.patient_appointment_sign_ups s
+    group by s.appointment_id
+),
+pa as (
+    select id, start_time, patient_id,
+        rank() over (
+            partition by patient_id
+            order by start_time asc
+        ) meeting_number
+    from reorder.patient_appointments
+)
+select pa.id, pa.start_time, pa.patient_id, pa.meeting_number,
+    COALESCE(su.signed_up_user_ids, '{}') as signed_up_user_ids,
+    COALESCE($1::integer = ANY(su.signed_up_user_ids), false) as joined
+from pa
+    left join su on su.appointment_id = pa.id
+where pa.start_time AT TIME ZONE 'UTC' > now() - interval '1 year'
+order by start_time asc
 `
 
 type ListCurrentAppointmentsRow struct {
-	ID            int32
-	StartTime     pgtype.Timestamp
-	PatientID     int32
-	MeetingNumber int64
-	Joined        interface{}
+	ID              int32
+	StartTime       pgtype.Timestamp
+	PatientID       int32
+	MeetingNumber   int64
+	SignedUpUserIds interface{}
+	Joined          interface{}
 }
 
-func (q *Queries) ListCurrentAppointments(ctx context.Context, userID int32) ([]ListCurrentAppointmentsRow, error) {
-	rows, err := q.db.Query(ctx, listCurrentAppointments, userID)
+func (q *Queries) ListCurrentAppointments(ctx context.Context, dollar_1 int32) ([]ListCurrentAppointmentsRow, error) {
+	rows, err := q.db.Query(ctx, listCurrentAppointments, dollar_1)
 	if err != nil {
 		return nil, err
 	}
@@ -202,6 +207,7 @@ func (q *Queries) ListCurrentAppointments(ctx context.Context, userID int32) ([]
 			&i.StartTime,
 			&i.PatientID,
 			&i.MeetingNumber,
+			&i.SignedUpUserIds,
 			&i.Joined,
 		); err != nil {
 			return nil, err
