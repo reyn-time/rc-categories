@@ -41,6 +41,25 @@ import { NoBigIntMessage } from "../../util/types";
 import { userAvatarProps } from "../user/avatar";
 import { useGetUserQuery } from "../user/userSlice";
 
+export type Modal =
+  | { type: "CreatePatient" }
+  | { type: "CreateAppointment" }
+  | {
+      type: "EditAppointment";
+      payload: NoBigIntMessage<PlainMessage<PatientAppointment>>;
+    }
+  | {
+      type: "AppointmentDetails";
+      payload: {
+        patient: PlainMessage<Patient>;
+        appointment: NoBigIntMessage<PlainMessage<PatientAppointment>>;
+      };
+    }
+  | {
+      type: "SyncCalendar";
+    }
+  | null;
+
 interface ValidationError {
   message: string;
   value: number;
