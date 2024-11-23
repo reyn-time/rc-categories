@@ -50,10 +50,11 @@ export const AppointmentPage = ({
 }) => {
   const [pageNumber, setPageNumber] = useState(1);
   const { data: users } = useGetUsersQuery();
-  const userMap = users?.reduce((acc, user) => {
-    acc[user.id] = user;
-    return acc;
-  }, {} as Record<number, PlainMessage<User>>);
+  const userMap =
+    users?.reduce((acc, user) => {
+      acc[user.id] = user;
+      return acc;
+    }, {} as Record<number, PlainMessage<User>>) ?? {};
 
   const pageSize = 15;
   const pageCount = Math.ceil(appointments.length / pageSize);
